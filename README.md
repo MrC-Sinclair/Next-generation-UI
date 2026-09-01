@@ -1,0 +1,77 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 40c8af801da8629c99b9e5611c578fea_aeac2cf6a61911f199d2525400287e28
+    ReservedCode1: PPzaHgQnu1gweXZ3pv2puRAzenNTKBaUhdYUqbr+ZH1EV2E/AH7KRBiBakXEP7iR8jyf3tTTgW85PLwO37PZisQg5wq4Wt8apck8RB2d2JXtW9PHCqQO/GQxaCFFJrf3La+JrpA7NU48X0cjXmN7ZUiHwEfzY5m8jtltUbOeX536yobou7PbUwkyvx0=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 40c8af801da8629c99b9e5611c578fea_aeac2cf6a61911f199d2525400287e28
+    ReservedCode2: PPzaHgQnu1gweXZ3pv2puRAzenNTKBaUhdYUqbr+ZH1EV2E/AH7KRBiBakXEP7iR8jyf3tTTgW85PLwO37PZisQg5wq4Wt8apck8RB2d2JXtW9PHCqQO/GQxaCFFJrf3La+JrpA7NU48X0cjXmN7ZUiHwEfzY5m8jtltUbOeX536yobou7PbUwkyvx0=
+---
+
+# Next-generation-UI
+
+下一代 UI 个人网站项目集：基于同一套产品需求，使用 6 种跨端技术栈分别实现个人网站，用于对比与展示各框架的 UI 表现力。
+
+---
+
+## 1. Taro 个人网站
+
+- **技术栈**：Taro
+- **项目类型**：个人网站
+- **UI 风格**：拟物毛玻璃
+- **支持平台**：PC 不同尺寸、安卓端、鸿蒙端、iOS 端、小程序端
+- **功能模块**：首页概览、关于我、联系方式、作品集、技能栈、博客
+
+> 基于以上需求，开发一个个人网站，这种项目。首页概览 + 关于我
+
+## 2. uni-app x 个人网站
+
+- **技术栈**：uni-app x
+- **项目类型**：个人网站
+- **UI 风格**：动态排版：文字不再静止，能通过扭曲、弹跳或融化来传达情绪
+- **支持平台**：PC 不同尺寸、安卓端、鸿蒙端、iOS 端、小程序端
+- **功能模块**：首页概览、关于我、联系方式、作品集、技能栈、博客
+
+> 基于以上需求，开发一个个人网站，这种项目。首页概览 + 关于我
+
+## 3. React Native 个人网站
+
+- **技术栈**：React Native
+- **项目类型**：个人网站
+- **UI 风格**：超色彩主义：打破常规，采用高饱和撞色、荧光点缀等大胆配色
+- **支持平台**：PC 不同尺寸、安卓端、鸿蒙端、iOS 端、小程序端
+- **功能模块**：首页概览、关于我、联系方式、作品集、技能栈、博客
+
+> 基于以上需求，开发一个个人网站，这种项目。首页概览 + 关于我
+
+## 4. Kuikly 个人网站
+
+- **技术栈**：Kuikly（需 JDK 17）
+- **项目类型**：个人网站
+- **UI 风格**：触感反馈可视化：将物理按压感延伸到视觉，如用阴影变化表现按钮的"按压感"
+- **支持平台**：PC 不同尺寸、安卓端、鸿蒙端、iOS 端、小程序端
+- **功能模块**：首页概览、关于我、联系方式、作品集、技能栈、博客
+
+> 基于以上需求，开发一个个人网站，这种项目。首页概览 + 关于我
+
+## 5. Flutter 个人网站
+
+- **技术栈**：Flutter
+- **项目类型**：个人网站
+- **UI 风格**：3D 与充实质感：图标更具 3D 立体感和"果冻感"
+- **支持平台**：PC 不同尺寸、安卓端、鸿蒙端、iOS 端、小程序端
+- **功能模块**：首页概览、关于我、联系方式、作品集、技能栈、博客
+
+> 基于以上需求，开发一个个人网站，这种项目。首页概览 + 关于我
+
+## 6. ArkUI-X 个人网站
+
+- **技术栈**：ArkUI-X
+- **项目类型**：个人网站
+- **UI 风格**：手绘与数字融合：用粗糙边缘、手写字体营造"有人的痕迹"的温度感
+- **支持平台**：PC 不同尺寸、安卓端、鸿蒙端、iOS 端、小程序端
+- **功能模块**：首页概览、关于我、联系方式、作品集、技能栈、博客
+
+> 基于以上需求，开发一个个人网站，这种项目。首页概览 + 关于我
+*（内容由AI生成，仅供参考）*
