@@ -1,0 +1,174 @@
+// units 由构建配置 additionalData 注入
+@use '../styles/tokens' as *;
+@use '../styles/mixins' as *;
+@use '../styles/animations' as *;
+
+.about {
+  position: relative;
+  padding-top: px(110);
+  padding-bottom: px(110);
+
+  @include lg {
+    padding-top: px(150);
+    padding-bottom: px(150);
+  }
+}
+
+.about__grid {
+  display: flex;
+  flex-direction: column;
+  gap: px(40);
+
+  @include lg {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: px(48);
+  }
+}
+
+.about__card {
+  flex: 1;
+  min-width: 0;
+
+  @include lg {
+    flex: 0 0 38%;
+  }
+}
+
+.about__lead {
+  display: block;
+  font-size: fs(34, 0.95, 1.28);
+  font-weight: 600;
+  line-height: 1.6;
+  color: $c-text;
+}
+
+.about__text {
+  display: block;
+  margin-top: px(24);
+  font-size: fs(27);
+  line-height: 1.9;
+  color: $c-text-2;
+}
+
+.about__meta {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: px(40);
+  padding-top: px(32);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: px(48);
+}
+
+.about__meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.about__meta-key {
+  font-size: fs(21);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: $c-text-3;
+}
+
+.about__meta-val {
+  margin-top: px(8);
+  font-size: fs(28);
+  font-weight: 600;
+  color: $c-text;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  时间线
+// ─────────────────────────────────────────────────────────────
+.about__timeline {
+  flex: 1;
+  min-width: 0;
+}
+
+.tl__item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  padding-bottom: px(44);
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+// 竖轴 + 节点
+.tl__axis {
+  position: relative;
+  flex-shrink: 0;
+  width: px(28);
+  margin-right: px(30);
+}
+
+.tl__axis::before {
+  content: '';
+  position: absolute;
+  top: px(30);
+  bottom: px(-44);
+  left: px(13);
+  width: raw(1);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.5), rgba(34, 211, 238, 0.12));
+}
+
+.tl__item:last-child .tl__axis::before {
+  display: none;
+}
+
+.tl__dot {
+  position: absolute;
+  top: px(10);
+  left: px(4);
+  width: px(20);
+  height: px(20);
+  border-radius: 50%;
+  background: $g-aurora;
+  box-shadow:
+    0 0 0 px(6) rgba(139, 92, 246, 0.14),
+    0 0 px(20) rgba(139, 92, 246, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.tl__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.tl__year {
+  display: block;
+  font-size: fs(22);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--acc, #{$c-cyan});
+}
+
+.tl__role {
+  display: block;
+  margin-top: px(8);
+  font-size: fs(32, 0.95, 1.25);
+  font-weight: 700;
+  line-height: 1.45;
+  color: $c-text;
+}
+
+.tl__org {
+  display: block;
+  margin-top: px(4);
+  font-size: fs(25);
+  line-height: 1.6;
+  color: $c-text-2;
+}
+
+.tl__desc {
+  display: block;
+  margin-top: px(14);
+  font-size: fs(25);
+  line-height: 1.8;
+  color: $c-text-3;
+}

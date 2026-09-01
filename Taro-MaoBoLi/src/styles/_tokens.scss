@@ -1,0 +1,52 @@
+// ─────────────────────────────────────────────────────────────
+//  极光青紫 · 设计令牌
+// ─────────────────────────────────────────────────────────────
+
+// 深空底色
+$c-void:   #04050d;
+$c-deep:   #070a1c;
+$c-deep-2: #0b1030;
+
+// 玻璃表面 / 描边
+$c-line:      rgba(255, 255, 255, 0.13);
+$c-line-soft: rgba(255, 255, 255, 0.07);
+$c-hi:        rgba(255, 255, 255, 0.42); // 顶部内高光（拟物）
+$c-hi-2:      rgba(255, 255, 255, 0.06); // 底部内反光
+
+// 文字
+$c-text:   #eef2ff;
+$c-text-2: rgba(238, 242, 255, 0.70);
+$c-text-3: rgba(238, 242, 255, 0.42);
+
+// 极光主色
+$c-cyan:    #22d3ee;
+$c-blue:    #4f8cff;
+$c-violet:  #8b5cf6;
+$c-magenta: #f472b6;
+
+// 渐变
+$g-aurora: linear-gradient(115deg, #22d3ee 0%, #4f8cff 30%, #8b5cf6 64%, #f472b6 100%);
+$g-cv:     linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
+$g-vm:     linear-gradient(135deg, #8b5cf6 0%, #f472b6 100%);
+$g-cb:     linear-gradient(135deg, #22d3ee 0%, #4f8cff 100%);
+
+// 玻璃材质
+$g-glass: linear-gradient(145deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.05) 46%,
+    rgba(255, 255, 255, 0.022) 100%);
+
+$g-glass-app: linear-gradient(145deg,
+    rgba(255, 255, 255, 0.17) 0%,
+    rgba(255, 255, 255, 0.075) 46%,
+    rgba(255, 255, 255, 0.035) 100%);
+
+// 圆角（设计稿 px）
+$r-sm: 14;
+$r-md: 22;
+$r-lg: 30;
+$r-xl: 42;
+
+// 缓动
+$ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+$ease-io:  cubic-bezier(0.65, 0, 0.35, 1);

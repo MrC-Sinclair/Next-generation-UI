@@ -1,0 +1,55 @@
+// units 由构建配置 additionalData 注入
+@use '../styles/tokens' as *;
+@use '../styles/mixins' as *;
+@use '../styles/animations' as *;
+
+.sechead {
+  display: block;
+  margin-bottom: px(52);
+}
+
+.sechead__eyebrow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: px(20);
+}
+
+.sechead__bar {
+  width: px(44);
+  height: raw(2);
+  margin-right: px(16);
+  border-radius: raw(2);
+  background: $g-aurora;
+  opacity: 0.9;
+}
+
+.sechead__eyebrow-text {
+  font-size: fs(24);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--acc, #{$c-cyan});
+  opacity: 0.85;
+}
+
+.sechead__title {
+  display: block;
+  font-size: fs(56, 0.95, 1.4);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  color: $c-text;
+
+  @include lg {
+    font-size: fs(64, 1, 1.32);
+  }
+}
+
+.sechead__desc {
+  display: block;
+  margin-top: px(18);
+  max-width: px(560);
+  font-size: fs(27);
+  line-height: 1.75;
+  color: $c-text-2;
+}

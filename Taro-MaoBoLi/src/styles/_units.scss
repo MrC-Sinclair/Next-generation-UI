@@ -1,0 +1,44 @@
+// ─────────────────────────────────────────────────────────────────
+//  跨端单位系统
+//  $H5 由 config/index.ts → sassLoaderOption.additionalData 注入
+//    · H5  → true   （禁用 pxtransform，改用 clamp() 流体值）
+//    · 小程序 / 鸿蒙 / RN → false（设计稿 px，由 pxtransform 转 rpx）
+// ─────────────────────────────────────────────────────────────────
+$H5: false !default;
+$DESIGN: 750; // 与 config.designWidth 保持一致
+
+/// 尺寸单位：间距 / 宽高 / 圆角
+/// 375px 手机 ≈ 设计稿一半；PC 宽屏最多放大到 1.62 倍后锁死，避免等比爆炸
+@function px($v, $min: 0.88, $max: 1.62) {
+  @if $H5 {
+    @return clamp(#{$v * 0.5 * $min}px, calc(#{$v} / #{$DESIGN} * 100vw), #{$v * 0.5 * $max}px);
+  }
+  @return $v * 1px;
+}
+
+/// 字号单位：上下限更保守，PC 上标题不会失控
+@function fs($v, $min: 0.94, $max: 1.46) {
+  @if $H5 {
+    @return clamp(#{$v * 0.5 * $min}px, calc(#{$v} / #{$DESIGN} * 100vw), #{$v * 0.5 * $max}px);
+  }
+  @return $v * 1px;
+}
+
+/// 固定像素（1px 描边等，不参与流体缩放）
+@function raw($v) {
+  @return $v * 1px;
+}
+
+// ── 断点 ──
+$BP-MD: 768px;
+$BP-LG: 1024px;
+$BP-XL: 1440px;
+
+@mixin md { @media (min-width: $BP-MD) { @content; } }
+@mixin lg { @media (min-width: $BP-LG) { @content; } }
+@mixin xl { @media (min-width: $BP-XL) { @content; } }
+
+/// 仅 H5 生效（编译期剔除，小程序/鸿蒙产物里不会出现）
+@mixin web { @if $H5 { @content; } }
+/// 仅小程序 / 鸿蒙生效
+@mixin app { @if not $H5 { @content; } }

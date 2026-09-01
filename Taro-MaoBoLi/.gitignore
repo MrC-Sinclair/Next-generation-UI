@@ -1,0 +1,53 @@
+# ===================== 依赖 =====================
+node_modules/
+.pnpm-store/
+.pstore/
+node_modules_broken_bak/
+node_modules_isolated_bak/
+
+# ===================== Taro 构建产物 =====================
+dist/
+.temp/
+.rn_temp/
+.swc/
+.sasscheck/
+coverage/
+
+# ===================== HarmonyOS 构建产物 =====================
+.harmony/
+harmony/oh_modules/
+harmony/.preview/
+harmony/entry/build/
+harmony/.hvigor/
+
+# ===================== Capacitor 原生产物 =====================
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+ios/Pods/
+ios/build/
+ios/**/xcuserdata/**
+
+# ===================== TypeScript / 静态检查缓存 =====================
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# ===================== IDE =====================
+.idea/
+.vscode/
+*.iml
+
+# ===================== 环境变量 =====================
+.env
+.env.*
+!.env.example
+
+# ===================== 日志 / 系统文件 =====================
+*.log
+.workbuddy/
+.DS_Store
+Thumbs.db
+Desktop.ini
+

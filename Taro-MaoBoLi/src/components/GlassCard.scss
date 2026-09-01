@@ -1,0 +1,45 @@
+// units 由构建配置 additionalData 注入
+@use '../styles/tokens' as *;
+@use '../styles/mixins' as *;
+@use '../styles/animations' as *;
+
+.gcard {
+  @include glass(30, 22px);
+  display: block;
+  width: 100%;
+}
+
+.gcard--md { border-radius: px(22); }
+.gcard--lg { border-radius: px(30); }
+.gcard--xl { border-radius: px(42); }
+
+.gcard--hover {
+  @include hover-lift;
+}
+
+// 顶部液态高光（拟物反光）
+.gcard__sheen {
+  position: absolute;
+  top: 0;
+  left: px(24);
+  right: px(24);
+  height: raw(1);
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 22%,
+    rgba(255, 255, 255, 0.16) 56%,
+    transparent 100%
+  );
+}
+
+.gcard__body {
+  position: relative;
+  z-index: 1;
+  padding: px(40);
+
+  @include lg {
+    padding: px(44);
+  }
+}

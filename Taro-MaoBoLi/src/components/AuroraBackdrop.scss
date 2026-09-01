@@ -1,0 +1,110 @@
+// units 由构建配置 additionalData 注入
+@use '../styles/tokens' as *;
+@use '../styles/animations' as *;
+
+// ─────────────────────────────────────────────────────────────
+//  极光流动背景
+//  4 团彩色光斑缓慢漂移 + 液态形变，叠加网格与暗角
+// ─────────────────────────────────────────────────────────────
+.aurora {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 100% at 50% -12%, #101838 0%, #080c22 40%, #04050d 100%);
+}
+
+// 极细网格，增加科技纵深
+.aurora__grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: px(88) px(88);
+}
+
+.aurora__blob {
+  position: absolute;
+  will-change: transform;
+  animation-name: aurora-drift;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-iteration-count: infinite;
+
+  @if $H5 {
+    filter: blur(66px);
+    opacity: 0.62;
+    // 液态形变只在高斯模糊存在时才有意义，故仅 H5 启用
+    animation-name: aurora-drift, blob-morph;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1), ease-in-out;
+  } @else {
+    opacity: 0.4;
+  }
+}
+
+.aurora__blob--cyan {
+  top: -14%;
+  left: -10%;
+  width: 62vw;
+  height: 62vw;
+  min-width: 380px;
+  min-height: 380px;
+  background: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.85), rgba(34, 211, 238, 0) 66%);
+  animation-duration: 26s, 21s;
+  animation-delay: -4s, -2s;
+}
+
+.aurora__blob--blue {
+  top: 8%;
+  right: -18%;
+  width: 70vw;
+  height: 70vw;
+  min-width: 420px;
+  min-height: 420px;
+  background: radial-gradient(circle at 50% 50%, rgba(79, 140, 255, 0.8), rgba(79, 140, 255, 0) 66%);
+  animation-duration: 32s, 25s;
+  animation-delay: -12s, -7s;
+}
+
+.aurora__blob--violet {
+  bottom: -22%;
+  left: 6%;
+  width: 78vw;
+  height: 78vw;
+  min-width: 460px;
+  min-height: 460px;
+  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.82), rgba(139, 92, 246, 0) 66%);
+  animation-duration: 29s, 23s;
+  animation-delay: -20s, -11s;
+}
+
+.aurora__blob--magenta {
+  top: 48%;
+  right: -6%;
+  width: 52vw;
+  height: 52vw;
+  min-width: 320px;
+  min-height: 320px;
+  background: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.62), rgba(244, 114, 182, 0) 66%);
+  animation-duration: 35s, 27s;
+  animation-delay: -27s, -16s;
+}
+
+// 暗角：压住四周亮度，保证正文可读
+.aurora__veil {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(115% 85% at 50% 42%, rgba(4, 5, 13, 0) 38%, rgba(4, 5, 13, 0.62) 100%);
+}

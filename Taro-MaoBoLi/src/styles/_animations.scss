@@ -1,0 +1,54 @@
+// ─────────────────────────────────────────────────────────────
+//  动效关键帧
+// ─────────────────────────────────────────────────────────────
+
+/// 极光光斑漂移
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(12%, -9%, 0) scale(1.16); }
+  66%  { transform: translate3d(-10%, 11%, 0) scale(0.9); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/// 液态形变：不规则圆角呼吸 —— 液态感的来源
+@keyframes blob-morph {
+  0%, 100% { border-radius: 62% 38% 34% 66% / 58% 42% 58% 42%; }
+  25%      { border-radius: 42% 58% 62% 38% / 44% 62% 38% 56%; }
+  50%      { border-radius: 55% 45% 40% 60% / 62% 38% 62% 38%; }
+  75%      { border-radius: 38% 62% 55% 45% / 40% 58% 42% 60%; }
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer-x {
+  0%   { transform: translateX(-130%); }
+  100% { transform: translateX(240%); }
+}
+
+@keyframes pulse-ring {
+  0%   { opacity: 0.5; transform: scale(0.9); }
+  70%  { opacity: 0;   transform: scale(1.55); }
+  100% { opacity: 0;   transform: scale(1.55); }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.95; }
+}
+
+/// 入场：错位淡入上浮
+@function rise-delay($i) {
+  @return #{0.06 * $i}s;
+}

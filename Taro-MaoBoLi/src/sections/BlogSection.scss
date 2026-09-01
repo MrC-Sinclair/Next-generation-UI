@@ -1,0 +1,136 @@
+// units 由构建配置 additionalData 注入
+@use '../styles/tokens' as *;
+@use '../styles/mixins' as *;
+@use '../styles/animations' as *;
+@use '../styles/accents' as *;
+
+.blog {
+  position: relative;
+  padding-top: px(110);
+  padding-bottom: px(110);
+
+  @include lg {
+    padding-top: px(150);
+    padding-bottom: px(150);
+  }
+}
+
+.blog__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: px(28);
+
+  @include lg {
+    grid-template-columns: repeat(2, 1fr);
+    gap: px(30);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  文章卡
+// ─────────────────────────────────────────────────────────────
+.bcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: px(40);
+  border-radius: px(30);
+  border: 1px solid $c-line;
+
+  @if $H5 {
+    background: $g-glass;
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+      0 px(22) px(52) rgba(3, 5, 18, 0.46);
+  } @else {
+    background: $g-glass-app;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 px(20) px(48) rgba(3, 5, 18, 0.52);
+  }
+
+  @include hover-lift;
+}
+
+// 左侧强调色竖条
+.bcard__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: raw(3);
+  background: linear-gradient(180deg, var(--acc, #{$c-violet}), var(--acc-2, #{$c-cyan}));
+  opacity: 0.85;
+}
+
+.bcard__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: px(24);
+}
+
+.bcard__cat {
+  padding: px(7) px(18);
+  border-radius: 999px;
+  border: 1px solid var(--acc-line, rgba(139, 92, 246, 0.34));
+  background: var(--acc-soft, rgba(139, 92, 246, 0.16));
+}
+
+.bcard__cat-text {
+  font-size: fs(20);
+  line-height: 1.5;
+  color: var(--acc, #{$c-violet});
+}
+
+.bcard__date {
+  font-size: fs(21);
+  color: $c-text-3;
+}
+
+.bcard__title {
+  display: block;
+  font-size: fs(34, 0.95, 1.26);
+  font-weight: 700;
+  line-height: 1.45;
+  color: $c-text;
+}
+
+.bcard__excerpt {
+  display: block;
+  margin-top: px(16);
+  font-size: fs(25);
+  line-height: 1.8;
+  color: $c-text-2;
+}
+
+.bcard__foot {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: px(30);
+  padding-top: px(24);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.bcard__read {
+  font-size: fs(21);
+  color: $c-text-3;
+}
+
+.bcard__arrow {
+  display: flex;
+  align-items: center;
+}
+
+.bcard__arrow-text {
+  font-size: fs(23);
+  font-weight: 600;
+  color: var(--acc, #{$c-violet});
+}

@@ -1,0 +1,101 @@
+@use './units' as *;
+@use './tokens' as *;
+@use './mixins' as *;
+@use './animations' as *;
+
+// ─────────────────────────────────────────────────────────────
+//  液态按钮 / 标签 / 玻璃徽标
+// ─────────────────────────────────────────────────────────────
+
+.btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: px(92);
+  padding: 0 px(44);
+  border-radius: 999px;
+
+  @include web {
+    cursor: pointer;
+    transition:
+      transform 0.42s $ease-out,
+      box-shadow 0.42s ease;
+    will-change: transform;
+  }
+}
+
+.btn--primary {
+  background: $g-aurora;
+  color: #05060f;
+  font-size: fs(28);
+  font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 px(12) px(30) rgba(79, 140, 255, 0.34);
+
+  @include web {
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.65),
+        0 px(20) px(46) rgba(79, 140, 255, 0.5);
+    }
+  }
+}
+
+.btn--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: fs(28);
+  font-weight: 600;
+  color: $c-text;
+
+  @if $H5 {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 px(12) px(30) rgba(3, 5, 18, 0.34);
+  } @else {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 px(12) px(30) rgba(3, 5, 18, 0.4);
+  }
+
+  @include web {
+    &:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.3);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+    }
+  }
+}
+
+// ── 小标签 ──
+.tag {
+  display: flex;
+  align-items: center;
+  padding: px(8) px(20);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: fs(21);
+  line-height: 1.5;
+  color: $c-text-2;
+}
+
+// ── 强调色胶囊 ──
+.chip {
+  display: flex;
+  align-items: center;
+  padding: px(8) px(20);
+  border-radius: 999px;
+  border: 1px solid var(--acc-line, rgba(139, 92, 246, 0.34));
+  background: var(--acc-soft, rgba(139, 92, 246, 0.16));
+  font-size: fs(21);
+  line-height: 1.5;
+  color: var(--acc, #{$c-violet});
+}

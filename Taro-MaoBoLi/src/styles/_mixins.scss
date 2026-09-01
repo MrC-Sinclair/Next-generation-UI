@@ -1,0 +1,135 @@
+@use './units' as *;
+@use './tokens' as *;
+// 转发 units/tokens 成员：外部 @use './mixins' as * 时也能拿到 units/tokens
+// 定义的混合宏/函数/变量（如 web、px()、$ease-out 等），避免依赖单一注入来源
+@forward './units';
+@forward './tokens';
+
+// ─────────────────────────────────────────────────────────────
+//  液态毛玻璃基座
+//  半透明渐变 + 背景模糊 + 顶部内高光 + 深外投影 = 拟物 × 玻璃
+// ─────────────────────────────────────────────────────────────
+@mixin glass($radius: 28, $blur: 22px) {
+  position: relative;
+  overflow: hidden;
+  border-radius: px($radius);
+  border: 1px solid $c-line;
+
+  @if $H5 {
+    background: $g-glass;
+    -webkit-backdrop-filter: blur($blur) saturate(170%);
+    backdrop-filter: blur($blur) saturate(170%);
+    box-shadow:
+      inset 0 1px 0 $c-hi,
+      inset 0 -1px 0 $c-hi-2,
+      inset 0 0 px(44) rgba(255, 255, 255, 0.028),
+      0 px(22) px(52) rgba(3, 5, 18, 0.46);
+  } @else {
+    // 小程序 / 鸿蒙：backdrop-filter 支持不稳定 → 用更实的渐变模拟玻璃
+    background: $g-glass-app;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.34),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.045),
+      0 px(20) px(48) rgba(3, 5, 18, 0.52);
+  }
+}
+
+/// 更强的玻璃（导航条、弹层）
+@mixin glass-strong($radius: 24, $blur: 30px) {
+  @include glass($radius, $blur);
+  @if $H5 {
+    background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(255, 255, 255, 0.065) 50%,
+        rgba(255, 255, 255, 0.035) 100%);
+    border-color: rgba(255, 255, 255, 0.18);
+  } @else {
+    background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.20) 0%,
+        rgba(255, 255, 255, 0.09) 50%,
+        rgba(255, 255, 255, 0.05) 100%);
+  }
+}
+
+/// 顶部液态高光条（拟物反光）
+@mixin glass-sheen($opacity: 0.55) {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: raw(1);
+    pointer-events: none;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, $opacity) 20%,
+        rgba(255, 255, 255, $opacity * 0.3) 52%,
+        transparent 100%);
+  }
+}
+
+/// 内凹槽（拟物按下态 / 进度条轨道 / 输入框）
+@mixin neumorph-inset($radius: 20) {
+  border-radius: px($radius);
+  background: rgba(6, 8, 22, 0.36);
+  box-shadow:
+    inset 0 px(3) px(10) rgba(0, 0, 0, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/// 极光渐变文字
+@mixin text-aurora {
+  background: $g-aurora;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/// H5 悬停抬升 + 光晕
+@mixin hover-lift {
+  @if $H5 {
+    transition:
+      transform 0.5s $ease-out,
+      box-shadow 0.5s ease,
+      border-color 0.5s ease;
+    will-change: transform;
+
+    &:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 255, 255, 0.26);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.07),
+        0 px(34) px(72) rgba(3, 5, 18, 0.55),
+        0 0 px(64) rgba(80, 140, 255, 0.18);
+    }
+  }
+}
+
+/// 噪点纹理：消除玻璃的"塑料感"，提升真实材质感
+@mixin grain($opacity: 0.035) {
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: $opacity;
+    background-size: px(180) px(180);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/// 内容容器：PC 上锁最大宽度并居中
+@mixin wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: px(40);
+  padding-right: px(40);
+  box-sizing: border-box;
+}

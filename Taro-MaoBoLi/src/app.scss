@@ -1,0 +1,90 @@
+// units 由构建配置 additionalData 注入：@use './styles/units' as * with ($H5: true|false)
+@use './styles/tokens' as *;
+@use './styles/mixins' as *;
+@use './styles/animations' as *;
+@use './styles/accents' as *;
+@use './styles/buttons' as *;
+
+// ── 全局重置 ───────────────────────────────────────────
+page,
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background: $c-void;
+  color: $c-text;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI',
+    'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+view,
+text,
+scroll-view,
+button,
+input,
+image {
+  box-sizing: border-box;
+}
+
+view,
+text {
+  font-family: inherit;
+}
+
+button::after {
+  border: none;
+}
+
+// ── 通用工具 ───────────────────────────────────────────
+.wrap {
+  @include wrap;
+}
+
+.aurora-text {
+  @include text-aurora;
+}
+
+// 入场动画
+// 用 animation-fill-mode: both，而不是把 opacity 写死成 0
+// —— 万一某端不支持 CSS 动画，元素只是「不做动画」，绝不会变成一片空白
+.rise {
+  animation: rise-in 0.85s $ease-out both;
+}
+
+@include web {
+  // 桌面端自定义滚动条
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.55), rgba(34, 211, 238, 0.45));
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.85), rgba(34, 211, 238, 0.75));
+    background-clip: padding-box;
+  }
+
+  ::selection {
+    background: rgba(139, 92, 246, 0.4);
+    color: #fff;
+  }
+}
