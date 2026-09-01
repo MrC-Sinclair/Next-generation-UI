@@ -1,0 +1,15 @@
+{
+  "description": "CHROMA 个人网站 · 小程序端（WebView 承载 H5 产物）",
+  "packOptions": { "ignore": [], "include": [] },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.5.0",
+  "appid": "touristappid",
+  "projectname": "chroma-portfolio-miniapp"
+}

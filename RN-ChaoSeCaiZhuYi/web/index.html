@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0D0620" />
+    <meta name="description" content="CHROMA · 超色彩主义个人网站 - 首页概览、关于我、作品集、技能栈、博客、联系方式" />
+    <title>CHROMA · 超色彩主义个人网站</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fff6e9;
+        overscroll-behavior: none;
+      }
+      #root {
+        height: 100%;
+        min-height: 100%;
+      }
+      /* 隐藏移动端滚动条，保持页面干净 */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #0d0620;
+        border-radius: 99px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #ffe9c9;
+      }
+      /* 首屏 loading */
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Archivo Black', 'Arial Black', sans-serif;
+        font-size: 42px;
+        letter-spacing: -2px;
+        color: #0d0620;
+        background: #ffd400;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div id="boot">CHROMA</div></div>
+  </body>
+</html>

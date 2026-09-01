@@ -1,0 +1,26 @@
+{
+  "name": "chroma-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "超色彩主义 · React Native 个人网站（PC / Android / iOS / 鸿蒙 / 微信小程序）",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "harmony": "react-native bundle-harmony --dev false",
+    "web": "node scripts/dev-web.js",
+    "build:web": "node scripts/build-web.js",
+    "preview:web": "node scripts/serve-dist.js",
+    "test:web": "node scripts/smoke-web.js"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-native": "0.75.4",
+    "react-native-web": "^0.19.13"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "esbuild": "^0.28.0"
+  }
+}
