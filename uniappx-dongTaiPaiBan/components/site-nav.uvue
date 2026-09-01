@@ -1,0 +1,217 @@
+<template>
+  <view>
+    <!-- 宽屏：顶部横向导航 -->
+    <view v-if="mode === 'top'" class="top" :style="topStyle">
+      <view class="top__inner" :style="innerStyle">
+        <view class="brand" @click="go('/pages/index/index')">
+          <text class="brand__mark">◐</text>
+          <text class="brand__name">{{ brand }}</text>
+        </view>
+        <view class="top__list">
+          <view
+            v-for="item in items"
+            :key="item.key"
+            class="top__item"
+            :class="item.key === current ? 'top__item--on' : ''"
+            @click="go(item.path)"
+          >
+            <text class="top__txt">{{ item.label }}</text>
+            <view v-if="item.key === current" class="top__dot"></view>
+          </view>
+        </view>
+        <view class="top__meta">
+          <text class="top__meta-t">{{ meta }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 窄屏：底部 Tab -->
+    <view v-else class="bottom" :style="bottomStyle">
+      <view
+        v-for="item in items"
+        :key="item.key"
+        class="bottom__item"
+        :class="item.key === current ? 'bottom__item--on' : ''"
+        @click="go(item.path)"
+      >
+        <text class="bottom__icon">{{ item.icon }}</text>
+        <text class="bottom__txt">{{ item.label }}</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, type ComputedRef } from 'vue'
+import { NAV_ITEMS, SITE, type NavItem } from '../common/site'
+
+const props = defineProps({
+  /** top = 宽屏顶部导航；bottom = 窄屏底部 Tab */
+  mode: { type: String, default: 'top' },
+  current: { type: String, default: 'index' },
+  statusBarHeight: { type: Number, default: 0 },
+  safeBottom: { type: Number, default: 0 },
+  gutter: { type: Number, default: 40 },
+  contentMax: { type: Number, default: 1180 }
+})
+
+const items: NavItem[] = NAV_ITEMS
+const brand = SITE.latin
+const meta = SITE.location
+
+const topStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-top': props.statusBarHeight + 'px',
+    'padding-left': props.gutter + 'px',
+    'padding-right': props.gutter + 'px'
+  }
+})
+
+const innerStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'max-width': props.contentMax + 'px'
+  }
+})
+
+const bottomStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-bottom': (props.safeBottom + 8) + 'px'
+  }
+})
+
+function go(path: string) {
+  // 用 redirectTo 而不是 navigateTo：栏目切换不该无限压栈
+  uni.redirectTo({
+    url: path,
+    fail: () => {
+      uni.switchTab({ url: path })
+    }
+  })
+}
+</script>
+
+<style>
+/* ---------- 顶部导航 ---------- */
+.top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background-color: rgba(11, 11, 15, 0.82);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: rgba(245, 243, 239, 0.08);
+}
+
+.top__inner {
+  height: 68px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.brand {
+  flex-direction: row;
+  align-items: center;
+}
+
+.brand__mark {
+  font-size: 20px;
+  color: #FF4D2E;
+  margin-right: 10px;
+}
+
+.brand__name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #F5F3EF;
+}
+
+.top__list {
+  flex-direction: row;
+  align-items: center;
+}
+
+.top__item {
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 68px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.top__txt {
+  font-size: 14px;
+  color: rgba(245, 243, 239, 0.55);
+  letter-spacing: 1px;
+}
+
+.top__item--on .top__txt {
+  color: #F5F3EF;
+  font-weight: 700;
+}
+
+.top__dot {
+  position: absolute;
+  bottom: 14px;
+  width: 16px;
+  height: 2px;
+  background-color: #FF4D2E;
+  border-radius: 1px;
+}
+
+.top__meta-t {
+  font-size: 12px;
+  color: rgba(245, 243, 239, 0.35);
+  letter-spacing: 1px;
+}
+
+/* ---------- 底部 Tab ---------- */
+.bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  flex-direction: row;
+  align-items: center;
+  background-color: rgba(11, 11, 15, 0.94);
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: rgba(245, 243, 239, 0.08);
+  padding-top: 6px;
+}
+
+.bottom__item {
+  flex: 1;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom__icon {
+  font-size: 16px;
+  color: rgba(245, 243, 239, 0.4);
+  margin-bottom: 3px;
+}
+
+.bottom__txt {
+  font-size: 10px;
+  color: rgba(245, 243, 239, 0.4);
+  letter-spacing: 0.5px;
+}
+
+.bottom__item--on .bottom__icon {
+  color: #FF4D2E;
+}
+
+.bottom__item--on .bottom__txt {
+  color: #F5F3EF;
+  font-weight: 700;
+}
+</style>

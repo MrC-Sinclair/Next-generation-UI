@@ -1,0 +1,135 @@
+import { ref, computed, type ComputedRef, type Ref } from 'vue'
+
+/**
+ * 视口与响应式断点
+ *
+ * 为什么要自己算断点而不是用 CSS media query：
+ * uni-app x 的 uvue 里，媒体查询在部分原生端（Android / iOS / 鸿蒙）表现不一致，
+ * 用 UTS 读取窗口信息 + 计算属性驱动样式，是六端表现统一的唯一稳妥做法。
+ *
+ * 断点划分：
+ *   phone   < 600    手机竖屏 / 小程序
+ *   tablet  600-1023 平板、手机横屏、窄 PC 窗口
+ *   desktop 1024-1439 PC 常见窗口
+ *   wide    >= 1440   大屏 / 2K / 4K
+ */
+
+const winWidth: Ref<number> = ref(375)
+const winHeight: Ref<number> = ref(812)
+const statusBarHeight: Ref<number> = ref(0)
+const safeBottom: Ref<number> = ref(0)
+
+let inited = false
+let resizeBound = false
+
+function readWindowInfo() {
+  const info = uni.getWindowInfo()
+  winWidth.value = info.windowWidth
+  winHeight.value = info.windowHeight
+  statusBarHeight.value = info.statusBarHeight
+  // 底部安全区：iOS 手势条 / 鸿蒙导航栏高度，用屏幕与窗口差值兜底估算
+  const gap = info.screenHeight - info.windowHeight - info.statusBarHeight
+  safeBottom.value = gap > 0 ? (gap > 68 ? 34 : gap) : 0
+}
+
+function bindResize() {
+  if (resizeBound) return
+  resizeBound = true
+  uni.onWindowResize((res) => {
+    winWidth.value = res.size.windowWidth
+    winHeight.value = res.size.windowHeight
+  })
+}
+
+export function useViewport() {
+  if (!inited) {
+    readWindowInfo()
+    bindResize()
+    inited = true
+  }
+
+  /** 形态：phone / tablet / desktop / wide */
+  const kind: ComputedRef<string> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1440) return 'wide'
+    if (w >= 1024) return 'desktop'
+    if (w >= 600) return 'tablet'
+    return 'phone'
+  })
+
+  /** 是否宽屏（PC 顶部导航 + 多列栅格） */
+  const isWide: ComputedRef<boolean> = computed(() => winWidth.value >= 1024)
+
+  /** 导航形态：宽屏用顶部横排，窄屏用底部 Tab */
+  const navMode: ComputedRef<string> = computed(() => (isWide.value ? 'top' : 'bottom'))
+
+  /** 主栅格列数 */
+  const columns: ComputedRef<number> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1440) return 4
+    if (w >= 1024) return 3
+    if (w >= 600) return 2
+    return 1
+  })
+
+  /** 内容区最大宽度：大屏不无限拉伸，保证阅读节奏 */
+  const contentMax: ComputedRef<number> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1680) return 1320
+    if (w >= 1440) return 1180
+    if (w >= 1024) return 940
+    return 0
+  })
+
+  /** 左右留白 */
+  const gutter: ComputedRef<number> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1440) return 56
+    if (w >= 1024) return 40
+    if (w >= 600) return 32
+    return 20
+  })
+
+  /** Hero 主字号：动态排版的冲击力全靠它 */
+  const heroSize: ComputedRef<number> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1680) return 148
+    if (w >= 1440) return 128
+    if (w >= 1024) return 104
+    if (w >= 768) return 82
+    if (w >= 600) return 68
+    return 52
+  })
+
+  /** 区块标题字号 */
+  const titleSize: ComputedRef<number> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1440) return 58
+    if (w >= 1024) return 50
+    if (w >= 600) return 42
+    return 34
+  })
+
+  /** 正文行宽（字符级）：大屏也要守住阅读舒适区 */
+  const proseWidth: ComputedRef<number> = computed(() => {
+    const w = winWidth.value
+    if (w >= 1024) return 680
+    return 0
+  })
+
+  return {
+    winWidth,
+    winHeight,
+    statusBarHeight,
+    safeBottom,
+    kind,
+    isWide,
+    navMode,
+    columns,
+    contentMax,
+    gutter,
+    heroSize,
+    titleSize,
+    proseWidth
+  }
+}

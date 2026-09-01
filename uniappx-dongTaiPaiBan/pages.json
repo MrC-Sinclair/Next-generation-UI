@@ -1,0 +1,61 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "首页概览"
+      }
+    },
+    {
+      "path": "pages/about/about",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "关于我"
+      }
+    },
+    {
+      "path": "pages/portfolio/portfolio",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "作品集"
+      }
+    },
+    {
+      "path": "pages/skills/skills",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "技能栈"
+      }
+    },
+    {
+      "path": "pages/blog/blog",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "博客"
+      }
+    },
+    {
+      "path": "pages/contact/contact",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "联系方式"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#0B0B0F",
+    "backgroundColor": "#0B0B0F",
+    "backgroundTextStyle": "light",
+    "pageOrientation": "auto"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^kinetic-(.*)": "@/components/kinetic-$1.uvue",
+      "^site-(.*)": "@/components/site-$1.uvue"
+    }
+  }
+}

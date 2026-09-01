@@ -1,0 +1,110 @@
+<template>
+  <view class="page">
+    <site-nav
+      :mode="navMode"
+      current="blog"
+      :status-bar-height="statusBarHeight"
+      :safe-bottom="safeBottom"
+      :gutter="gutter"
+      :content-max="contentMax"
+    ></site-nav>
+
+    <view class="content" :style="contentStyle">
+      <view class="wrap" :style="wrapStyle">
+        <view class="head">
+          <kinetic-text
+            text="博客"
+            mode="wave"
+            :font-size="heroSize"
+            :amplitude="heroSize * 0.12"
+            :speed="0.8"
+            accent="#00E5A0"
+            color="#F5F3EF"
+            font-weight="800"
+            :interactive="true"
+          ></kinetic-text>
+          <text class="head__sub">写下来的思考，按时间倒序。</text>
+        </view>
+
+        <view class="list">
+          <view v-for="(a, i) in POSTS" :key="i" class="post">
+            <view class="post__meta">
+              <text class="post__date">{{ a.date }}</text>
+              <text class="post__tag">{{ a.tag }}</text>
+            </view>
+            <kinetic-text
+              :text="a.title"
+              :mode="a.mode"
+              :font-size="isWide ? 22 : 18"
+              :amplitude="isWide ? 3 : 2.5"
+              :speed="0.75"
+              accent="#7C5CFF"
+              color="#F5F3EF"
+              font-weight="700"
+            ></kinetic-text>
+            <text class="post__desc">{{ a.desc }}</text>
+            <view class="post__line"></view>
+          </view>
+        </view>
+
+        <view class="back" @click="go('/pages/index/index')">
+          <text class="back__t">← 回概览</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, type ComputedRef } from 'vue'
+import { useViewport } from '../../composables/use-viewport'
+
+const { statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } = useViewport()
+
+const POSTS = [
+  { date: '2026.08.24', tag: '排版', title: '在 uvue 里让每一个字单独动起来', desc: '逐字 transform 的性能账，以及为什么我放弃了 CSS @keyframes。', mode: 'wave' },
+  { date: '2026.08.11', tag: '开源', title: 'kinetic-type v0.6：新增融化与故障', desc: '两种新情绪的实现思路，和踩到的三个端差异。', mode: 'melt' },
+  { date: '2026.07.29', tag: '项目', title: '给一家书店做会呼吸的导视', desc: '32 块墨水屏，怎么做到同步误差小于 200ms。', mode: 'breathe' },
+  { date: '2026.07.02', tag: '工程', title: '六端一套代码，我做了哪些妥协', desc: '小程序不支持的、鸿蒙多出来的、以及 PC 端必须单独处理的。', mode: 'distort' }
+]
+
+const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-top': (statusBarHeight.value + (isWide.value ? 68 : 20)) + 'px',
+    'padding-bottom': (safeBottom.value + (isWide.value ? 80 : 118)) + 'px'
+  }
+})
+
+const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s: UTSJSONObject = {
+    'padding-left': gutter.value + 'px',
+    'padding-right': gutter.value + 'px'
+  }
+  if (contentMax.value > 0) {
+    s['max-width'] = contentMax.value + 'px'
+    s['align-self'] = 'center'
+  }
+  return s
+})
+
+function go(path: string) {
+  uni.redirectTo({ url: path, fail: () => { uni.switchTab({ url: path }) } })
+}
+</script>
+
+<style>
+.page { width: 100%; min-height: 100%; background-color: #0B0B0F; }
+.content { width: 100%; flex-direction: column; align-items: stretch; }
+.wrap { width: 100%; flex-direction: column; }
+.head { padding-top: 40px; flex-direction: column; align-items: flex-start; }
+.head__sub { margin-top: 20px; font-size: 14px; color: rgba(245,243,239,0.45); letter-spacing: 1px; }
+.list { margin-top: 44px; width: 100%; }
+.post { flex-direction: column; align-items: flex-start; padding-top: 24px; padding-bottom: 24px; }
+.post__meta { flex-direction: row; align-items: center; margin-bottom: 10px; }
+.post__date { font-size: 12px; letter-spacing: 1px; color: rgba(245,243,239,0.32); margin-right: 12px; }
+.post__tag { font-size: 10px; letter-spacing: 1px; color: #A08CFF; padding-left: 8px; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; border-radius: 4px; background-color: rgba(124,92,255,0.16); }
+.post__desc { margin-top: 12px; font-size: 14px; line-height: 24px; color: rgba(245,243,239,0.5); }
+.post__line { width: 100%; height: 1px; background-color: rgba(245,243,239,0.08); margin-top: 22px; }
+.back { margin-top: 40px; }
+.back__t { font-size: 14px; color: rgba(245,243,239,0.5); letter-spacing: 1px; }
+</style>

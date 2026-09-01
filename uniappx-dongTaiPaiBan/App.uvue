@@ -1,0 +1,26 @@
+<script lang="uts">
+export default {
+  onLaunch: function () {
+    // 站点级初始化：这里只做轻量工作，避免拖慢首屏
+  },
+  onShow: function () {},
+  onHide: function () {}
+}
+</script>
+
+<style>
+/* 全局页面底色与默认字体栈，覆盖所有端 */
+page {
+  background-color: #0B0B0F;
+  color: #F5F3EF;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC",
+    "Microsoft YaHei", "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 隐藏滚动条但保留滚动能力（H5 生效，App/小程序忽略） */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+</style>

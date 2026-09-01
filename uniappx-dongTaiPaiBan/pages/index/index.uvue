@@ -1,0 +1,645 @@
+<template>
+  <view class="page">
+    <!-- 背景光斑：不动，靠前景文字的动制造对比 -->
+    <view class="glow glow--a" :style="glowAStyle"></view>
+    <view class="glow glow--b" :style="glowBStyle"></view>
+
+    <site-nav
+      :mode="navMode"
+      current="index"
+      :status-bar-height="statusBarHeight"
+      :safe-bottom="safeBottom"
+      :gutter="gutter"
+      :content-max="contentMax"
+    ></site-nav>
+
+    <view class="content" :style="contentStyle">
+      <view class="wrap" :style="wrapStyle">
+
+        <!-- ============ HERO ============ -->
+        <view class="hero" :style="heroStyle">
+          <view class="eyebrow">
+            <view class="eyebrow__dot"></view>
+            <text class="eyebrow__t">KINETIC TYPOGRAPHY · 动态排版</text>
+          </view>
+
+          <kinetic-text
+            text="你好"
+            mode="wave"
+            :font-size="heroSubSize"
+            :amplitude="heroSubSize * 0.18"
+            :speed="0.8"
+            accent="#00E5A0"
+            color="rgba(245,243,239,0.62)"
+            font-weight="400"
+            :letter-spacing="2"
+          ></kinetic-text>
+
+          <kinetic-text
+            text="我是林深"
+            mode="bounce"
+            :font-size="heroSize"
+            :amplitude="heroSize * 0.14"
+            :speed="0.9"
+            accent="#FF4D2E"
+            color="#F5F3EF"
+            font-weight="800"
+            :interactive="true"
+          ></kinetic-text>
+
+          <kinetic-text
+            text="让文字动起来"
+            mode="distort"
+            :font-size="heroThirdSize"
+            :amplitude="heroThirdSize * 0.16"
+            :speed="0.75"
+            accent="#7C5CFF"
+            color="#F5F3EF"
+            font-weight="700"
+          ></kinetic-text>
+
+          <text class="hero__intro" :style="introStyle">{{ SITE.intro }}</text>
+
+          <view class="hero__cta" :class="isWide ? 'hero__cta--row' : ''">
+            <view class="btn btn--solid" @click="go('/pages/portfolio/portfolio')">
+              <text class="btn__t btn__t--dark">看看我做的东西</text>
+            </view>
+            <view class="btn btn--ghost" @click="go('/pages/contact/contact')">
+              <text class="btn__t">或者直接聊聊</text>
+            </view>
+          </view>
+
+          <view class="hero__meta">
+            <text class="hero__meta-t">{{ SITE.location }}　·　{{ SITE.role }}</text>
+          </view>
+        </view>
+
+        <!-- ============ 数据概览 ============ -->
+        <site-section
+          index="01"
+          title="概览"
+          subtitle="几组数字，说清我这些年大概在忙什么。"
+          title-mode="breathe"
+          :title-size="titleSize"
+          :margin-top="heroGap"
+        >
+          <view class="stats" :style="statsStyle">
+            <view v-for="item in STATS" :key="item.label" class="stat" :style="statStyle">
+              <view class="stat__num">
+                <kinetic-text
+                  :text="item.value"
+                  :mode="item.mode"
+                  :font-size="statNumSize"
+                  :amplitude="statNumSize * 0.13"
+                  :speed="0.85"
+                  accent="#FF4D2E"
+                  color="#F5F3EF"
+                  font-weight="800"
+                  :interactive="true"
+                ></kinetic-text>
+                <text class="stat__unit" :style="unitStyle">{{ item.unit }}</text>
+              </view>
+              <text class="stat__label">{{ item.label }}</text>
+              <view class="stat__bar">
+                <view class="stat__bar-fill" :style="{ width: item.pct + '%' }"></view>
+              </view>
+            </view>
+          </view>
+        </site-section>
+
+        <!-- ============ 快捷入口 ============ -->
+        <site-section
+          index="02"
+          title="去哪儿"
+          subtitle="整站六个板块，挑一个进去逛逛。"
+          title-mode="bounce"
+          :title-size="titleSize"
+          :margin-top="sectionGap"
+        >
+          <view class="cards" :style="cardsStyle">
+            <view
+              v-for="item in NAV_ITEMS"
+              :key="item.key"
+              class="card"
+              :style="cardStyle"
+              @click="go(item.path)"
+            >
+              <text class="card__icon">{{ item.icon }}</text>
+              <text class="card__label">{{ item.label }}</text>
+              <text class="card__desc">{{ item.desc }}</text>
+              <view class="card__arrow">
+                <text class="card__arrow-t">→</text>
+              </view>
+            </view>
+          </view>
+        </site-section>
+
+        <!-- ============ 最近动态 ============ -->
+        <site-section
+          index="03"
+          title="最近"
+          subtitle="最近的三次输出。"
+          title-mode="melt"
+          :title-size="titleSize"
+          accent="#00E5A0"
+          :margin-top="sectionGap"
+        >
+          <view class="feeds">
+            <view
+              v-for="(f, i) in FEEDS"
+              :key="i"
+              class="feed"
+              :style="feedStyle"
+            >
+              <view class="feed__date">
+                <text class="feed__date-t">{{ f.date }}</text>
+              </view>
+              <view class="feed__main">
+                <view class="feed__tag">
+                  <text class="feed__tag-t">{{ f.tag }}</text>
+                </view>
+                <kinetic-text
+                  :text="f.title"
+                  :mode="f.mode"
+                  :font-size="feedTitleSize"
+                  :amplitude="feedTitleSize * 0.16"
+                  :speed="0.8"
+                  accent="#7C5CFF"
+                  color="#F5F3EF"
+                  font-weight="700"
+                ></kinetic-text>
+              </view>
+            </view>
+          </view>
+        </site-section>
+
+        <!-- ============ 页脚 ============ -->
+        <view class="foot" :style="footStyle">
+          <view class="foot__line"></view>
+          <text class="foot__t">{{ SITE.name }}　·　{{ SITE.email }}</text>
+          <text class="foot__s">用 uni-app x 写的，跑在六个端上。</text>
+        </view>
+
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, type ComputedRef } from 'vue'
+import { useViewport } from '../../composables/use-viewport'
+import { NAV_ITEMS, SITE, STATS, FEEDS, type NavItem, type StatItem } from '../../common/site'
+
+const {
+  winWidth,
+  statusBarHeight,
+  safeBottom,
+  isWide,
+  navMode,
+  contentMax,
+  gutter,
+  heroSize,
+  titleSize
+} = useViewport()
+
+/** Hero 第一行小字 */
+const heroSubSize: ComputedRef<number> = computed(() => heroSize.value * 0.4)
+/** Hero 第三行 */
+const heroThirdSize: ComputedRef<number> = computed(() => heroSize.value * 0.46)
+/** 统计数字字号 */
+const statNumSize: ComputedRef<number> = computed(() => {
+  const w = winWidth.value
+  if (w >= 1440) return 68
+  if (w >= 1024) return 60
+  if (w >= 600) return 54
+  return 44
+})
+/** 动态标题字号 */
+const feedTitleSize: ComputedRef<number> = computed(() => (isWide.value ? 20 : 17))
+
+/** 顶部导航占位 / 底部 Tab 占位 */
+const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-top': (statusBarHeight.value + (isWide.value ? 68 : 20)) + 'px',
+    'padding-bottom': (safeBottom.value + (isWide.value ? 80 : 118)) + 'px'
+  }
+})
+
+const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s: UTSJSONObject = {
+    'padding-left': gutter.value + 'px',
+    'padding-right': gutter.value + 'px'
+  }
+  if (contentMax.value > 0) {
+    s['max-width'] = contentMax.value + 'px'
+    s['align-self'] = 'center'
+  }
+  return s
+})
+
+const heroStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-top': (isWide.value ? 72 : 32) + 'px'
+  }
+})
+
+const introStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s: UTSJSONObject = {
+    'font-size': (isWide.value ? 17 : 15) + 'px',
+    'line-height': (isWide.value ? 32 : 27) + 'px'
+  }
+  if (isWide.value) s['max-width'] = '680px'
+  return s
+})
+
+const heroGap: ComputedRef<number> = computed(() => (isWide.value ? 96 : 64))
+const sectionGap: ComputedRef<number> = computed(() => (isWide.value ? 88 : 60))
+
+/** 统计卡栅格 */
+const statsStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'flex-wrap': 'wrap',
+    'margin-left': '-8px',
+    'margin-right': '-8px'
+  }
+})
+
+const statStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = winWidth.value
+  let pct = '100%'
+  if (w >= 1024) pct = '25%'
+  else if (w >= 600) pct = '50%'
+  return {
+    'width': pct,
+    'padding-left': '8px',
+    'padding-right': '8px',
+    'margin-bottom': '20px'
+  }
+})
+
+const unitStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return { 'font-size': (statNumSize.value * 0.3).toFixed(0) + 'px' }
+})
+
+/** 入口卡片栅格 */
+const cardsStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'flex-wrap': 'wrap',
+    'margin-left': '-8px',
+    'margin-right': '-8px'
+  }
+})
+
+const cardStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = winWidth.value
+  let pct = '100%'
+  if (w >= 1440) pct = '33.3333%'
+  else if (w >= 1024) pct = '50%'
+  else if (w >= 600) pct = '50%'
+  return {
+    'width': pct,
+    'padding-left': '8px',
+    'padding-right': '8px',
+    'margin-bottom': '16px'
+  }
+})
+
+const feedStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'flex-direction': isWide.value ? 'row' : 'column',
+    'align-items': isWide.value ? 'center' : 'flex-start'
+  }
+})
+
+const footStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'margin-top': (isWide.value ? 96 : 64) + 'px'
+  }
+})
+
+const glowAStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s = heroSize.value * 2.2
+  return {
+    'width': s + 'px',
+    'height': s + 'px',
+    'top': '-' + (s * 0.35).toFixed(0) + 'px',
+    'right': '-' + (s * 0.3).toFixed(0) + 'px'
+  }
+})
+
+const glowBStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s = heroSize.value * 1.8
+  return {
+    'width': s + 'px',
+    'height': s + 'px',
+    'top': (heroSize.value * 2.4).toFixed(0) + 'px',
+    'left': '-' + (s * 0.45).toFixed(0) + 'px'
+  }
+})
+
+function go(path: string) {
+  uni.redirectTo({
+    url: path,
+    fail: () => {
+      uni.switchTab({ url: path })
+    }
+  })
+}
+</script>
+
+<style>
+.page {
+  width: 100%;
+  min-height: 100%;
+  background-color: #0B0B0F;
+}
+
+.content {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.wrap {
+  width: 100%;
+  flex-direction: column;
+}
+
+/* ---------- 背景光斑 ---------- */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.glow--a {
+  background-color: #FF4D2E;
+}
+
+.glow--b {
+  background-color: #7C5CFF;
+  opacity: 0.12;
+}
+
+/* ---------- HERO ---------- */
+.hero {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.eyebrow {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 22px;
+  padding-left: 12px;
+  padding-right: 14px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(245, 243, 239, 0.14);
+}
+
+.eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background-color: #00E5A0;
+  margin-right: 8px;
+}
+
+.eyebrow__t {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(245, 243, 239, 0.6);
+}
+
+.hero__intro {
+  margin-top: 26px;
+  color: rgba(245, 243, 239, 0.58);
+  letter-spacing: 0.5px;
+}
+
+.hero__cta {
+  margin-top: 32px;
+  width: 100%;
+}
+
+.hero__cta--row {
+  flex-direction: row;
+  align-items: center;
+  width: auto;
+}
+
+.btn {
+  height: 48px;
+  padding-left: 26px;
+  padding-right: 26px;
+  border-radius: 24px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.hero__cta--row .btn {
+  margin-right: 12px;
+}
+
+.btn--solid {
+  background-color: #FF4D2E;
+}
+
+.btn--ghost {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(245, 243, 239, 0.22);
+}
+
+.btn__t {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F5F3EF;
+  letter-spacing: 0.5px;
+}
+
+.btn__t--dark {
+  color: #0B0B0F;
+  font-weight: 700;
+}
+
+.hero__meta {
+  margin-top: 28px;
+}
+
+.hero__meta-t {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: rgba(245, 243, 239, 0.34);
+}
+
+/* ---------- 统计 ---------- */
+.stats {
+  flex-direction: row;
+}
+
+.stat {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat__num {
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.stat__unit {
+  margin-left: 4px;
+  color: #FF4D2E;
+  font-weight: 700;
+}
+
+.stat__label {
+  margin-top: 8px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: rgba(245, 243, 239, 0.5);
+}
+
+.stat__bar {
+  margin-top: 14px;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(245, 243, 239, 0.1);
+  border-radius: 1px;
+}
+
+.stat__bar-fill {
+  height: 2px;
+  background-color: #FF4D2E;
+  border-radius: 1px;
+}
+
+/* ---------- 入口卡片 ---------- */
+.cards {
+  flex-direction: row;
+}
+
+.card {
+  background-color: rgba(245, 243, 239, 0.035);
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(245, 243, 239, 0.09);
+  border-radius: 14px;
+  padding: 22px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.card__icon {
+  font-size: 20px;
+  color: #FF4D2E;
+  margin-bottom: 14px;
+}
+
+.card__label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #F5F3EF;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.card__desc {
+  font-size: 13px;
+  line-height: 22px;
+  color: rgba(245, 243, 239, 0.45);
+}
+
+.card__arrow {
+  margin-top: 18px;
+}
+
+.card__arrow-t {
+  font-size: 16px;
+  color: rgba(245, 243, 239, 0.3);
+}
+
+/* ---------- 最近动态 ---------- */
+.feeds {
+  width: 100%;
+}
+
+.feed {
+  width: 100%;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: rgba(245, 243, 239, 0.08);
+}
+
+.feed__date {
+  width: 76px;
+  flex-shrink: 0;
+}
+
+.feed__date-t {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgba(245, 243, 239, 0.32);
+}
+
+.feed__main {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.feed__tag {
+  margin-bottom: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius: 4px;
+  background-color: rgba(124, 92, 255, 0.16);
+}
+
+.feed__tag-t {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #A08CFF;
+}
+
+/* ---------- 页脚 ---------- */
+.foot {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.foot__line {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(245, 243, 239, 0.1);
+  margin-bottom: 22px;
+}
+
+.foot__t {
+  font-size: 14px;
+  color: rgba(245, 243, 239, 0.7);
+  letter-spacing: 1px;
+}
+
+.foot__s {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(245, 243, 239, 0.3);
+  letter-spacing: 1px;
+}
+</style>

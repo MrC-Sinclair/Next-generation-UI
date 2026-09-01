@@ -1,0 +1,95 @@
+<template>
+  <view class="sec" :style="secStyle">
+    <view class="sec__head">
+      <view class="sec__idx">
+        <text class="sec__idx-t">{{ index }}</text>
+      </view>
+      <view class="sec__titles">
+        <kinetic-text
+          :text="title"
+          :mode="titleMode"
+          :font-size="titleSize"
+          :amplitude="titleAmp"
+          :speed="0.7"
+          :accent="accent"
+          color="#F5F3EF"
+          font-weight="700"
+        ></kinetic-text>
+        <text v-if="subtitle.length > 0" class="sec__sub">{{ subtitle }}</text>
+      </view>
+    </view>
+    <view class="sec__body">
+      <slot></slot>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, type ComputedRef } from 'vue'
+
+const props = defineProps({
+  index: { type: String, default: '01' },
+  title: { type: String, default: '' },
+  subtitle: { type: String, default: '' },
+  titleSize: { type: Number, default: 42 },
+  /** 标题动效模式 */
+  titleMode: { type: String, default: 'wave' },
+  accent: { type: String, default: '#FF4D2E' },
+  marginTop: { type: Number, default: 56 },
+  marginBottom: { type: Number, default: 0 }
+})
+
+const secStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'margin-top': props.marginTop + 'px',
+    'margin-bottom': props.marginBottom + 'px'
+  }
+})
+
+/** 幅度随字号缩放，小屏上不至于糊成一团 */
+const titleAmp: ComputedRef<number> = computed(() => {
+  const v = props.titleSize * 0.12
+  return v < 4 ? 4 : v
+})
+</script>
+
+<style>
+.sec {
+  width: 100%;
+}
+
+.sec__head {
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.sec__idx {
+  margin-right: 16px;
+  padding-top: 6px;
+}
+
+.sec__idx-t {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #FF4D2E;
+}
+
+.sec__titles {
+  flex: 1;
+  flex-shrink: 1;
+}
+
+.sec__sub {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 24px;
+  color: rgba(245, 243, 239, 0.45);
+  letter-spacing: 0.5px;
+}
+
+.sec__body {
+  width: 100%;
+}
+</style>

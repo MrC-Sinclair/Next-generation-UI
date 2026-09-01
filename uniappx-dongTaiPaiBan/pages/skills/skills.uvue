@@ -1,0 +1,113 @@
+<template>
+  <view class="page">
+    <site-nav
+      :mode="navMode"
+      current="skills"
+      :status-bar-height="statusBarHeight"
+      :safe-bottom="safeBottom"
+      :gutter="gutter"
+      :content-max="contentMax"
+    ></site-nav>
+
+    <view class="content" :style="contentStyle">
+      <view class="wrap" :style="wrapStyle">
+        <view class="head">
+          <kinetic-text
+            text="技能栈"
+            mode="distort"
+            :font-size="heroSize"
+            :amplitude="heroSize * 0.11"
+            :speed="0.75"
+            accent="#7C5CFF"
+            color="#F5F3EF"
+            font-weight="800"
+            :interactive="true"
+          ></kinetic-text>
+          <text class="head__sub">按熟练度排的，越靠前越拿手。</text>
+        </view>
+
+        <view class="bars">
+          <view v-for="(s, i) in SKILLS" :key="i" class="bar">
+            <view class="bar__head">
+              <kinetic-text
+                :text="s.name"
+                :mode="s.mode"
+                :font-size="20"
+                :amplitude="2.5"
+                :speed="0.8"
+                accent="#FF4D2E"
+                color="#F5F3EF"
+                font-weight="700"
+              ></kinetic-text>
+              <text class="bar__pct">{{ s.level }}%</text>
+            </view>
+            <view class="bar__track">
+              <view class="bar__fill" :style="{ width: s.level + '%' }"></view>
+            </view>
+            <text class="bar__note">{{ s.note }}</text>
+          </view>
+        </view>
+
+        <view class="back" @click="go('/pages/index/index')">
+          <text class="back__t">← 回概览</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, type ComputedRef } from 'vue'
+import { useViewport } from '../../composables/use-viewport'
+
+const { statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } = useViewport()
+
+const SKILLS = [
+  { name: 'uni-app x / UTS', level: 92, note: '六端一套代码，主要靠它吃饭。', mode: 'bounce' },
+  { name: '动效与排版', level: 88, note: '缓动曲线、形变、节奏感。', mode: 'wave' },
+  { name: '设计系统', level: 84, note: '色板、栅格、组件的收敛能力。', mode: 'breathe' },
+  { name: 'TypeScript', level: 80, note: '类型体操只会基础款。', mode: 'distort' },
+  { name: 'Canvas / 着色器', level: 62, note: '能写，但还写不出花。', mode: 'melt' },
+  { name: '后端与部署', level: 55, note: '够自己把站跑起来。', mode: 'glitch' }
+]
+
+const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-top': (statusBarHeight.value + (isWide.value ? 68 : 20)) + 'px',
+    'padding-bottom': (safeBottom.value + (isWide.value ? 80 : 118)) + 'px'
+  }
+})
+
+const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s: UTSJSONObject = {
+    'padding-left': gutter.value + 'px',
+    'padding-right': gutter.value + 'px'
+  }
+  if (contentMax.value > 0) {
+    s['max-width'] = contentMax.value + 'px'
+    s['align-self'] = 'center'
+  }
+  return s
+})
+
+function go(path: string) {
+  uni.redirectTo({ url: path, fail: () => { uni.switchTab({ url: path }) } })
+}
+</script>
+
+<style>
+.page { width: 100%; min-height: 100%; background-color: #0B0B0F; }
+.content { width: 100%; flex-direction: column; align-items: stretch; }
+.wrap { width: 100%; flex-direction: column; }
+.head { padding-top: 40px; flex-direction: column; align-items: flex-start; }
+.head__sub { margin-top: 20px; font-size: 14px; color: rgba(245,243,239,0.45); letter-spacing: 1px; }
+.bars { margin-top: 48px; width: 100%; max-width: 720px; }
+.bar { margin-bottom: 30px; width: 100%; }
+.bar__head { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.bar__pct { font-size: 13px; color: #FF4D2E; font-weight: 700; letter-spacing: 1px; }
+.bar__track { width: 100%; height: 3px; background-color: rgba(245,243,239,0.1); border-radius: 2px; }
+.bar__fill { height: 3px; background-color: #FF4D2E; border-radius: 2px; }
+.bar__note { margin-top: 10px; font-size: 12px; color: rgba(245,243,239,0.38); letter-spacing: 0.5px; }
+.back { margin-top: 48px; }
+.back__t { font-size: 14px; color: rgba(245,243,239,0.5); letter-spacing: 1px; }
+</style>

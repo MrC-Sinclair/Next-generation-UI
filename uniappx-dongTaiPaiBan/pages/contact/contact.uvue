@@ -1,0 +1,145 @@
+<template>
+  <view class="page">
+    <site-nav
+      :mode="navMode"
+      current="contact"
+      :status-bar-height="statusBarHeight"
+      :safe-bottom="safeBottom"
+      :gutter="gutter"
+      :content-max="contentMax"
+    ></site-nav>
+
+    <view class="content" :style="contentStyle">
+      <view class="wrap" :style="wrapStyle">
+        <view class="head">
+          <kinetic-text
+            text="聊两句"
+            mode="bounce"
+            :font-size="heroSize"
+            :amplitude="heroSize * 0.13"
+            :speed="0.9"
+            accent="#FF4D2E"
+            color="#F5F3EF"
+            font-weight="800"
+            :interactive="true"
+          ></kinetic-text>
+          <text class="head__sub">合作、吐槽、或者单纯想聊聊排版，都行。</text>
+        </view>
+
+        <view class="cards">
+          <view
+            v-for="(c, i) in CHANNELS"
+            :key="i"
+            class="card"
+            :class="isWide ? 'card--wide' : ''"
+            @click="copy(c.value, c.label)"
+          >
+            <text class="card__k">{{ c.label }}</text>
+            <kinetic-text
+              :text="c.value"
+              :mode="c.mode"
+              :font-size="cardValueSize"
+              :amplitude="cardValueSize * 0.1"
+              :speed="0.8"
+              accent="#00E5A0"
+              color="#F5F3EF"
+              font-weight="700"
+            ></kinetic-text>
+            <text class="card__hint">点击复制</text>
+          </view>
+        </view>
+
+        <view class="note">
+          <text class="note__t">一般一天内回。如果超过两天没动静，大概率是掉进邮件黑洞了，欢迎再戳一次。</text>
+        </view>
+
+        <view class="back" @click="go('/pages/index/index')">
+          <text class="back__t">← 回概览</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, type ComputedRef } from 'vue'
+import { useViewport } from '../../composables/use-viewport'
+import { SITE } from '../../common/site'
+
+const { statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } = useViewport()
+
+const CHANNELS = [
+  { label: '邮箱', value: SITE.email, mode: 'wave' },
+  { label: '微信', value: 'linshen_dev', mode: 'bounce' },
+  { label: 'GitHub', value: 'github.com/linshen', mode: 'distort' },
+  { label: '城市', value: SITE.location, mode: 'melt' }
+]
+
+const cardValueSize: ComputedRef<number> = computed(() => (isWide.value ? 26 : 21))
+
+const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'padding-top': (statusBarHeight.value + (isWide.value ? 68 : 20)) + 'px',
+    'padding-bottom': (safeBottom.value + (isWide.value ? 80 : 118)) + 'px'
+  }
+})
+
+const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const s: UTSJSONObject = {
+    'padding-left': gutter.value + 'px',
+    'padding-right': gutter.value + 'px'
+  }
+  if (contentMax.value > 0) {
+    s['max-width'] = contentMax.value + 'px'
+    s['align-self'] = 'center'
+  }
+  return s
+})
+
+function copy(value: string, label: string) {
+  uni.setClipboardData({
+    data: value,
+    success: () => {
+      uni.showToast({
+        title: label + ' 已复制',
+        icon: 'none',
+        duration: 1600
+      })
+    },
+    fail: () => {
+      uni.showToast({ title: '复制失败，请手动选择', icon: 'none' })
+    }
+  })
+}
+
+function go(path: string) {
+  uni.redirectTo({ url: path, fail: () => { uni.switchTab({ url: path }) } })
+}
+</script>
+
+<style>
+.page { width: 100%; min-height: 100%; background-color: #0B0B0F; }
+.content { width: 100%; flex-direction: column; align-items: stretch; }
+.wrap { width: 100%; flex-direction: column; }
+.head { padding-top: 40px; flex-direction: column; align-items: flex-start; }
+.head__sub { margin-top: 20px; font-size: 14px; color: rgba(245,243,239,0.45); letter-spacing: 1px; }
+
+.cards { margin-top: 48px; flex-direction: row; flex-wrap: wrap; margin-left: -8px; margin-right: -8px; }
+.card {
+  width: 100%;
+  padding: 22px; padding-left: 22px; padding-right: 22px;
+  margin-left: 8px; margin-right: 8px; margin-bottom: 16px;
+  background-color: rgba(245,243,239,0.035);
+  border-width: 1px; border-style: solid; border-color: rgba(245,243,239,0.09);
+  border-radius: 14px;
+  flex-direction: column; align-items: flex-start;
+}
+.card--wide { width: 46%; }
+.card__k { font-size: 12px; letter-spacing: 1.5px; color: #00E5A0; margin-bottom: 12px; }
+.card__hint { margin-top: 14px; font-size: 11px; letter-spacing: 1px; color: rgba(245,243,239,0.28); }
+
+.note { margin-top: 32px; max-width: 560px; }
+.note__t { font-size: 13px; line-height: 24px; color: rgba(245,243,239,0.42); letter-spacing: 0.5px; }
+.back { margin-top: 48px; }
+.back__t { font-size: 14px; color: rgba(245,243,239,0.5); letter-spacing: 1px; }
+</style>

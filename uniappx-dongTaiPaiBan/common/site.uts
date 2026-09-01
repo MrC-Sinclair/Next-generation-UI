@@ -1,0 +1,142 @@
+/**
+ * 站点静态内容
+ * 全部集中在这里，方便接入接口后整体替换为远程数据
+ */
+
+export type NavItem = {
+  key: string
+  label: string
+  icon: string
+  path: string
+  desc: string
+}
+
+export type StatItem = {
+  value: string
+  label: string
+  unit: string
+  mode: string
+  /** 进度条填充百分比，直接写死，避免运行时算 hash */
+  pct: number
+}
+
+export type TimelineItem = {
+  year: string
+  title: string
+  org: string
+  desc: string
+}
+
+export const NAV_ITEMS: NavItem[] = [
+  {
+    key: 'index',
+    label: '概览',
+    icon: '◈',
+    path: '/pages/index/index',
+    desc: '一眼看完这个人和他在做的事'
+  },
+  {
+    key: 'about',
+    label: '关于',
+    icon: '✦',
+    path: '/pages/about/about',
+    desc: '来路、偏好与一点私人细节'
+  },
+  {
+    key: 'portfolio',
+    label: '作品',
+    icon: '❖',
+    path: '/pages/portfolio/portfolio',
+    desc: '做过的项目与其中的取舍'
+  },
+  {
+    key: 'skills',
+    label: '技能',
+    icon: '⬢',
+    path: '/pages/skills/skills',
+    desc: '工具箱与能力边界'
+  },
+  {
+    key: 'blog',
+    label: '博客',
+    icon: '✎',
+    path: '/pages/blog/blog',
+    desc: '写下来的思考与踩坑记录'
+  },
+  {
+    key: 'contact',
+    label: '联系',
+    icon: '✉',
+    path: '/pages/contact/contact',
+    desc: '聊聊合作或者随便扯点什么'
+  }
+]
+
+export const SITE = {
+  name: '林深',
+  latin: 'LIN SHEN',
+  role: '产品工程师 / 创意开发者',
+  location: '中国 · 杭州',
+  email: 'hello@linshen.dev',
+  slogan: '让文字动起来，让界面会呼吸',
+  intro:
+    '我做的事情横跨设计与工程的交界线：一边写能跑在六端的代码，一边纠结一个字该在什么时候弹起来。相信排版不是装饰，而是情绪本身。'
+}
+
+export const STATS: StatItem[] = [
+  { value: '42', label: '上线项目', unit: '个', mode: 'bounce', pct: 84 },
+  { value: '8', label: '从业年限', unit: '年', mode: 'wave', pct: 42 },
+  { value: '136', label: '写过文章', unit: '篇', mode: 'distort', pct: 68 },
+  { value: '3.2', label: '开源 Star', unit: 'k', mode: 'melt', pct: 55 }
+]
+
+export const TIMELINE: TimelineItem[] = [
+  {
+    year: '2024',
+    title: '开始做跨端动态排版引擎',
+    org: '独立开发',
+    desc: '把文字的形变、弹性与阻尼抽象成可复用组件，跑通 Android / iOS / 鸿蒙 / Web / 小程序五端。'
+  },
+  {
+    year: '2022',
+    title: '主导一款创作工具的重构',
+    org: '某内容平台',
+    desc: '把首屏渲染从 2.4s 压到 0.8s，顺手把设计系统从 12 个色板砍到 5 个。'
+  },
+  {
+    year: '2020',
+    title: '第一次把动效写进设计稿',
+    org: '设计工作室',
+    desc: '意识到静态稿传达不了节奏感，开始自学前端，从此没停过。'
+  },
+  {
+    year: '2018',
+    title: '从平面设计转行',
+    org: '——',
+    desc: '带着排版与网格的执念跳进代码世界，发现两者其实讲的是同一件事。'
+  }
+]
+
+export const FEEDS = [
+  { date: '08.24', tag: '写作', title: '《在 uvue 里让每一个字单独动起来》', mode: 'wave' },
+  { date: '08.11', tag: '开源', title: 'kinetic-type 引擎 v0.6：新增融化与故障两种情绪', mode: 'melt' },
+  { date: '07.29', tag: '项目', title: '为一家独立书店做了套会呼吸的导视系统', mode: 'breathe' }
+]
+
+/** 情绪 → 排版动效的映射，这是本站的核心玩法 */
+export type MoodItem = {
+  key: string
+  label: string
+  mode: string
+  desc: string
+  color: string
+}
+
+export const MOODS: MoodItem[] = [
+  { key: 'calm', label: '平静', mode: 'breathe', desc: '缓慢起伏，像水面', color: '#7C5CFF' },
+  { key: 'happy', label: '雀跃', mode: 'bounce', desc: '整句往上弹', color: '#FF4D2E' },
+  { key: 'drift', label: '漂浮', mode: 'wave', desc: '正弦波依次推过去', color: '#00E5A0' },
+  { key: 'tense', label: '紧绷', mode: 'distort', desc: '挤压、歪斜、不稳定', color: '#FFB020' },
+  { key: 'melt', label: '融化', mode: 'melt', desc: '字形下沉拉长直至瘫软', color: '#FF4D2E' },
+  { key: 'noise', label: '失真', mode: 'glitch', desc: '抖动与色散', color: '#00E5A0' }
+]

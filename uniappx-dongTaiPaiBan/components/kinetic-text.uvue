@@ -1,0 +1,251 @@
+<template>
+  <view class="kt" :style="wrapStyle" @click="handleTap">
+    <view
+      v-for="(ch, idx) in chars"
+      :key="idx"
+      class="kt__cell"
+      :style="cellStyle(idx)"
+    >
+      <text class="kt__ch" :style="chStyle(idx)">{{ ch }}</text>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+/**
+ * 动态排版核心组件
+ *
+ * 思路：把整句拆成单字，每个字由「同一条时间轴 + 各自相位」独立计算 transform。
+ * 相位差制造波浪，频率与阻尼制造情绪。所有形变只用 translate / rotate / skew / scale，
+ * 这四项在 uvue 的六端（Android / iOS / 鸿蒙 / Web / 小程序）表现完全一致。
+ *
+ * 支持的情绪模式：
+ *   breathe 呼吸   bounce 弹跳   wave 波浪
+ *   distort 扭曲   melt 融化     glitch 故障
+ */
+
+import { ref, computed, onMounted, onUnmounted, type ComputedRef } from 'vue'
+
+const props = defineProps({
+  /** 要动的文字，建议不超过 20 字，移动端超过会掉帧 */
+  text: { type: String, default: 'KINETIC' },
+  /** 情绪模式：breathe / bounce / wave / distort / melt / glitch */
+  mode: { type: String, default: 'wave' },
+  /** 字号（px） */
+  fontSize: { type: Number, default: 48 },
+  /** 行高倍数 */
+  lineHeight: { type: Number, default: 1.08 },
+  /** 字重 */
+  fontWeight: { type: String, default: '700' },
+  /** 基础色 */
+  color: { type: String, default: '#F5F3EF' },
+  /** 强调色，用于波峰染色与故障色散 */
+  accent: { type: String, default: '#FF4D2E' },
+  /** 形变幅度（px），越大越夸张 */
+  amplitude: { type: Number, default: 12 },
+  /** 速度倍数 */
+  speed: { type: Number, default: 1 },
+  /** 字距（px） */
+  letterSpacing: { type: Number, default: 0 },
+  /** 暂停动画（离开视口时建议置 true 省电） */
+  paused: { type: Boolean, default: false },
+  /** 是否响应点击：点击后触发一次冲击波 */
+  interactive: { type: Boolean, default: false },
+  /** 对齐方式 */
+  align: { type: String, default: 'flex-start' }
+})
+
+// 事件名用 press 而不是 tap，避免和原生 tap 事件在组件上撞车
+const emit = defineEmits(['press'])
+
+const tick = ref(0)
+/** 点击冲击波的衰减值 0~1 */
+const impact = ref(0)
+/** 冲击波起始位置（字索引） */
+const impactOrigin = ref(0)
+
+// 显式标注 number：避免 UTS 把 0 推断成 Int，和 setInterval 的返回值类型对不上
+let timer: number = 0
+
+const chars: ComputedRef<string[]> = computed(() => {
+  const arr: string[] = props.text.split('')
+  const out: string[] = []
+  for (let i = 0; i < arr.length; i++) {
+    // 空格换成不换行空格，否则 flex 行内容易被折叠
+    out.push(arr[i] === ' ' ? '\u00A0' : arr[i])
+  }
+  return out
+})
+
+const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'justify-content': props.align,
+    'flex-wrap': 'wrap'
+  }
+})
+
+/**
+ * 单字容器样式：承载 transform
+ * 用 view 包一层而不是直接变换 text，是因为原生端 text 的变换支持有差异
+ */
+const cellStyle = (idx: number): UTSJSONObject => {
+  const t = tick.value * 0.05 * props.speed
+  const p = idx * 0.38
+  const amp = props.amplitude
+
+  let x: number = 0
+  let y: number = 0
+  let sx: number = 1
+  let sy: number = 1
+  let sk: number = 0
+  let rot: number = 0
+  let op: number = 1
+
+  // 点击冲击波：以点击点为中心向两侧衰减扩散
+  if (impact.value > 0.01) {
+    const dist = Math.abs(idx - impactOrigin.value)
+    const wave = Math.sin(impact.value * Math.PI) * Math.max(0, 1 - dist / 6)
+    y -= wave * amp * 2.2
+    sy += wave * 0.35
+  }
+
+  const m = props.mode
+
+  if (m === 'bounce') {
+    const b = Math.abs(Math.sin(t * 2 + p))
+    y += -b * amp
+    sy = sy * (1 + (1 - b) * 0.16)
+    sx = sx * (1 - (1 - b) * 0.08)
+  } else if (m === 'wave') {
+    const w = Math.sin(t * 1.6 + p)
+    y += w * amp
+    rot += Math.cos(t * 1.6 + p) * 5
+  } else if (m === 'breathe') {
+    const b = Math.sin(t * 1.2 + p)
+    sx = sx * (1 + b * 0.055)
+    sy = sy * (1 + b * 0.055)
+    op = 0.72 + ((b + 1) / 2) * 0.28
+  } else if (m === 'distort') {
+    const d = Math.sin(t * 2.4 + p)
+    sk += d * 11
+    x += Math.cos(t * 3.1 + p) * amp * 0.35
+    sx = sx * (1 + d * 0.2)
+    sy = sy * (1 - d * 0.12)
+  } else if (m === 'melt') {
+    // 下沉量做二次方，让字像被加热后一点点瘫下去
+    const k = (Math.sin(t * 1.1 + p) + 1) / 2
+    const melt = k * k
+    y += melt * amp
+    sy = sy * (1 + melt * 0.38)
+    sx = sx * (1 - melt * 0.1)
+    sk += Math.sin(t * 0.7 + p) * 3.5
+    op = 1 - melt * 0.22
+  } else if (m === 'glitch') {
+    const n = Math.sin(t * 9 + p * 3.7) * Math.cos(t * 5.3 + p * 1.9)
+    x += n * amp * 0.9
+    sk += n * 9
+    sy = sy * (1 + Math.abs(n) * 0.1)
+    if (n > 0.45) {
+      op = 0.82
+    }
+  }
+
+  return {
+    'transform':
+      'translate(' + x.toFixed(2) + 'px, ' + y.toFixed(2) + 'px) ' +
+      'rotate(' + rot.toFixed(2) + 'deg) ' +
+      'skewX(' + sk.toFixed(2) + 'deg) ' +
+      'scale(' + sx.toFixed(3) + ', ' + sy.toFixed(3) + ')',
+    'opacity': op.toFixed(3),
+    'margin-right': props.letterSpacing + 'px'
+  }
+}
+
+/** 单字样式：颜色与阴影，负责波峰染色和故障色散 */
+const chStyle = (idx: number): UTSJSONObject => {
+  const t = tick.value * 0.05 * props.speed
+  const p = idx * 0.38
+
+  let color = props.color
+  let shadow = 'none'
+
+  if (props.mode === 'wave' || props.mode === 'bounce') {
+    const k = (Math.sin(t * 1.6 + p) + 1) / 2
+    color = k > 0.62 ? props.accent : props.color
+  } else if (props.mode === 'distort') {
+    const k = Math.abs(Math.sin(t * 2.4 + p))
+    color = k > 0.7 ? props.accent : props.color
+    shadow = '0 0 ' + (k * 14).toFixed(1) + 'px ' + props.accent + '55'
+  } else if (props.mode === 'glitch') {
+    const n = Math.sin(t * 9 + p * 3.7) * Math.cos(t * 5.3 + p * 1.9)
+    if (n > 0.45) {
+      color = props.accent
+      shadow = '-3px 0 0 ' + props.accent + ', 3px 0 0 #00E5A0'
+    } else if (n < -0.45) {
+      shadow = '3px 0 0 ' + props.accent + ', -3px 0 0 #00E5A0'
+    }
+  } else if (props.mode === 'melt') {
+    const k = (Math.sin(t * 1.1 + p) + 1) / 2
+    const melt = k * k
+    // 没有 CSS filter 的端也能靠加大阴影半径模拟"糊开"
+    shadow = '0 ' + (melt * 6).toFixed(1) + 'px ' + (melt * 10).toFixed(1) + 'px ' + props.accent + '33'
+    if (melt > 0.62) color = props.accent
+  }
+
+  return {
+    'font-size': props.fontSize + 'px',
+    'line-height': (props.fontSize * props.lineHeight).toFixed(1) + 'px',
+    'font-weight': props.fontWeight,
+    'color': color,
+    'text-shadow': shadow
+  }
+}
+
+function handleTap() {
+  emit('press')
+  if (!props.interactive) return
+  impactOrigin.value = 0
+  impact.value = 1
+}
+
+onMounted(() => {
+  // 60ms 一帧 ≈ 16fps，够顺滑又不至于把低端机烤热
+  timer = setInterval((): void => {
+    if (props.paused) return
+    tick.value = tick.value + 1
+    if (impact.value > 0) {
+      impact.value = impact.value - 0.08
+      if (impact.value < 0) impact.value = 0
+    }
+  }, 60)
+})
+
+onUnmounted(() => {
+  if (timer != 0) {
+    clearInterval(timer)
+    timer = 0
+  }
+})
+</script>
+
+<style>
+.kt {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.kt__cell {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  /* 变换基准放在字底，融化/弹跳才有"落下去"的重量感 */
+  transform-origin: 50% 100%;
+}
+
+.kt__ch {
+  /* 关闭系统字体回退导致的基线抖动 */
+  font-variant-ligatures: none;
+}
+</style>
