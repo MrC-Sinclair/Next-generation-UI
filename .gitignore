@@ -1,0 +1,217 @@
+# =============================================================================
+# Next-generation-UI · 综合 .gitignore
+# -----------------------------------------------------------------------------
+# 由以下 6 个框架项目的 .gitignore 合并去重生成（最新最全版）：
+#   1. Kuikly-ChuGanFanKuiKeShiHua    —— Kuikly / Android / Kotlin Multiplatform
+#   2. RN-ChaoSeCaiZhuYi              —— React Native (+ react-native-web / 鸿蒙 / 小程序)
+#   3. Taro-MaoBoLi                   —— Taro (React) + Capacitor
+#   4. uniappx-dongTaiPaiBan          —— uni-app x
+#   5. flutter-3dChongShiGan          —— Flutter
+#   6. ArkUI-X-ShouHuiYuShuZiRongHe   —— ArkUI-X / HarmonyOS
+# 覆盖范围：依赖目录、构建产物、缓存、IDE 配置、日志、临时文件等
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# 1. 通用规则（所有框架共用，重复条目已收敛至此）
+# ---------------------------------------------------------------------------
+
+# ---- 依赖 / 包管理器缓存 ----
+node_modules/
+.yarn/
+.pnp/
+.pnp.js
+.pnpm-store/
+.pnpm-store2/
+.npm-cache/
+.packs/
+.pstore/
+node_modules_broken_bak/
+node_modules_isolated_bak/
+
+# ---- Web / H5 构建产物（Kuikly h5 / RN web / Taro h5 / uni-app h5 通用）----
+dist/
+web-dist/
+web-dev/
+test-output/
+h5App/dist/
+
+# ---- 日志 ----
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+install*.log
+inst*.log
+build*.log
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.class
+*.pyc
+*.swp
+.svn/
+.history
+
+# ---- IDE / 编辑器 ----
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.swiftpm/
+.atom/
+.buildlog/
+
+# ---- 环境变量（本地密钥不入库）----
+.env
+.env.*
+!.env.example
+
+# ---- 静态检查 / 编译缓存 ----
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# 2. Kuikly / Android / Gradle（Kotlin Multiplatform）
+# ---------------------------------------------------------------------------
+.gradle/
+build/
+*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+.kotlin/
+Kotlin-js-store/
+gen/
+.tmp/
+
+# ---------------------------------------------------------------------------
+# 3. React Native / Metro / Expo / 原生壳 / 鸿蒙 / 小程序
+# ---------------------------------------------------------------------------
+# ---- Metro / bundler 缓存 ----
+.metro-health-check*
+.metro-cache/
+.bundle/
+.buckd/
+*.jsbundle
+*.hbc
+
+# ---- Expo ----
+.expo/
+.expo-shared/
+
+# ---- Android / iOS 原生壳（本地生成，不入库）----
+/android/
+/ios/
+Pods/
+**/xcuserdata/**
+*.ipa
+
+# ---- HarmonyOS 构建产物（RN / Taro 通用）----
+harmony/oh_modules/
+harmony/.preview/
+harmony/entry/build/
+harmony/.hvigor/
+harmony/ChromaOH/
+
+# ---- 微信小程序产物 ----
+miniapp/dist/
+miniapp/build/
+
+# ---- 沙箱 / 测试临时产物 ----
+.tc/
+.tc-store/
+.t2/
+.scratch/
+.tmp*
+out*.txt
+proc.txt
+robocopy.log
+__wtest.txt
+
+# ---------------------------------------------------------------------------
+# 4. Taro（含 Capacitor 原生产物）
+# ---------------------------------------------------------------------------
+.temp/
+.rn_temp/
+.swc/
+.sasscheck/
+coverage/
+.harmony/
+.workbuddy/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+ios/Pods/
+ios/build/
+
+# ---------------------------------------------------------------------------
+# 5. uni-app x（build/ 已在第 2 节覆盖）
+# ---------------------------------------------------------------------------
+unpackage/
+.hbuilderx/
+preview/
+
+# ---------------------------------------------------------------------------
+# 6. Flutter / Dart / Pub
+# ---------------------------------------------------------------------------
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+.build/
+migrate_working_dir/
+app.*.symbols
+app.*.map.json
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/.gradle/
+/android/local.properties
+/android/captures/
+/android/.cxx/
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/ephemeral/
+/ios/Flutter/Flutter.framework/
+/ios/Flutter/Flutter.podspec
+**/macos/Flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/windows/flutter/generated_plugin_registrant.cc
+**/windows/flutter/generated_plugin_registrant.h
+**/windows/flutter/generated_plugins.cmake
+**/linux/flutter/ephemeral/
+
+# ---------------------------------------------------------------------------
+# 7. ArkUI-X / HarmonyOS（DevEco Studio 工程）
+# ---------------------------------------------------------------------------
+/oh_modules
+/build
+**/build/
+/.hvigor
+/.preview
+/.arkui-x
+**/.arkui-x/
+/android/.gradle/
+/android/build/
+/android/local.properties
+/ios/Pods/
+/ios/build/
+
+
