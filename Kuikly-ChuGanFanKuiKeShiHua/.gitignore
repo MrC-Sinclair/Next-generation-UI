@@ -1,0 +1,53 @@
+# ===================== Gradle / Android =====================
+.gradle/
+build/
+*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+
+# ===================== Kotlin Multiplatform / Kuikly =====================
+.kotlin/
+gen/
+# 注意：kotlin-js-store/yarn.lock 需要提交（保证 JS 依赖可复现），
+# 只忽略 store 目录下的其它临时文件，不要整目录忽略。
+Kotlin-js-store/*
+!Kotlin-js-store/yarn.lock
+kotlin-js-store/*
+!kotlin-js-store/yarn.lock
+
+# ===================== H5 / Web 构建产物 =====================
+h5App/dist/
+web-dist/
+dist/
+
+# ===================== 依赖目录 =====================
+node_modules/
+.pnpm-store/
+.npm-cache/
+.yarn/
+
+# ===================== IDE / 编辑器 =====================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# ===================== 环境变量 =====================
+.env
+.env.*
+!.env.example
+
+# ===================== 日志 / 系统文件 / 临时目录 =====================
+.tmp*/
+.tmp-presscheck/
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini
