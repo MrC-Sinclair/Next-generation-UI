@@ -1,0 +1,67 @@
+# ===================== 杂项 =====================
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ===================== IDE =====================
+*.iml
+*.ipr
+*.iws
+.idea/
+# .vscode/ 如需提交调试配置可放开（flutter create 默认注释）
+
+# ===================== Flutter / Dart / Pub =====================
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# ===================== 符号化 / 混淆产物 =====================
+app.*.symbols
+app.*.map.json
+
+# ===================== Android 构建产物 =====================
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/.gradle/
+/android/local.properties
+/android/captures/
+/android/.cxx/
+*.keystore
+!debug.keystore
+*.apk
+*.aab
+
+# ===================== iOS 构建产物 =====================
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/ephemeral/
+/ios/Flutter/Flutter.framework/
+/ios/Flutter/Flutter.podspec
+**/ios/**/xcuserdata/**
+/ios/Flutter/.last_build_id
+
+# ===================== 桌面平台 ephemeral =====================
+**/macos/Flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/windows/flutter/generated_plugin_registrant.cc
+**/windows/flutter/generated_plugin_registrant.h
+**/windows/flutter/generated_plugins.cmake
+**/linux/flutter/ephemeral/

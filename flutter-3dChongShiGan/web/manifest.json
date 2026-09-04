@@ -1,0 +1,35 @@
+{
+    "name": "触感 · 个人主页",
+    "short_name": "触感主页",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#241B4E",
+    "theme_color": "#241B4E",
+    "description": "苏沐的个人主页：3D 果冻质感设计系统与跨端动效作品集。",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
