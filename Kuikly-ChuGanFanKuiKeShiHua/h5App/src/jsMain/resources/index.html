@@ -53,6 +53,24 @@
         0% { transform: rotate(0deg) }
         100% { transform: rotate(360deg) }
     }
+
+    /* ----------------------------------------------------------------
+       按压反馈过渡（触感反馈可视化 · H5 单端承接）
+       ----------------------------------------------------------------
+       Kuikly 2.26 在本工程的动画管线从未触发（详见 shared 侧 Haptic.kt
+       顶部「关于过渡」说明），且 box-shadow 在任何端都不可被 Kuikly 动画。
+       因此按压的"过程"交由宿主 CSS 承接：Kuikly 只负责把目标态写进内联
+       样式（transform / box-shadow / background-color），这里让浏览器在
+       两次状态之间补帧。
+       选取 #root div 而非 *：按压元素都是 div，且避免误伤其它宿主节点。
+       曲线 cubic-bezier(0.2,0,0,1) = 快起快落的"咔哒"手感；140ms 既跟手又不拖。
+    ---------------------------------------------------------------- */
+    #root div {
+        transition:
+            transform 140ms cubic-bezier(0.2, 0, 0, 1),
+            box-shadow 140ms cubic-bezier(0.2, 0, 0, 1),
+            background-color 140ms ease-out;
+    }
 </style>
 <body>
 <div id="root"></div>

@@ -1,14 +1,3 @@
----
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 40c8af801da8629c99b9e5611c578fea_aeac2cf6a61911f199d2525400287e28
-    ReservedCode1: PPzaHgQnu1gweXZ3pv2puRAzenNTKBaUhdYUqbr+ZH1EV2E/AH7KRBiBakXEP7iR8jyf3tTTgW85PLwO37PZisQg5wq4Wt8apck8RB2d2JXtW9PHCqQO/GQxaCFFJrf3La+JrpA7NU48X0cjXmN7ZUiHwEfzY5m8jtltUbOeX536yobou7PbUwkyvx0=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 40c8af801da8629c99b9e5611c578fea_aeac2cf6a61911f199d2525400287e28
-    ReservedCode2: PPzaHgQnu1gweXZ3pv2puRAzenNTKBaUhdYUqbr+ZH1EV2E/AH7KRBiBakXEP7iR8jyf3tTTgW85PLwO37PZisQg5wq4Wt8apck8RB2d2JXtW9PHCqQO/GQxaCFFJrf3La+JrpA7NU48X0cjXmN7ZUiHwEfzY5m8jtltUbOeX536yobou7PbUwkyvx0=
----
-
 # Next-generation-UI
 
 下一代 UI 个人网站项目集：基于同一套产品需求，使用 6 种跨端技术栈分别实现个人网站，用于对比与展示各框架的 UI 表现力。

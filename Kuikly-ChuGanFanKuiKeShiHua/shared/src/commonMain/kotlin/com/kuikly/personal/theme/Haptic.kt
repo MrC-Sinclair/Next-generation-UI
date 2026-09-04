@@ -35,6 +35,15 @@ enum class Elevation(
     /** 按下时的缩放系数 */
     val pressedScale: Float,
 ) {
+    /** 平面：已选中的导航项。静止即贴平桌面，按下只再沉一点点、不缩放。 */
+    Flat(
+        rest = shadow(0f, 1f, 0x33),
+        hover = shadow(0f, 1f, 0x3D),
+        pressed = shadow(0f, 1f, 0x47),
+        sinkDp = 1f,
+        pressedScale = 1f,
+    ),
+
     /** 低高度：标签、小按钮。按下几乎贴平桌面。 */
     Low(
         rest = shadow(2f, 6f, 0x1A),
@@ -91,6 +100,20 @@ enum class PressState {
 }
 
 /**
+ * 关于过渡：本文件【故意】不在 attr 里调用 animate()。
+ *
+ * 实测结论（Kuikly 2.26 · 本工程 · H5）：动画管线从头到尾没有被触发过 ——
+ * 元素上从不出现 animation 属性，页面里也查不到任何 kuikly-animation 规则，
+ * 声明式 animate() 与命令式 animateToAttr() 都是如此，属性一律直接跳变。
+ * 另外渲染端只实现了 opacity / transform / backgroundColor / frame 四类
+ * 动画 Handler，boxShadow 在任何端都不可动画。
+ *
+ * 所以 H5 侧的过渡改由宿主 CSS 承接，
+ * 见 h5App/src/jsMain/resources/index.html —— 顺带把 Kuikly 做不了的
+ * box-shadow 过渡也一并解决了。
+ */
+
+/**
  * 把按压状态应用到任意视图的属性上。
  *
  * 这是整个设计语言唯一的"动效出口"：所有可按压元素都必须经过这里，
@@ -99,8 +122,11 @@ enum class PressState {
 fun Attr.applyElevation(
     elevation: Elevation,
     pressState: PressState,
-    /** 基底色：按下时会换成对应的沉入色 */
+    /** 基底色：静止时 */
     surfaceColor: Color,
+    /** 悬停时的基底色，默认同静止色 */
+    hoverColor: Color = surfaceColor,
+    /** 按下后的"沉入"底色，比 surface 暗一档 */
     sunkenColor: Color,
     /** 是否参与位移/缩放（悬浮大卡片可关闭，避免抖动过猛） */
     enableTransform: Boolean = true,
@@ -112,7 +138,13 @@ fun Attr.applyElevation(
             PressState.Idle -> elevation.rest
         }
     )
-    backgroundColor(if (pressState == PressState.Pressed) sunkenColor else surfaceColor)
+    backgroundColor(
+        when (pressState) {
+            PressState.Pressed -> sunkenColor
+            PressState.Hover -> hoverColor
+            PressState.Idle -> surfaceColor
+        }
+    )
 
     if (enableTransform) {
         if (pressState == PressState.Pressed) {
@@ -127,4 +159,8 @@ fun Attr.applyElevation(
             )
         }
     }
+
+    // 按压的过渡不在这里做：Kuikly 的动画管线在本工程没有生效，
+    // 详见文件上方「关于过渡」的说明。这里只负责把目标状态写进属性，
+    // H5 侧的变化过程由宿主 CSS transition 承接。
 }

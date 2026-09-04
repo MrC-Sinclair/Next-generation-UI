@@ -1,7 +1,6 @@
 package com.kuikly.personal.components
 
 import com.tencent.kuikly.core.base.Color
-import com.tencent.kuikly.core.base.Translate
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
@@ -11,6 +10,7 @@ import com.kuikly.personal.pages.SitePage
 import com.kuikly.personal.theme.Elevation
 import com.kuikly.personal.theme.PressState
 import com.kuikly.personal.theme.Tokens
+import com.kuikly.personal.theme.applyElevation
 
 /**
  * 站点框架：PC 侧边导航 / 移动顶部标题栏 / 手机底部 Tab 栏。
@@ -43,27 +43,15 @@ private fun ViewContainer<*, *>.navRow(
             padding(0f, horizontalPadding, 0f, horizontalPadding)
             borderRadius(Tokens.Radius.sm)
 
-            backgroundColor(
-                when {
-                    pressState == PressState.Pressed ->
-                        if (active) Tokens.primarySoft else Tokens.bgSunken
-                    pressState == PressState.Hover ->
-                        if (active) Tokens.primarySoft else Tokens.bgSubtle
-                    active -> Tokens.primarySoft
-                    else -> Color.TRANSPARENT
-                }
-            )
-            // 未选中项保留一点点浮起感，按下后压平
-            boxShadow(
-                if (pressState == PressState.Pressed) Elevation.Low.pressed
-                else if (active) Elevation.Low.pressed
-                else Elevation.Low.rest
-            )
-            transform(
-                translate = Translate(
-                    0f, 0f, 0f,
-                    if (pressState == PressState.Pressed) Elevation.Low.sinkDp else 0f
-                )
+            // 阴影 / 底色 / 下沉统一交给 applyElevation，与全站手感保持一致。
+            // 选中项已经是"压平"状态，用 Flat 档（静止即贴平）；
+            // 未选中项用 Low 档，保留一点点浮起感。
+            applyElevation(
+                elevation = if (active) Elevation.Flat else Elevation.Low,
+                pressState = pressState,
+                surfaceColor = if (active) Tokens.primarySoft else Color.TRANSPARENT,
+                hoverColor = if (active) Tokens.primarySoft else Tokens.bgSubtle,
+                sunkenColor = if (active) Tokens.primarySoft else Tokens.bgSunken,
             )
         }
         event {
@@ -230,21 +218,13 @@ internal fun ViewContainer<*, *>.bottomTabBar(page: SitePage) {
                     flexDirectionColumn()
                     allCenter()
                     borderRadius(Tokens.Radius.sm)
-                    backgroundColor(
-                        when (pressState) {
-                            PressState.Pressed -> Tokens.bgSunken
-                            PressState.Hover -> Tokens.bgSubtle
-                            PressState.Idle -> Color.TRANSPARENT
-                        }
-                    )
-                    boxShadow(
-                        if (pressState == PressState.Pressed) Elevation.Low.pressed
-                        else Elevation.Low.rest
-                    )
-                    transform(
-                        scale = com.tencent.kuikly.core.base.Scale(
-                            if (pressState == PressState.Pressed) Elevation.Low.pressedScale else 1f
-                        )
+                    // 导航项：按下时收紧阴影并下沉，选中态用主色浅底区分
+                    applyElevation(
+                        elevation = Elevation.Low,
+                        pressState = pressState,
+                        surfaceColor = Color.TRANSPARENT,
+                        hoverColor = Tokens.bgSubtle,
+                        sunkenColor = Tokens.bgSunken,
                     )
                     val tint = if (active) Tokens.primary else Tokens.textTertiary
                     // 图标与文字颜色在下面两个 Text 里各自读取

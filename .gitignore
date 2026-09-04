@@ -91,7 +91,12 @@ local.properties
 *.keystore
 !debug.keystore
 .kotlin/
-Kotlin-js-store/
+# Kuikly 的 kotlin-js-store/yarn.lock 需要提交（保证 JS 依赖可复现），
+# 只忽略目录内其它临时文件，不整目录排除，否则 !yarn.lock 无法重新包含。
+Kotlin-js-store/*
+!Kotlin-js-store/yarn.lock
+kotlin-js-store/*
+!kotlin-js-store/yarn.lock
 gen/
 .tmp/
 

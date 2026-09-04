@@ -33,6 +33,7 @@ internal fun ViewContainer<*, *>.hapticSurface(
     key: String,
     elevation: Elevation = Elevation.Medium,
     surfaceColor: Color = Tokens.bgSurface,
+    hoverColor: Color = surfaceColor,
     sunkenColor: Color = Tokens.bgSunken,
     radius: Float = Tokens.Radius.md,
     innerPadding: Float = Tokens.Space.md,
@@ -59,7 +60,13 @@ internal fun ViewContainer<*, *>.hapticSurface(
             fixedHeight?.let { height(it) }
 
             // 唯一的按压表现出口
-            applyElevation(elevation, pressState, surfaceColor, sunkenColor)
+            applyElevation(
+                elevation = elevation,
+                pressState = pressState,
+                surfaceColor = surfaceColor,
+                hoverColor = hoverColor,
+                sunkenColor = sunkenColor,
+            )
         }
         event {
             touchDown { page.pressDown(key) }
@@ -166,6 +173,7 @@ internal fun ViewContainer<*, *>.hapticTag(
     softTint: Color = Tokens.bgSubtle,
     marginRight: Float = 6f,
     marginBottom: Float = 6f,
+    onTap: (() -> Unit)? = null,
 ) {
     hapticSurface(
         page = page,
@@ -177,6 +185,8 @@ internal fun ViewContainer<*, *>.hapticTag(
         innerPadding = 0f,
         marginRight = marginRight,
         marginBottom = marginBottom,
+        // 有按压反馈就必须有落点，否则"看着能按、点了没反应"
+        onTap = onTap,
     ) {
         View {
             attr {
@@ -275,16 +285,18 @@ internal fun ViewContainer<*, *>.divider(marginTop: Float = 16f, marginBottom: F
  * 按压深度演示块。
  *
  * 首页用它直观展示"触感反馈可视化"这件事：
- * 四块相同大小的卡片并排，分别对应四个阴影高度档位，
+ * 几块相同大小的卡片并排，分别对应各个阴影高度档位，
  * 按下任意一个都能看到阴影收紧 + 下沉的过程。
  */
 internal fun ViewContainer<*, *>.elevationDemo(page: SitePage) {
+    // Flat 是"已被压平"的导航选中态，不属于浮起高度的阶梯，演示里不展示
+    val ladder = Elevation.entries.filter { it != Elevation.Flat }
     View {
         attr {
             flexDirectionRow()
             marginTop(Tokens.Space.sm)
         }
-        Elevation.entries.forEachIndexed { index, elevation ->
+        ladder.forEachIndexed { index, elevation ->
             val key = "elev_${elevation.name}"
             hapticSurface(
                 page = page,
@@ -293,7 +305,7 @@ internal fun ViewContainer<*, *>.elevationDemo(page: SitePage) {
                 radius = Tokens.Radius.sm,
                 innerPadding = 0f,
                 flexWeight = 1f,
-                marginRight = if (index == Elevation.entries.lastIndex) 0f else 10f,
+                marginRight = if (index == ladder.lastIndex) 0f else 10f,
             ) {
                 View {
                     attr {
