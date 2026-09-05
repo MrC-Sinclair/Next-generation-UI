@@ -61,11 +61,15 @@ flutter:
   shaders:
     - assets/shaders/jelly_shader.frag
 
-  # 本地中文字体：Web 端不依赖系统字体/Google Fonts 网络下载，避免文字渲染空白
+  # 本地中文字体：Noto Sans SC（思源黑体）随应用打包，Web 端不依赖系统字体或网络字体
   fonts:
-    - family: SimHei
+    - family: NotoSansSC
       fonts:
-        - asset: assets/fonts/simhei.ttf
+        - asset: assets/fonts/noto/NotoSansSC-Regular.otf
+        - asset: assets/fonts/noto/NotoSansSC-Medium.otf
+          weight: 500
+        - asset: assets/fonts/noto/NotoSansSC-Bold.otf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

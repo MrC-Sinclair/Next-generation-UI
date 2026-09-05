@@ -28,7 +28,7 @@ class PortfolioPage extends StatelessWidget {
               crossAxisCount: desktop ? 3 : (Responsive.isMobile(context) ? 1 : 2),
               crossAxisSpacing: 18,
               mainAxisSpacing: 18,
-              childAspectRatio: desktop ? 0.82 : 0.95,
+              childAspectRatio: desktop ? 0.94 : 1.0,
               children: projects
                   .map((p) => ProjectCard(project: p))
                   .toList(),

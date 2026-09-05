@@ -83,7 +83,7 @@ class HomePage extends StatelessWidget {
               crossAxisCount: desktop ? 3 : 1,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: desktop ? 0.78 : 0.92,
+              childAspectRatio: desktop ? 0.94 : 0.95,
               children: List.generate(3, (i) {
                 return ProjectCard(
                   project: projects[i],

@@ -42,62 +42,67 @@ class BlogPage extends StatelessWidget {
 
   Widget _postCard(BuildContext context, Post post) {
     final grad = AppGradients.all[post.gradientIndex % AppGradients.all.length];
-    return GestureDetector(
-      onTap: () => _openPost(context, post),
-      child: Tilt3D(
-        maxAngle: 0.055,
-        child: GlassCard(
-          radius: 26,
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: AppTheme.jelly(
-                      gradient: grad,
-                      radius: BorderRadius.circular(16),
-                      elevation: 8,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _openPost(context, post),
+        child: Tilt3D(
+          maxAngle: 0.055,
+          child: GlassCard(
+            radius: 26,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: AppTheme.jelly(
+                        gradient: grad,
+                        radius: BorderRadius.circular(16),
+                        elevation: 8,
+                      ),
+                      child: Text(post.readTime,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700)),
                     ),
-                    child: Text(post.readTime,
+                    const Spacer(),
+                    Text(post.date,
                         style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700)),
-                  ),
-                  const Spacer(),
-                  Text(post.date,
-                      style: const TextStyle(
-                          color: AppColors.textMuted, fontSize: 12)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(post.title,
-                  style: const TextStyle(
-                      color: AppColors.textLight,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 19,
-                      height: 1.3)),
-              const SizedBox(height: 10),
-              Expanded(
-                child: Text(post.excerpt,
+                            color: AppColors.textMuted, fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(post.title,
                     style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 13, height: 1.5),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: post.tags
-                    .map((t) => TagChip(label: t, gradient: grad))
-                    .toList(),
-              ),
-            ],
+                        color: AppColors.textLight,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 19,
+                        height: 1.3)),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: Text(post.excerpt,
+                      style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 13,
+                          height: 1.5),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: post.tags
+                      .map((t) => TagChip(label: t, gradient: grad))
+                      .toList(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -52,6 +52,16 @@ class _AppShellState extends State<AppShell> {
       appBar: desktop
           ? null
           : AppBar(
+              // 顶部渐变遮罩：滚动内容不会直接顶到标题下方
+              flexibleSpace: const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xCC0E0A26), Color(0x000E0A26)],
+                  ),
+                ),
+              ),
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: _brand(compact: true),
@@ -95,6 +105,8 @@ class _AppShellState extends State<AppShell> {
           const SizedBox(height: 30),
           ...List.generate(navItems.length, (i) => _sideItem(i)),
           const Spacer(),
+          _statusChip(),
+          const SizedBox(height: 18),
           _socialRow(),
         ],
       ),
@@ -121,36 +133,40 @@ class _AppShellState extends State<AppShell> {
     final active = _index == i;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: GestureDetector(
-        onTap: () => _go(i),
-        // 导航项透视 tilt（桌面 hover 生效，移动端无影响）
-        child: Tilt3D(
-          maxAngle: active ? 0.05 : 0.04,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-            decoration: active
-                ? AppTheme.jelly(
-                    gradient: navItems[i].gradient,
-                    radius: BorderRadius.circular(18),
-                    elevation: 14,
-                  )
-                : BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-            child: Row(
-              children: [
-                Icon(navItems[i].icon,
-                    color: active ? Colors.white : AppColors.textMuted, size: 22),
-                const SizedBox(width: 14),
-                Text(navItems[i].label,
-                    style: TextStyle(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => _go(i),
+          // 导航项透视 tilt（桌面 hover 生效，移动端无影响）
+          child: Tilt3D(
+            maxAngle: active ? 0.05 : 0.04,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              decoration: active
+                  ? AppTheme.jelly(
+                      gradient: navItems[i].gradient,
+                      radius: BorderRadius.circular(18),
+                      elevation: 14,
+                    )
+                  : BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+              child: Row(
+                children: [
+                  Icon(navItems[i].icon,
                       color: active ? Colors.white : AppColors.textMuted,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      fontSize: 15,
-                    )),
-              ],
+                      size: 22),
+                  const SizedBox(width: 14),
+                  Text(navItems[i].label,
+                      style: TextStyle(
+                        color: active ? Colors.white : AppColors.textMuted,
+                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 15,
+                      )),
+                ],
+              ),
             ),
           ),
         ),
@@ -179,33 +195,40 @@ class _AppShellState extends State<AppShell> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(navItems.length, (i) {
               final active = _index == i;
-              return GestureDetector(
-                onTap: () => _go(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: active
-                      ? AppTheme.jelly(
-                          gradient: navItems[i].gradient,
-                          radius: BorderRadius.circular(16),
-                          elevation: 10,
-                        )
-                      : const BoxDecoration(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(navItems[i].icon,
-                          color: active ? Colors.white : AppColors.textMuted,
-                          size: 22),
-                      const SizedBox(height: 3),
-                      Text(navItems[i].label,
-                          style: TextStyle(
-                            color: active ? Colors.white : AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                          )),
-                    ],
+              return MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => _go(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    decoration: active
+                        ? AppTheme.jelly(
+                            gradient: navItems[i].gradient,
+                            radius: BorderRadius.circular(16),
+                            elevation: 10,
+                          )
+                        : const BoxDecoration(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(navItems[i].icon,
+                            color:
+                                active ? Colors.white : AppColors.textMuted,
+                            size: 22),
+                        const SizedBox(height: 3),
+                        Text(navItems[i].label,
+                            style: TextStyle(
+                              color: active
+                                  ? Colors.white
+                                  : AppColors.textMuted,
+                              fontSize: 11,
+                              fontWeight:
+                                  active ? FontWeight.w700 : FontWeight.w500,
+                            )),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -216,20 +239,61 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  Widget _statusChip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: AppTheme.glass(radius: BorderRadius.circular(14), alpha: 0.07),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.mint,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.mint.withValues(alpha: 0.8),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 9),
+          const Text('2026 · 可接新项目',
+              style: TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
   Widget _socialRow() {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children: Profile.socials.map((s) {
-        return Tilt3D(
-          maxAngle: 0.08,
-          child: Container(
-            width: 42,
-            height: 42,
-            decoration:
-                AppTheme.glass(radius: BorderRadius.circular(14), alpha: 0.1),
-            child:
-                Center(child: Icon(s.icon, color: AppColors.textLight, size: 20)),
+        return Tooltip(
+          message: '${s.name} · ${s.handle}',
+          waitDuration: const Duration(milliseconds: 350),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Tilt3D(
+              maxAngle: 0.08,
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: AppTheme.glass(
+                    radius: BorderRadius.circular(14), alpha: 0.1),
+                child: Center(
+                    child:
+                        Icon(s.icon, color: AppColors.textLight, size: 20)),
+              ),
+            ),
           ),
         );
       }).toList(),
@@ -281,8 +345,12 @@ class _AppShellState extends State<AppShell> {
                     color: AppColors.textLight,
                     fontWeight: FontWeight.w800,
                     fontSize: 18)),
-            const Text('Personal Site',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+            const Text('CREATIVE DEVELOPER',
+                style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 10.5,
+                    letterSpacing: 1.6,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
       ],

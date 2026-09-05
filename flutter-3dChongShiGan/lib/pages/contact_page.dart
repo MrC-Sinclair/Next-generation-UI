@@ -21,23 +21,27 @@ class _ContactPageState extends State<ContactPage> {
 
   void _submit() {
     if (_name.text.isEmpty || _msg.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('请至少填写称呼与留言内容'),
-          backgroundColor: Colors.pinkAccent.withValues(alpha: 0.9),
-        ),
-      );
+      _toast('请至少填写称呼与留言内容', Colors.pinkAccent.withValues(alpha: 0.95));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('已收到，${_name.text}！我会尽快回复你 ✨'),
-        backgroundColor: Colors.deepPurpleAccent.withValues(alpha: 0.9),
-      ),
-    );
+    _toast('已收到，${_name.text}！我会尽快回复你 ✨',
+        Colors.deepPurpleAccent.withValues(alpha: 0.95));
     _name.clear();
     _email.clear();
     _msg.clear();
+  }
+
+  void _toast(String message, Color color) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        width: 360,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    );
   }
 
   @override
@@ -90,58 +94,63 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   Widget _infoCard(Gradient grad) {
+    final cardHeight = Responsive.isDesktop(context) ? 400.0 : 450.0;
     return RevealOnLoad(
-      child: Container(
-        decoration: AppTheme.jelly(
+      child: SizedBox(
+        height: cardHeight,
+        child: VolumeBox(
           gradient: grad,
-          radius: BorderRadius.circular(28),
+          radius: 28,
           elevation: 28,
-        ),
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('直接联系',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800)),
-            const SizedBox(height: 8),
-            const Text('邮箱是最快的方式，通常 24 小时内回复。',
-                style: TextStyle(color: Colors.white70, fontSize: 14)),
-            const SizedBox(height: 28),
-            _infoRow(Icons.mail_rounded, '邮箱', Profile.email),
-            const SizedBox(height: 14),
-            _infoRow(Icons.place_rounded, '所在地', Profile.location),
-            const SizedBox(height: 26),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: Profile.socials
-                  .map((s) => Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.16),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.3)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(s.icon, color: Colors.white, size: 18),
-                            const SizedBox(width: 8),
-                            Text(s.name,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                      ))
-                  .toList(),
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('直接联系',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 8),
+                const Text('邮箱是最快的方式，通常 24 小时内回复。',
+                    style: TextStyle(color: Colors.white70, fontSize: 14)),
+                const Spacer(),
+                _infoRow(Icons.mail_rounded, '邮箱', Profile.email),
+                const SizedBox(height: 14),
+                _infoRow(Icons.place_rounded, '所在地', Profile.location),
+                const SizedBox(height: 26),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: Profile.socials
+                      .map((s) => Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                  color:
+                                      Colors.white.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(s.icon, color: Colors.white, size: 18),
+                                const SizedBox(width: 8),
+                                Text(s.name,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -206,19 +215,33 @@ class _ContactPageState extends State<ContactPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+            style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 13,
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
-        Container(
-          decoration: AppTheme.glass(radius: BorderRadius.circular(16), alpha: 0.08),
-          child: TextField(
-            controller: c,
-            maxLines: multiline ? 4 : 1,
-            style: const TextStyle(color: AppColors.textLight, fontSize: 15),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        TextField(
+          controller: c,
+          maxLines: multiline ? 4 : 1,
+          cursorColor: AppColors.pink,
+          style: const TextStyle(color: AppColors.textLight, fontSize: 15),
+          decoration: InputDecoration(
+            isCollapsed: false,
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.05),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide:
+                  BorderSide(color: Colors.white.withValues(alpha: 0.12)),
             ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide:
+                  const BorderSide(color: AppColors.pink, width: 1.4),
+            ),
+            hoverColor: Colors.white.withValues(alpha: 0.04),
           ),
         ),
       ],

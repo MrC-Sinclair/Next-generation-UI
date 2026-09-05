@@ -27,6 +27,7 @@ class JellyShaderProgram {
     required double width,
     required double height,
     required Gradient gradient,
+    double radius = 0,
     Alignment light = const Alignment(-0.35, -0.55),
     double specIntensity = 1.0,
     double fresnel = 0.8,
@@ -39,8 +40,8 @@ class JellyShaderProgram {
     final colors = gradient.colors;
     final first = colors.isEmpty ? const Color(0xFFA855F7) : colors.first;
     final last = colors.length > 1 ? colors.last : first;
-    // 顶部受光色（主色向白提亮）、主体色、暗部收口色
-    final topColor = Color.lerp(first, Colors.white, 0.24)!;
+    // 顶部受光色（主色向白轻微提亮）、主体色、暗部收口色
+    final topColor = Color.lerp(first, Colors.white, 0.14)!;
     final deepColor = Color.lerp(last, Colors.black, 0.46)!;
     final lx = ((light.x + 1) / 2).clamp(0.0, 1.0);
     final ly = ((light.y + 1) / 2).clamp(0.0, 1.0);
@@ -51,7 +52,7 @@ class JellyShaderProgram {
     shader
       ..setFloat(0, width)
       ..setFloat(1, height)
-      ..setFloat(2, 0)
+      ..setFloat(2, radius)
       ..setFloat(3, 0)
       ..setFloat(4, topColor.r)
       ..setFloat(5, topColor.g)
@@ -84,7 +85,8 @@ class _JellyShaderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _JellyShaderPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _JellyShaderPainter oldDelegate) =>
+      oldDelegate.shader != shader;
 }
 
 /// 果冻按钮：按下弹性缩放（squish）+ 投影联动收缩，松手以二阶弹簧（SpringSimulation）
@@ -182,24 +184,29 @@ class _JellyButtonState extends State<JellyButton>
           );
 
     // Tilt3D：桌面端按钮随鼠标轻微透视倾斜（移动端无 hover 不触发）
-    return Tilt3D(
-      maxAngle: 0.06,
-      child: GestureDetector(
-        onTapDown: (_) => _down(),
-        onTapUp: (_) {
-          _up();
-          widget.onTap?.call();
-        },
-        onTapCancel: _up,
-        child: Transform.scale(
-          scale: scale,
-          child: Container(
-            padding: widget.padding ??
-                EdgeInsets.symmetric(
-                    horizontal: widget.label != null ? 28 : 22),
-            height: widget.height,
-            decoration: decoration,
-            child: Center(child: content),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Tilt3D(
+        maxAngle: 0.06,
+        child: GestureDetector(
+          onTapDown: (_) => _down(),
+          onTapUp: (_) {
+            _up();
+            widget.onTap?.call();
+          },
+          onTapCancel: _up,
+          child: Transform.scale(
+            scale: scale,
+            child: Container(
+              padding: widget.padding ??
+                  EdgeInsets.symmetric(
+                      horizontal: widget.label != null ? 28 : 22),
+              height: widget.height,
+              decoration: decoration,
+              // widthFactor：让按钮宽度由内容决定，而非撑满父级约束
+              child: Center(
+                  widthFactor: 1.0, heightFactor: 1.0, child: content),
+            ),
           ),
         ),
       ),
@@ -270,6 +277,7 @@ class VolumeBox extends StatelessWidget {
                       width: w,
                       height: h,
                       gradient: gradient,
+                      radius: radius,
                       light: lightOffset,
                       specIntensity: specIntensity,
                       fresnel: fresnel,

@@ -69,7 +69,15 @@ class AppTheme {
           bodyMedium: TextStyle(color: AppColors.textLight, fontSize: 16, height: 1.6),
           bodySmall: TextStyle(color: AppColors.textMuted, fontSize: 14, height: 1.5),
         ),
-        fontFamily: 'SimHei',
+        // Noto Sans SC：随应用打包的现代黑体，替代系统 SimHei 的粗糙渲染
+        fontFamily: 'NotoSansSC',
+        scrollbarTheme: ScrollbarThemeData(
+          thickness: const WidgetStatePropertyAll(5),
+          radius: Radius.circular(4),
+          thumbColor: const WidgetStatePropertyAll(Color(0x33FFFFFF)),
+          trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
+          trackColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
       );
 
   /// 体积径向渐变：由线性渐变派生"亮顶 → 主色 → 暗底"的受光体积渐变，

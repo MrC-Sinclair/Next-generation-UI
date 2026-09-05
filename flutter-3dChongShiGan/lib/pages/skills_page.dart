@@ -31,7 +31,7 @@ class SkillsPage extends StatelessWidget {
               crossAxisCount: desktop ? 2 : 1,
               crossAxisSpacing: 20,
               mainAxisSpacing: 20,
-              childAspectRatio: desktop ? 1.25 : 1.7,
+              childAspectRatio: desktop ? 1.55 : 1.05,
               children: skillCategories.map((cat) => _categoryCard(cat)).toList(),
             ),
           ),
@@ -53,7 +53,7 @@ class SkillsPage extends StatelessWidget {
             Row(
               children: [
                 JellyIcon(
-                  icon: Icons.star_rounded,
+                  icon: cat.icon,
                   gradient: grad,
                   size: 42,
                   iconScale: 0.5,

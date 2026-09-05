@@ -24,7 +24,8 @@ class AboutPage extends StatelessWidget {
           const SizedBox(height: 40),
           const SectionTitle(kicker: 'Story', title: '我的经历', gradient: AppGradients.blueCyan),
           const SizedBox(height: 20),
-          ...Profile.timeline.map((t) => _timelineItem(t)),
+          ...Profile.timeline.asMap().entries.map((e) =>
+              _timelineItem(e.value, isLast: e.key == Profile.timeline.length - 1)),
           const SizedBox(height: 40),
           const SectionTitle(kicker: 'Values', title: '我在意的事', gradient: AppGradients.mint),
           const SizedBox(height: 20),
@@ -141,14 +142,14 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _timelineItem(TimelineItem t) {
+  Widget _timelineItem(TimelineItem t, {bool isLast = false}) {
     return RevealOnLoad(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 22),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 时间轴
+            // 时间轴（末项不再画延伸线，避免"断头线"）
             Column(
               children: [
                 Container(
@@ -160,11 +161,12 @@ class AboutPage extends StatelessWidget {
                     elevation: 8,
                   ),
                 ),
-                Container(
-                  width: 2,
-                  height: 60,
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
+                if (!isLast)
+                  Container(
+                    width: 2,
+                    height: 60,
+                    color: Colors.white.withValues(alpha: 0.15),
+                  ),
               ],
             ),
             const SizedBox(width: 18),

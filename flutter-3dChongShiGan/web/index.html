@@ -1,24 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="苏沐 · 触感个人主页：3D 果冻质感设计系统与跨端动效作品集。">
+  <meta name="theme-color" content="#0E0A26">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="触感 · 苏沐的创意主页">
+  <meta property="og:description" content="3D 果冻质感设计系统 · 跨端动效 · 作品集与博客">
+  <meta property="og:type" content="website">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -26,21 +19,66 @@
   <meta name="apple-mobile-web-app-title" content="触感主页">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
+  <!-- Favicon：SVG 优先（果冻渐变徽标），PNG 兜底 -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>触感 · 个人主页</title>
+  <title>触感 · 苏沐的创意主页</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- 首屏启动画面：与应用同色系，消除默认白屏闪烁 -->
+  <style>
+    html, body { margin: 0; padding: 0; background: #0E0A26; }
+    #splash {
+      position: fixed; inset: 0; z-index: 9;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 22px;
+      background:
+        radial-gradient(560px 420px at 18% 12%, rgba(168, 85, 247, 0.22), transparent 66%),
+        radial-gradient(640px 480px at 85% 30%, rgba(236, 72, 153, 0.16), transparent 68%),
+        radial-gradient(720px 560px at 55% 92%, rgba(34, 211, 238, 0.10), transparent 70%),
+        #0E0A26;
+      font-family: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+      transition: opacity .45s ease;
+    }
+    #splash .logo {
+      width: 76px; height: 76px; border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #A855F7, #EC4899);
+      color: #fff; font-size: 40px; font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.30);
+      box-shadow: 0 18px 48px rgba(168, 85, 247, 0.45),
+                  inset 0 1.5px 0 rgba(255, 255, 255, 0.42);
+    }
+    #splash .bar {
+      width: 128px; height: 4px; border-radius: 4px;
+      background: rgba(255, 255, 255, 0.12); overflow: hidden;
+    }
+    #splash .bar i {
+      display: block; height: 100%; width: 42%; border-radius: 4px;
+      background: linear-gradient(90deg, #A855F7, #EC4899);
+      animation: splash-load 1.15s ease-in-out infinite;
+    }
+    #splash .tip { color: rgba(182, 188, 224, 0.85); font-size: 12.5px; letter-spacing: 2px; }
+    @keyframes splash-load {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <div id="splash">
+    <div class="logo">苏</div>
+    <div class="bar"><i></i></div>
+    <div class="tip">触感 · TACTILE</div>
+  </div>
+  <script>
+    // 首帧渲染后淡出启动画面
+    window.addEventListener('flutter-first-frame', function () {
+      var s = document.getElementById('splash');
+      if (s) { s.style.opacity = '0'; setTimeout(function () { s.remove(); }, 500); }
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

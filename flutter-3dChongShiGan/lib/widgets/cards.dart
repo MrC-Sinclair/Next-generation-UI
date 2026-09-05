@@ -39,35 +39,58 @@ class StatCard extends StatelessWidget {
   }
 }
 
-/// 快捷入口卡（首页）：鼠标透视 tilt + 果冻图标（浮雕字形）
-class QuickLinkCard extends StatelessWidget {
+/// 快捷入口卡（首页）：鼠标透视 tilt + 果冻图标（浮雕字形）+ hover 箭头位移
+class QuickLinkCard extends StatefulWidget {
   final NavItem item;
   final VoidCallback onTap;
   const QuickLinkCard({super.key, required this.item, required this.onTap});
 
   @override
+  State<QuickLinkCard> createState() => _QuickLinkCardState();
+}
+
+class _QuickLinkCardState extends State<QuickLinkCard> {
+  bool _hover = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Tilt3D(
-        maxAngle: 0.055,
-        child: GlassCard(
-          radius: 24,
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              JellyIcon(icon: item.icon, gradient: item.gradient, size: 50),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(item.label,
-                    style: const TextStyle(
-                        color: AppColors.textLight,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 17)),
-              ),
-              Icon(Icons.arrow_forward_rounded,
-                  color: AppColors.textMuted, size: 20),
-            ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Tilt3D(
+          maxAngle: 0.055,
+          child: GlassCard(
+            radius: 24,
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                JellyIcon(
+                    icon: widget.item.icon,
+                    gradient: widget.item.gradient,
+                    size: 50),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(widget.item.label,
+                      style: const TextStyle(
+                          color: AppColors.textLight,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17)),
+                ),
+                AnimatedSlide(
+                  offset: _hover ? const Offset(0.18, 0) : Offset.zero,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: Icon(Icons.arrow_forward_rounded,
+                      color: _hover
+                          ? AppColors.textLight
+                          : AppColors.textMuted,
+                      size: 20),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -111,68 +134,75 @@ class ProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final grad = AppGradients.all[project.gradientIndex % AppGradients.all.length];
     final icon = _projectIcons[project.gradientIndex % _projectIcons.length];
-    return GestureDetector(
-      onTap: onTap,
-      child: Tilt3D(
-        maxAngle: 0.055,
-        child: GlassCard(
-          radius: 26,
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 缩略图（shader 受光果冻 + 浮雕字形）
-              SizedBox(
-                height: 120,
-                child: VolumeBox(
-                  gradient: grad,
-                  radius: 20,
-                  elevation: 16,
-                  child: Center(
-                    child: EmbossIcon(
-                      icon: icon,
-                      size: 52,
-                      color: Colors.white,
-                      depth: 2.2,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Tilt3D(
+          maxAngle: 0.055,
+          child: GlassCard(
+            radius: 26,
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 缩略图（shader 受光果冻 + 浮雕字形）
+                SizedBox(
+                  height: 120,
+                  child: VolumeBox(
+                    gradient: grad,
+                    radius: 20,
+                    elevation: 16,
+                    child: Center(
+                      child: EmbossIcon(
+                        icon: icon,
+                        size: 52,
+                        color: Colors.white,
+                        depth: 2.2,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(project.title,
-                      style: const TextStyle(
-                          color: AppColors.textLight,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 19)),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(project.title,
+                          style: const TextStyle(
+                              color: AppColors.textLight,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 19)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: AppTheme.glass(
+                          radius: BorderRadius.circular(14), alpha: 0.1),
+                      child: Text(project.metric,
+                          style: const TextStyle(
+                              color: AppColors.textLight, fontSize: 11)),
+                    ),
+                  ],
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: AppTheme.glass(radius: BorderRadius.circular(14), alpha: 0.1),
-                  child: Text(project.metric,
-                      style: const TextStyle(
-                          color: AppColors.textLight, fontSize: 11)),
+                const SizedBox(height: 8),
+                Text(project.desc,
+                    style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 13,
+                        height: 1.5),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: project.tags
+                      .map((t) => TagChip(label: t, gradient: grad))
+                      .toList(),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(project.desc,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 13, height: 1.5),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: project.tags
-                  .map((t) => TagChip(label: t, gradient: grad))
-                  .toList(),
-            ),
-          ],
-        ),
+          ),
         ),
       ),
     );
