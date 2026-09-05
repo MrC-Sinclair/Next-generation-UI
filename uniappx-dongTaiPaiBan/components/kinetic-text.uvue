@@ -23,7 +23,10 @@
  *   breathe 呼吸   bounce 弹跳   wave 波浪
  *   distort 扭曲   melt 融化     glitch 故障
  *
- * 另有两项全局手感：
+ * 另有三项全局手感：
+ * - 话语引擎：短语型情绪（bounce/distort/glitch/melt）按「表达 → 归于静止」循环播放，
+ *   词语成组移动、各行按文本哈希错峰，静止时文字完全归位为纸白常态——
+ *   情绪是"偶发的表达"，不是永不停歇的装饰循环；
  * - 挂载后一次性逐字入场（错峰升起），reduced / ALLOW_MOTION=false 时跳过；
  * - 自适应帧率：按字数选帧间隔，tick 按真实时长归一化，帧率不影响动画速度。
  */
@@ -121,6 +124,179 @@ const entranceAt = (idx: number): number => {
   return p
 }
 
+/** 断句符：出现即重置词组相位 */
+const isBreakChar = (ch: string): boolean => {
+  return ch === ' ' || ch === '　' || ch === ',' || ch === '.' || ch === '!' || ch === '?' ||
+    ch === '，' || ch === '。' || ch === '！' || ch === '？' || ch === '、' || ch === '；' ||
+    ch === '：' || ch === '·' || ch === '《' || ch === '》' || ch === '（' || ch === '）' || ch === '—'
+}
+
+/** 字相位：组内微差（0.18）+ 词组间大差（0.75）。中文无分词，每 2 字一组——动效跟随词语节奏，而非逐字波纹 */
+const charPhase = (idx: number): number => {
+  const arr = props.text.split('')
+  let phase = 0
+  let run = 0
+  for (let i = 0; i < idx; i++) {
+    phase += 0.18
+    run++
+    if (isBreakChar(arr[i]) || run >= 2) {
+      phase += 0.75
+      run = 0
+    }
+  }
+  return phase
+}
+
+/** 文本哈希 → 行种子：多行同屏时错开各自的表达时机，避免齐动 */
+const lineSeed: ComputedRef<number> = computed(() => {
+  const arr = props.text.split('')
+  let h = 0
+  for (let i = 0; i < arr.length; i++) {
+    h = (h + arr[i].charCodeAt(0)) % 997
+  }
+  return h
+})
+
+type Pose = {
+  x: number
+  y: number
+  sx: number
+  sy: number
+  sk: number
+  rot: number
+  op: number
+  /** 表达强度 0~1：0 = 静止归位；驱动波峰染色与阴影 */
+  act: number
+  /** 原始抖动值（glitch 红绿色散方向用），其余模式为 0 */
+  dir: number
+}
+
+/** 情绪短语周期（秒）：雀跃短促、失真稀疏、融化绵长；0 = 连续氛围型（wave/breathe） */
+const phraseCycleSecs = (m: string): number => {
+  if (m === 'bounce') return 3.4
+  if (m === 'distort') return 5.5
+  if (m === 'glitch') return 6.5
+  if (m === 'melt') return 9.0
+  return 0
+}
+
+/** 短语时钟：当前位置 u ∈ [0,1)，连续模式返回 -1 */
+const phraseU = (m: string): number => {
+  const secs = phraseCycleSecs(m)
+  if (secs <= 0) return -1
+  const cycT = secs * 1.5 * props.speed
+  const t = tick.value * 0.09 * props.speed
+  let u = ((t + lineSeed.value / 997 * cycT) % cycT) / cycT
+  if (u < 0) u += 1
+  return u
+}
+
+/** 单字位姿：六种情绪的编排都在这里。除 wave/breathe 外，一次表达后全部归零静止 */
+const poseAt = (idx: number): Pose => {
+  const t = tick.value * 0.09 * props.speed
+  const ph = charPhase(idx)
+  const amp = props.amplitude
+  const seed = lineSeed.value
+  const sign = seed % 2 === 0 ? 1 : -1
+
+  let x = 0
+  let y = 0
+  let sx = 1
+  let sy = 1
+  let sk = 0
+  let rot = 0
+  let op = 1
+  let act = 0
+  let dir = 0
+
+  const m = props.mode
+
+  if (m === 'bounce') {
+    // 雀跃：两连跳、逐跳衰减，然后静止——跳动只发生在表达的瞬间
+    const u = phraseU(m)
+    if (u >= 0 && u <= 0.35) {
+      const g = u / 0.35
+      const hop = Math.abs(Math.sin(g * Math.PI * 2)) * Math.pow(1 - g, 1.2)
+      act = hop
+      y += -hop * amp * 1.15
+      const squash = Math.abs(Math.cos(g * Math.PI * 2)) * (1 - g)
+      sy += squash * 0.2
+      sx -= squash * 0.1
+    }
+  } else if (m === 'wave') {
+    // 漂浮：唯一的位移型常动模式，低幅正弦
+    const w = Math.sin(t * 1.6 + ph)
+    act = (w + 1) / 2 * 0.6
+    y += w * amp
+    rot += Math.cos(t * 1.6 + ph) * 5
+  } else if (m === 'breathe') {
+    // 平静：等比呼吸 + 透明度，连续氛围型
+    const b = Math.sin(t * 1.2 + ph)
+    act = (b + 1) / 2 * 0.5
+    sx += b * 0.055
+    sy += b * 0.055
+    op -= (1 - (b + 1) / 2) * 0.28
+  } else if (m === 'distort') {
+    // 紧绷：张力缓慢建立 → 释放回正 → 安静等待下一次
+    const u = phraseU(m)
+    if (u >= 0 && u <= 0.45) {
+      const g = u / 0.45
+      if (g <= 0.82) {
+        const tension = g * g
+        act = tension
+        sk += sign * (tension * 10 + Math.sin(t * 7 + ph) * 1.6 * tension)
+        x += Math.sin(t * 3.1 + ph) * amp * 0.3 * tension
+        sx += tension * 0.1
+        sy -= tension * 0.08
+      } else {
+        const r = (g - 0.82) / 0.18
+        const recoil = Math.sin(r * Math.PI) * (1 - r)
+        act = recoil * 0.3
+        sk += -sign * recoil * 6
+      }
+    }
+  } else if (m === 'melt') {
+    // 融化：缓慢瘫下去 → 停在底部 → 更缓慢地恢复。疲劳是一次性的，不是往复振荡
+    const u = phraseU(m)
+    let k = 0
+    if (u >= 0) {
+      if (u < 0.55) {
+        const g = u / 0.55
+        k = g * g * (3 - 2 * g)
+      } else if (u < 0.75) {
+        k = 1
+      } else {
+        const g = (u - 0.75) / 0.25
+        k = 1 - g * g * (3 - 2 * g)
+      }
+    }
+    act = k
+    y += k * amp
+    sy += k * 0.38
+    sx -= k * 0.1
+    sk += Math.sin(t * 0.7 + ph) * 3.5 * k
+    op -= k * 0.22
+  } else if (m === 'glitch') {
+    // 失真：大部分时间安静，周期内两次短促抽动——故障是事件，不是常态
+    const u = phraseU(m)
+    if (u >= 0) {
+      const b1 = (seed % 13) / 130
+      const burst = (u >= b1 && u <= b1 + 0.09) || (u >= 0.52 && u <= 0.64)
+      if (burst) {
+        const n = Math.sin(t * 9 + ph * 3.7) * Math.cos(t * 5.3 + ph * 1.9)
+        act = Math.abs(n)
+        dir = n
+        x += n * amp * 0.9
+        sk += n * 9
+        sy += Math.abs(n) * 0.1
+        if (n > 0.45) op -= 0.18
+      }
+    }
+  }
+
+  return { x: x, y: y, sx: sx, sy: sy, sk: sk, rot: rot, op: op, act: act, dir: dir }
+}
+
 /**
  * 单字容器样式：承载 transform
  * 用 view 包一层而不是直接变换 text，是因为原生端 text 的变换支持有差异
@@ -136,26 +312,20 @@ const cellStyle = (idx: number): UTSJSONObject => {
     }
   }
 
-  // 时间基准 0.09：speed=0.8 时 wave 周期约 3.3s / bounce 约 1.2s，动效可感知；
-  // 旧值 0.05 慢到接近静止（wave 周期近 6s），是"感觉不到在动"的根因
-  const t = tick.value * 0.09 * props.speed
-  // 相位差 0.55：相邻字错位约 0.3s，波浪沿字推进肉眼可见
-  const p = idx * 0.55
-  const amp = props.amplitude
-
-  let x: number = 0
-  let y: number = 0
-  let sx: number = 1
-  let sy: number = 1
-  let sk: number = 0
-  let rot: number = 0
-  let op: number = 1
+  const pose = poseAt(idx)
+  let x = pose.x
+  let y = pose.y
+  let sx = pose.sx
+  let sy = pose.sy
+  let sk = pose.sk
+  let rot = pose.rot
+  let op = pose.op
 
   // 点击冲击波：以点击点为中心向两侧衰减扩散
   if (impact.value > 0.01) {
     const dist = Math.abs(idx - impactOrigin.value)
     const wave = Math.sin(impact.value * Math.PI) * Math.max(0, 1 - dist / 6)
-    y -= wave * amp * 2.2
+    y -= wave * props.amplitude * 2.2
     sy += wave * 0.35
   }
 
@@ -165,47 +335,6 @@ const cellStyle = (idx: number): UTSJSONObject => {
     const e = 1 - Math.pow(1 - ent, 3)
     y += (1 - e) * props.fontSize * 0.35
     op *= e
-  }
-
-  const m = props.mode
-
-  if (m === 'bounce') {
-    const b = Math.abs(Math.sin(t * 2 + p))
-    y += -b * amp
-    sy = sy * (1 + (1 - b) * 0.16)
-    sx = sx * (1 - (1 - b) * 0.08)
-  } else if (m === 'wave') {
-    const w = Math.sin(t * 1.6 + p)
-    y += w * amp
-    rot += Math.cos(t * 1.6 + p) * 5
-  } else if (m === 'breathe') {
-    const b = Math.sin(t * 1.2 + p)
-    sx = sx * (1 + b * 0.055)
-    sy = sy * (1 + b * 0.055)
-    op = 0.72 + ((b + 1) / 2) * 0.28
-  } else if (m === 'distort') {
-    const d = Math.sin(t * 2.4 + p)
-    sk += d * 11
-    x += Math.cos(t * 3.1 + p) * amp * 0.35
-    sx = sx * (1 + d * 0.2)
-    sy = sy * (1 - d * 0.12)
-  } else if (m === 'melt') {
-    // 下沉量做二次方，让字像被加热后一点点瘫下去
-    const k = (Math.sin(t * 1.1 + p) + 1) / 2
-    const melt = k * k
-    y += melt * amp
-    sy = sy * (1 + melt * 0.38)
-    sx = sx * (1 - melt * 0.1)
-    sk += Math.sin(t * 0.7 + p) * 3.5
-    op = 1 - melt * 0.22
-  } else if (m === 'glitch') {
-    const n = Math.sin(t * 9 + p * 3.7) * Math.cos(t * 5.3 + p * 1.9)
-    x += n * amp * 0.9
-    sk += n * 9
-    sy = sy * (1 + Math.abs(n) * 0.1)
-    if (n > 0.45) {
-      op = 0.82
-    }
   }
 
   return {
@@ -219,35 +348,36 @@ const cellStyle = (idx: number): UTSJSONObject => {
   }
 }
 
-/** 单字样式：颜色与阴影，负责波峰染色和故障色散（时间基准/相位差须与 cellStyle 保持一致） */
+/** 单字样式：颜色与阴影。染色跟随表达强度——静止时就是纸白常态，只有表达的瞬间才染上情绪色 */
 const chStyle = (idx: number): UTSJSONObject => {
-  const t = tick.value * 0.09 * props.speed
-  const p = idx * 0.55
+  const pose = poseAt(idx)
+  const act = pose.act
 
   let color = effColor.value
   let shadow = 'none'
 
-  if (props.mode === 'wave' || props.mode === 'bounce') {
-    const k = (Math.sin(t * 1.6 + p) + 1) / 2
-    color = k > 0.62 ? effAccent.value : effColor.value
-  } else if (props.mode === 'distort') {
-    const k = Math.abs(Math.sin(t * 2.4 + p))
-    color = k > 0.7 ? effAccent.value : effColor.value
-    shadow = '0 0 ' + (k * 14).toFixed(1) + 'px ' + effAccent.value + '55'
-  } else if (props.mode === 'glitch') {
-    const n = Math.sin(t * 9 + p * 3.7) * Math.cos(t * 5.3 + p * 1.9)
-    if (n > 0.45) {
-      color = effAccent.value
-      shadow = '-3px 0 0 ' + effAccent.value + ', 3px 0 0 ' + effGreen.value
-    } else if (n < -0.45) {
-      shadow = '3px 0 0 ' + effAccent.value + ', -3px 0 0 ' + effGreen.value
-    }
-  } else if (props.mode === 'melt') {
-    const k = (Math.sin(t * 1.1 + p) + 1) / 2
-    const melt = k * k
+  if (props.mode === 'melt') {
     // 没有 CSS filter 的端也能靠加大阴影半径模拟"糊开"
-    shadow = '0 ' + (melt * 6).toFixed(1) + 'px ' + (melt * 10).toFixed(1) + 'px ' + effAccent.value + '33'
-    if (melt > 0.62) color = effAccent.value
+    shadow = '0 ' + (act * 6).toFixed(1) + 'px ' + (act * 10).toFixed(1) + 'px ' + effAccent.value + '33'
+    if (act > 0.62) color = effAccent.value
+  } else if (props.mode === 'glitch') {
+    if (act > 0) {
+      const n = pose.dir
+      if (n > 0.45) {
+        color = effAccent.value
+        shadow = '-3px 0 0 ' + effAccent.value + ', 3px 0 0 ' + effGreen.value
+      } else if (n < -0.45) {
+        shadow = '3px 0 0 ' + effAccent.value + ', -3px 0 0 ' + effGreen.value
+      } else if (n > 0) {
+        color = effAccent.value
+      }
+    }
+  } else if (act > 0.55) {
+    // wave 波峰 / bounce 腾空 / distort 张力峰值 → 染上强调色
+    color = effAccent.value
+    if (props.mode === 'distort') {
+      shadow = '0 0 ' + (act * 14).toFixed(1) + 'px ' + effAccent.value + '55'
+    }
   }
 
   return {
