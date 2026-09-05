@@ -14,6 +14,7 @@ import {
   Star,
   Tape,
 } from '@/components/sketch';
+import { MarkerTitle } from '@/components/sketch/marker-title';
 import { AvatarDoodle } from '@/components/sketch/avatar';
 import { profile } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
@@ -31,14 +32,27 @@ export default function Home() {
       {/* ---------------- Hero ---------------- */}
       <View style={[styles.hero, { flexDirection: wide ? 'row' : 'column' }]}>
         <View style={styles.heroMain}>
-          <Text style={styles.heroHi}>Hi, I&apos;m {profile.nameEn}</Text>
+          <MarkerTitle
+            text={`Hi, I'm ${profile.nameEn}`}
+            fontFamily={FontFamily.hand}
+            fontSize={54}
+            lineHeight={58}
+            color={Palette.markerBlue}
+            strokeWidth={1}
+            style={{ transform: [{ rotate: '-1.5deg' }] }}
+          />
           <View>
             <View style={styles.heroNameRow}>
               <Text style={styles.heroName}>你好，我是</Text>
               <View>
-                <Text style={[styles.heroName, { color: Palette.markerRed }]}>
-                  {profile.name}
-                </Text>
+                <MarkerTitle
+                  text={profile.name}
+                  fontFamily={FontFamily.kaiBold}
+                  fontSize={44}
+                  lineHeight={52}
+                  color={Palette.markerRed}
+                  strokeWidth={1}
+                />
                 <View style={styles.heroNameMark} pointerEvents="none">
                   <CircleMark size={52} color={Palette.highlighter} seed={8} strokeWidth={7} />
                 </View>
