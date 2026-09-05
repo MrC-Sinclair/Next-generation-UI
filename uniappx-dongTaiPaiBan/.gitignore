@@ -3,6 +3,7 @@ unpackage/
 preview/
 build/
 .hbuilderx/
+temp/
 
 # ===================== 依赖 =====================
 node_modules/
