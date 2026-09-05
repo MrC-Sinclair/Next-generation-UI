@@ -25,6 +25,9 @@
  */
 
 import { ref, computed, onMounted, onUnmounted, type ComputedRef } from 'vue'
+import { appActive } from '../common/app-state'
+import { ALLOW_MOTION } from '../common/site'
+import { themeResolve } from '../common/theme'
 
 const props = defineProps({
   /** 要动的文字，建议不超过 20 字，移动端超过会掉帧 */
@@ -47,8 +50,10 @@ const props = defineProps({
   speed: { type: Number, default: 1 },
   /** 字距（px） */
   letterSpacing: { type: Number, default: 0 },
-  /** 暂停动画（离开视口时建议置 true 省电） */
+  /** 暂停动画（页面隐藏/离开视口时置 true 可停帧省电） */
   paused: { type: Boolean, default: false },
+  /** 减弱动效：true 时静态渲染（无位移/无冲击波/无定时器），供系统级"减弱动态效果"或局部降级使用 */
+  reduced: { type: Boolean, default: false },
   /** 是否响应点击：点击后触发一次冲击波 */
   interactive: { type: Boolean, default: false },
   /** 对齐方式 */
@@ -58,7 +63,15 @@ const props = defineProps({
 // 事件名用 press 而不是 tap，避免和原生 tap 事件在组件上撞车
 const emit = defineEmits(['press'])
 
+/** #12：颜色统一经主题解析——深色原样、浅色调墨降档（glow/glitch 阴影同理），保证动效在浅色下不刺眼 */
+const effColor: ComputedRef<string> = computed(() => themeResolve(props.color))
+const effAccent: ComputedRef<string> = computed(() => themeResolve(props.accent))
+/** glitch 的绿色散光在浅色主题下降为深绿 */
+const effGreen: ComputedRef<string> = computed(() => themeResolve('#00E5A0'))
+
 const tick = ref(0)
+/** 减弱动效生效条件：显式 prop 或全局 ALLOW_MOTION=false（见 common/site.uts） */
+const effReduced: ComputedRef<boolean> = computed(() => props.reduced || !ALLOW_MOTION)
 /** 点击冲击波的衰减值 0~1 */
 const impact = ref(0)
 /** 冲击波起始位置（字索引） */
@@ -77,10 +90,18 @@ const chars: ComputedRef<string[]> = computed(() => {
   return out
 })
 
+/**
+ * 容器样式：额外预留上下内边距（取 1.1×形变幅度 与 0.25×字号 的较大值），
+ * 让 bounce 上弹 / melt 拉伸等大位移有安全空间，
+ * 不会压住上方元素、也不会侵入下方正文。仅扩展可用区域，不改动形变算法。
+ */
 const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const pad = Math.round(Math.max(props.amplitude * 1.1, props.fontSize * 0.25))
   return {
     'justify-content': props.align,
-    'flex-wrap': 'wrap'
+    'flex-wrap': 'wrap',
+    'padding-top': pad + 'px',
+    'padding-bottom': pad + 'px'
   }
 })
 
@@ -89,6 +110,16 @@ const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
  * 用 view 包一层而不是直接变换 text，是因为原生端 text 的变换支持有差异
  */
 const cellStyle = (idx: number): UTSJSONObject => {
+  // 评审 #5：全局减弱动效（ALLOW_MOTION=false / reduced）时静态渲染，
+  // 无色散/无位移/无冲击波——glitch 等高频模式随之停用
+  if (effReduced.value) {
+    return {
+      'transform': 'translate(0px, 0px) rotate(0deg) skewX(0deg) scale(1.000, 1.000)',
+      'opacity': '1.000',
+      'margin-right': props.letterSpacing + 'px'
+    }
+  }
+
   const t = tick.value * 0.05 * props.speed
   const p = idx * 0.38
   const amp = props.amplitude
@@ -166,30 +197,30 @@ const chStyle = (idx: number): UTSJSONObject => {
   const t = tick.value * 0.05 * props.speed
   const p = idx * 0.38
 
-  let color = props.color
+  let color = effColor.value
   let shadow = 'none'
 
   if (props.mode === 'wave' || props.mode === 'bounce') {
     const k = (Math.sin(t * 1.6 + p) + 1) / 2
-    color = k > 0.62 ? props.accent : props.color
+    color = k > 0.62 ? effAccent.value : effColor.value
   } else if (props.mode === 'distort') {
     const k = Math.abs(Math.sin(t * 2.4 + p))
-    color = k > 0.7 ? props.accent : props.color
-    shadow = '0 0 ' + (k * 14).toFixed(1) + 'px ' + props.accent + '55'
+    color = k > 0.7 ? effAccent.value : effColor.value
+    shadow = '0 0 ' + (k * 14).toFixed(1) + 'px ' + effAccent.value + '55'
   } else if (props.mode === 'glitch') {
     const n = Math.sin(t * 9 + p * 3.7) * Math.cos(t * 5.3 + p * 1.9)
     if (n > 0.45) {
-      color = props.accent
-      shadow = '-3px 0 0 ' + props.accent + ', 3px 0 0 #00E5A0'
+      color = effAccent.value
+      shadow = '-3px 0 0 ' + effAccent.value + ', 3px 0 0 ' + effGreen.value
     } else if (n < -0.45) {
-      shadow = '3px 0 0 ' + props.accent + ', -3px 0 0 #00E5A0'
+      shadow = '3px 0 0 ' + effAccent.value + ', -3px 0 0 ' + effGreen.value
     }
   } else if (props.mode === 'melt') {
     const k = (Math.sin(t * 1.1 + p) + 1) / 2
     const melt = k * k
     // 没有 CSS filter 的端也能靠加大阴影半径模拟"糊开"
-    shadow = '0 ' + (melt * 6).toFixed(1) + 'px ' + (melt * 10).toFixed(1) + 'px ' + props.accent + '33'
-    if (melt > 0.62) color = props.accent
+    shadow = '0 ' + (melt * 6).toFixed(1) + 'px ' + (melt * 10).toFixed(1) + 'px ' + effAccent.value + '33'
+    if (melt > 0.62) color = effAccent.value
   }
 
   return {
@@ -209,9 +240,12 @@ function handleTap() {
 }
 
 onMounted(() => {
+  // 评审 #5：全局减弱动效（ALLOW_MOTION=false / reduced）时不启动定时器，直接静态渲染
+  if (effReduced.value) return
   // 60ms 一帧 ≈ 16fps，够顺滑又不至于把低端机烤热
   timer = setInterval((): void => {
-    if (props.paused) return
+    // 评审 #3：paused（页面滚动离屏时传 true）或全局退后台（appActive=false，见 common/app-state.uts）时停帧省电
+    if (props.paused || !appActive.value) return
     tick.value = tick.value + 1
     if (impact.value > 0) {
       impact.value = impact.value - 0.08

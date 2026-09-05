@@ -20,6 +20,9 @@
           </view>
         </view>
         <view class="top__meta">
+          <view class="theme-switch" hover-class="press" @click="onToggleTheme">
+            <text class="theme-switch__t">{{ themeText }}</text>
+          </view>
           <text class="top__meta-t">{{ meta }}</text>
         </view>
       </view>
@@ -37,6 +40,10 @@
         <text class="bottom__icon">{{ item.icon }}</text>
         <text class="bottom__txt">{{ item.label }}</text>
       </view>
+      <!-- #12：主题切换悬浮胶囊（右上角，避开 Tab 导航） -->
+      <view class="bottom__theme" :style="themeFabStyle" hover-class="press" @click="onToggleTheme">
+        <text class="theme-switch__t">{{ themeText }}</text>
+      </view>
     </view>
   </view>
 </template>
@@ -44,6 +51,7 @@
 <script setup lang="uts">
 import { computed, type ComputedRef } from 'vue'
 import { NAV_ITEMS, SITE, type NavItem } from '../common/site'
+import { theme, toggleTheme } from '../common/theme'
 
 const props = defineProps({
   /** top = 宽屏顶部导航；bottom = 窄屏底部 Tab */
@@ -58,6 +66,23 @@ const props = defineProps({
 const items: NavItem[] = NAV_ITEMS
 const brand = SITE.latin
 const meta = SITE.location
+
+/** #12：手动切换入口文案——显示点击后的去向，点击即切换并持久化 */
+const themeText: ComputedRef<string> = computed(() => {
+  return theme.value === 'light' ? '切到深色' : '切到浅色'
+})
+
+/** 窄屏悬浮按钮位置：贴底部 Tab 上方（safeBottom 之上 76px） */
+const themeFabStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'bottom': (props.safeBottom + 76) + 'px'
+  }
+})
+
+/** #12：点击切换深浅色主题（立即生效，无需重启） */
+function onToggleTheme(): void {
+  toggleTheme()
+}
 
 const topStyle: ComputedRef<UTSJSONObject> = computed(() => {
   return {
@@ -98,10 +123,10 @@ function go(path: string) {
   left: 0;
   right: 0;
   z-index: 900;
-  background-color: rgba(11, 11, 15, 0.82);
+  background-color: var(--c-nav-bg);
   border-bottom-width: 1px;
   border-bottom-style: solid;
-  border-bottom-color: rgba(245, 243, 239, 0.08);
+  border-bottom-color: var(--c-hairline);
 }
 
 .top__inner {
@@ -120,7 +145,7 @@ function go(path: string) {
 
 .brand__mark {
   font-size: 20px;
-  color: #FF4D2E;
+  color: var(--c-accent);
   margin-right: 10px;
 }
 
@@ -128,7 +153,7 @@ function go(path: string) {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #F5F3EF;
+  color: var(--c-paper);
 }
 
 .top__list {
@@ -147,12 +172,12 @@ function go(path: string) {
 
 .top__txt {
   font-size: 14px;
-  color: rgba(245, 243, 239, 0.55);
+  color: var(--c-weak);
   letter-spacing: 1px;
 }
 
 .top__item--on .top__txt {
-  color: #F5F3EF;
+  color: var(--c-paper);
   font-weight: 700;
 }
 
@@ -161,13 +186,14 @@ function go(path: string) {
   bottom: 14px;
   width: 16px;
   height: 2px;
-  background-color: #FF4D2E;
+  background-color: var(--c-accent);
   border-radius: 1px;
 }
 
 .top__meta-t {
   font-size: 12px;
-  color: rgba(245, 243, 239, 0.35);
+  /* 评审 #6：弱提示 ≥ 0.5（对齐 T_WEAK） */
+  color: var(--c-weak);
   letter-spacing: 1px;
 }
 
@@ -180,10 +206,10 @@ function go(path: string) {
   z-index: 900;
   flex-direction: row;
   align-items: center;
-  background-color: rgba(11, 11, 15, 0.94);
+  background-color: var(--c-tab-bg);
   border-top-width: 1px;
   border-top-style: solid;
-  border-top-color: rgba(245, 243, 239, 0.08);
+  border-top-color: var(--c-hairline);
   padding-top: 6px;
 }
 
@@ -196,22 +222,71 @@ function go(path: string) {
 
 .bottom__icon {
   font-size: 16px;
-  color: rgba(245, 243, 239, 0.4);
+  /* 评审 #6：弱提示 ≥ 0.5（对齐 T_WEAK） */
+  color: var(--c-weak);
   margin-bottom: 3px;
 }
 
 .bottom__txt {
-  font-size: 10px;
-  color: rgba(245, 243, 239, 0.4);
+  /* 评审 #6：字号 10→11px、alpha 0.4→0.5，底部 Tab 更可读 */
+  font-size: 11px;
+  color: var(--c-weak);
   letter-spacing: 0.5px;
 }
 
 .bottom__item--on .bottom__icon {
-  color: #FF4D2E;
+  color: var(--c-accent);
 }
 
 .bottom__item--on .bottom__txt {
-  color: #F5F3EF;
+  color: var(--c-paper);
   font-weight: 700;
+}
+
+/* 评审 #9：hover-class="press" 按压反馈（导航项/品牌区） */
+.press { opacity: 0.72; }
+
+/* ---------- 主题切换入口（#12） ---------- */
+.top__meta {
+  flex-direction: row;
+  align-items: center;
+}
+
+.theme-switch {
+  height: 28px;
+  padding-left: 12px;
+  padding-right: 12px;
+  margin-right: 14px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--c-border);
+  background-color: var(--c-surface);
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-switch__t {
+  font-size: 12px;
+  letter-spacing: 1px;
+  /* 评审 #6：弱提示 ≥ 0.5 */
+  color: var(--c-weak);
+}
+
+/* 窄屏底部 Tab：右上悬浮胶囊（避开 Tab，z-index 高于底部导航） */
+.bottom__theme {
+  position: fixed;
+  right: 18px;
+  z-index: 901;
+  height: 30px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--c-border);
+  background-color: var(--c-tab-bg);
+  align-items: center;
+  justify-content: center;
 }
 </style>

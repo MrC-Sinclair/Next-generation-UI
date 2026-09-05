@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :class="themeClass">
     <site-nav
       :mode="navMode"
       current="contact"
@@ -11,7 +11,7 @@
 
     <view class="content" :style="contentStyle">
       <view class="wrap" :style="wrapStyle">
-        <view class="head">
+        <view class="head" :style="headStyle">
           <kinetic-text
             text="聊两句"
             mode="bounce"
@@ -26,26 +26,23 @@
           <text class="head__sub">合作、吐槽、或者单纯想聊聊排版，都行。</text>
         </view>
 
+        <!-- 评审 #1：卡片外层用栅格槽（同 index），不再用 margin 撑布局 -->
         <view class="cards">
-          <view
-            v-for="(c, i) in CHANNELS"
-            :key="i"
-            class="card"
-            :class="isWide ? 'card--wide' : ''"
-            @click="copy(c.value, c.label)"
-          >
-            <text class="card__k">{{ c.label }}</text>
-            <kinetic-text
-              :text="c.value"
-              :mode="c.mode"
-              :font-size="cardValueSize"
-              :amplitude="cardValueSize * 0.1"
-              :speed="0.8"
-              accent="#00E5A0"
-              color="#F5F3EF"
-              font-weight="700"
-            ></kinetic-text>
-            <text class="card__hint">点击复制</text>
+          <view v-for="(c, i) in CHANNELS" :key="i" class="card-slot" :style="slotStyle">
+            <view class="card" hover-class="press" @click="copy(c.value, c.label)">
+              <text class="card__k">{{ c.label }}</text>
+              <kinetic-text
+                :text="c.value"
+                :mode="c.mode"
+                :font-size="cardValueSize"
+                :amplitude="cardValueSize * 0.1"
+                :speed="0.8"
+                accent="#00E5A0"
+                color="#F5F3EF"
+                font-weight="700"
+              ></kinetic-text>
+              <text class="card__hint">点击复制</text>
+            </view>
           </view>
         </view>
 
@@ -53,7 +50,8 @@
           <text class="note__t">一般一天内回。如果超过两天没动静，大概率是掉进邮件黑洞了，欢迎再戳一次。</text>
         </view>
 
-        <view class="back" @click="go('/pages/index/index')">
+        <!-- 评审 #9：hover-class 提供按压反馈（uvue 无 :active/:hover 伪类，用官方 hover-class） -->
+        <view class="back" hover-class="press" @click="go('/pages/index/index')">
           <text class="back__t">← 回概览</text>
         </view>
       </view>
@@ -64,16 +62,26 @@
 <script setup lang="uts">
 import { computed, type ComputedRef } from 'vue'
 import { useViewport } from '../../composables/use-viewport'
-import { SITE } from '../../common/site'
+import { SITE, CHANNELS } from '../../common/site'
+import { themeClass } from '../../common/theme'
 
 const { statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } = useViewport()
 
-const CHANNELS = [
-  { label: '邮箱', value: SITE.email, mode: 'wave' },
-  { label: '微信', value: 'linshen_dev', mode: 'bounce' },
-  { label: 'GitHub', value: 'github.com/linshen', mode: 'distort' },
-  { label: '城市', value: SITE.location, mode: 'melt' }
-]
+/** 评审 #11：页头间距与 about/index 对齐（窄屏 28 / 宽屏 64） */
+const headStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return { 'padding-top': (isWide.value ? 64 : 28) + 'px' }
+})
+
+/** 评审 #1：与 index 卡片同款栅格槽（8px），宽屏两列、窄屏单列 */
+const slotStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const pct = isWide.value ? '50%' : '100%'
+  return {
+    width: pct,
+    'padding-left': '8px',
+    'padding-right': '8px',
+    'margin-bottom': '16px'
+  }
+})
 
 const cardValueSize: ComputedRef<number> = computed(() => (isWide.value ? 26 : 21))
 
@@ -118,28 +126,35 @@ function go(path: string) {
 </script>
 
 <style>
-.page { width: 100%; min-height: 100%; background-color: #0B0B0F; }
+.page { width: 100%; min-height: 100%; background-color: var(--c-bg); }
 .content { width: 100%; flex-direction: column; align-items: stretch; }
 .wrap { width: 100%; flex-direction: column; }
-.head { padding-top: 40px; flex-direction: column; align-items: flex-start; }
-.head__sub { margin-top: 20px; font-size: 14px; color: rgba(245,243,239,0.45); letter-spacing: 1px; }
+.head { padding-top: 40px; flex-direction: column; align-items: flex-start; } /* 评审 #11：实际生效间距由内联 headStyle 提供（窄 28 / 宽 64），此处保留兜底 */
+.head__sub { margin-top: 20px; font-size: 14px; color: var(--c-secondary); letter-spacing: 1px; } /* 评审 #6：次要文本 ≥ 0.6 */
 
-.cards { margin-top: 48px; flex-direction: row; flex-wrap: wrap; margin-left: -8px; margin-right: -8px; }
+.cards { margin-top: 48px; flex-direction: row; flex-wrap: wrap; margin-left: -8px; margin-right: -8px; } /* 评审 #1：栅格槽负边距 + 每槽 8px 内边距（同 index） */
 .card {
   width: 100%;
-  padding: 22px; padding-left: 22px; padding-right: 22px;
-  margin-left: 8px; margin-right: 8px; margin-bottom: 16px;
-  background-color: rgba(245,243,239,0.035);
-  border-width: 1px; border-style: solid; border-color: rgba(245,243,239,0.09);
+  padding: 22px;
+  /* 评审 #1：不再用 margin 撑卡片宽度，由外层 slot 内边距分隔 */
+  background-color: var(--c-surface);
+  border-width: 1px; border-style: solid; border-color: var(--c-border);
   border-radius: 14px;
   flex-direction: column; align-items: flex-start;
 }
-.card--wide { width: 46%; }
-.card__k { font-size: 12px; letter-spacing: 1.5px; color: #00E5A0; margin-bottom: 12px; }
-.card__hint { margin-top: 14px; font-size: 11px; letter-spacing: 1px; color: rgba(245,243,239,0.28); }
+.card__k { font-size: 12px; letter-spacing: 1.5px; color: var(--c-green); margin-bottom: 12px; }
+.card__hint { margin-top: 14px; font-size: 11px; letter-spacing: 1px; color: var(--c-weak); } /* 评审 #6：弱提示 ≥ 0.5 */
 
 .note { margin-top: 32px; max-width: 560px; }
-.note__t { font-size: 13px; line-height: 24px; color: rgba(245,243,239,0.42); letter-spacing: 0.5px; }
+.note__t {
+  font-size: 13px;
+  line-height: 24px;
+  /* 评审 #6：说明文字按次要文本 ≥ 0.6（对齐 T_SECONDARY） */
+  color: var(--c-secondary);
+  letter-spacing: 0.5px;
+}
 .back { margin-top: 48px; }
-.back__t { font-size: 14px; color: rgba(245,243,239,0.5); letter-spacing: 1px; }
+.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈 */
+.press { opacity: 0.72; }
 </style>

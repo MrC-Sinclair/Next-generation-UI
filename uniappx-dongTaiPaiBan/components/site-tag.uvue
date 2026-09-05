@@ -1,0 +1,49 @@
+<template>
+  <view class="tag">
+    <text class="tag__t" :style="txtStyle">{{ text }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+/**
+ * 统一标签（chip）：全站标签视觉收敛为同一套
+ * （淡色底 + 语义色文字 + 4px 圆角 + 11px 字号）。
+ * 颜色变体通过 color / bg 传入。
+ */
+import { computed, type ComputedRef } from 'vue'
+import { themeResolve } from '../common/theme'
+
+const props = defineProps({
+  text: { type: String, default: '' },
+  /** 文字色（浅色主题自动加深） */
+  color: { type: String, default: '#A08CFF' },
+  /** 底色（浅色主题自动加深） */
+  bg: { type: String, default: 'rgba(124, 92, 255, 0.16)' }
+})
+
+const txtStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  // #12：颜色统一经主题解析——深色原样返回，浅色自动换深强调色/淡底
+  return {
+    'color': themeResolve(props.color),
+    'background-color': themeResolve(props.bg)
+  }
+})
+</script>
+
+<style>
+.tag {
+  flex-direction: row;
+  align-items: center;
+  align-self: flex-start;
+}
+
+.tag__t {
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 4px;
+}
+</style>

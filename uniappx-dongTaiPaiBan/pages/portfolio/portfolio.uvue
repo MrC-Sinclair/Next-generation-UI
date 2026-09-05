@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :class="themeClass">
     <site-nav
       :mode="navMode"
       current="portfolio"
@@ -11,7 +11,7 @@
 
     <view class="content" :style="contentStyle">
       <view class="wrap" :style="wrapStyle">
-        <view class="head">
+        <view class="head" :style="headStyle">
           <kinetic-text
             text="作品集"
             mode="melt"
@@ -29,7 +29,7 @@
         <view class="grid" :style="gridStyle">
           <view v-for="(p, i) in LIST" :key="i" class="item" :style="itemStyle">
             <view class="item__top">
-              <text class="item__tag">{{ p.tag }}</text>
+              <site-tag :text="p.tag" color="#00E5A0" bg="rgba(0,229,160,0.14)"></site-tag>
               <text class="item__year">{{ p.year }}</text>
             </view>
             <kinetic-text
@@ -46,7 +46,8 @@
           </view>
         </view>
 
-        <view class="back" @click="go('/pages/index/index')">
+        <!-- 评审 #9：hover-class 提供按压反馈（uvue 无 :active/:hover 伪类，用官方 hover-class） -->
+        <view class="back" hover-class="press" @click="go('/pages/index/index')">
           <text class="back__t">← 回概览</text>
         </view>
       </view>
@@ -57,16 +58,16 @@
 <script setup lang="uts">
 import { computed, type ComputedRef } from 'vue'
 import { useViewport } from '../../composables/use-viewport'
+import { LIST } from '../../common/site'
+import { themeClass } from '../../common/theme'
 
 const { winWidth, statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } =
   useViewport()
 
-const LIST = [
-  { tag: '开源', year: '2026', name: 'kinetic-type', desc: '跨端动态排版引擎，本站正在用的那套。', mode: 'wave' },
-  { tag: '商业', year: '2025', name: '独立书店导视系统', desc: '会呼吸的电子墨水牌，32 块屏同步。', mode: 'breathe' },
-  { tag: '工具', year: '2024', name: '网格生成器', desc: '给设计师用的版式网格与基线计算器。', mode: 'distort' },
-  { tag: '实验', year: '2024', name: '融化字体', desc: '把可变字重接到温度数据上的一次尝试。', mode: 'melt' }
-]
+/** 评审 #11：页头间距与 about/index 对齐（窄屏 28 / 宽屏 64） */
+const headStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return { 'padding-top': (isWide.value ? 64 : 28) + 'px' }
+})
 
 const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
   return {
@@ -112,21 +113,23 @@ function go(path: string) {
 </script>
 
 <style>
-.page { width: 100%; min-height: 100%; background-color: #0B0B0F; }
+.page { width: 100%; min-height: 100%; background-color: var(--c-bg); }
 .content { width: 100%; flex-direction: column; align-items: stretch; }
 .wrap { width: 100%; flex-direction: column; }
-.head { padding-top: 40px; flex-direction: column; align-items: flex-start; }
-.head__sub { margin-top: 20px; font-size: 14px; color: rgba(245,243,239,0.45); letter-spacing: 1px; }
+.head { padding-top: 40px; flex-direction: column; align-items: flex-start; } /* 评审 #11：实际生效间距由内联 headStyle 提供（窄 28 / 宽 64），此处保留兜底 */
+.head__sub { margin-top: 20px; font-size: 14px; color: var(--c-secondary); letter-spacing: 1px; } /* 评审 #6：次要文本 ≥ 0.6 */
 .grid { flex-direction: row; margin-top: 48px; }
+/* 评审 #8：卡片视觉与 index/contact 统一为一套值（同底色/描边/圆角/内距） */
 .item {
-  background-color: rgba(245,243,239,0.035);
-  border-width: 1px; border-style: solid; border-color: rgba(245,243,239,0.09);
+  background-color: var(--c-surface);
+  border-width: 1px; border-style: solid; border-color: var(--c-border);
   border-radius: 14px; padding: 22px; flex-direction: column; align-items: flex-start;
 }
 .item__top { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 16px; }
-.item__tag { font-size: 11px; letter-spacing: 1px; color: #00E5A0; }
-.item__year { font-size: 11px; letter-spacing: 1px; color: rgba(245,243,239,0.3); }
-.item__desc { margin-top: 12px; font-size: 13px; line-height: 22px; color: rgba(245,243,239,0.45); }
+.item__year { font-size: 11px; letter-spacing: 1px; color: var(--c-weak); } /* 评审 #6：弱文本 ≥ 0.5 */
+.item__desc { margin-top: 12px; font-size: 13px; line-height: 22px; color: var(--c-secondary); } /* 评审 #6：次要文本 ≥ 0.6 */
 .back { margin-top: 56px; }
-.back__t { font-size: 14px; color: rgba(245,243,239,0.5); letter-spacing: 1px; }
+.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈 */
+.press { opacity: 0.72; }
 </style>

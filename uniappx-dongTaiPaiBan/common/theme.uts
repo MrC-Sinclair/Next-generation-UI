@@ -1,0 +1,184 @@
+/**
+ * 主题状态与解析（#12 深浅色主题）
+ *
+ * 机制说明：
+ * - CSS 侧：App.uvue 定义 .theme--dark / .theme--light 两套 CSS 变量（--c-*），
+ *   各页面根节点挂载 themeClass，组件/页面 <style> 统一引用 var(--c-*)。
+ * - JS 侧（内联 :style / kinetic-text 文字阴影等无法用 var 的位置）：
+ *   统一走 themeResolve(原色)，深色主题原样返回，浅色主题查表降档。
+ * - 跟随系统：本地未写入手动覆盖时监听系统深浅色（App: onOsThemeChange；
+ *   Web/小程序：onHostThemeChange）。手动点击切换后写入本地存储并固定该主题。
+ */
+import { ref, computed, type ComputedRef } from 'vue'
+
+const KEY = 'site-theme'
+
+/** 当前主题：'dark' | 'light'。模块级单例，页面与组件 import 后自动响应 */
+export const theme = ref('dark')
+/** 页面根节点挂载的主题 class（App.uvue 中已定义对应 CSS 变量集） */
+export const themeClass: ComputedRef<string> = computed(() => {
+  return theme.value === 'light' ? 'theme--light' : 'theme--dark'
+})
+
+/** 是否已手动固定主题（为空串表示跟随系统） */
+let manual = ''
+
+/**
+ * 启动初始化：优先读本地手动覆盖；无覆盖则读取宿主系统深浅色并注册监听。
+ * 注意：uvue 下 onOsThemeChange / onHostThemeChange 仅在对应端存在，
+ * 已在下方做条件编译隔离，H5 端若宿主不支持则保持默认深色。
+ */
+export function initTheme(): void {
+  try {
+    const saved = uni.getStorageSync(KEY)
+    if (typeof saved === 'string' && saved.length > 0) {
+      manual = saved
+      theme.value = saved === 'light' ? 'light' : 'dark'
+      applyStatusBar()
+      return
+    }
+  } catch (e) {
+    // 忽略存储异常，回落到跟随系统
+  }
+#ifdef APP
+  try {
+    // 动态探测：宿主不支持 osTheme 时静默保持默认深色
+    const anyUni: any = uni
+    const base = uni.getAppBaseInfo()
+    const v = (base as any).osTheme
+    if (v === 'light' || v === 'dark') {
+      theme.value = v
+    }
+    const onOs = anyUni.onOsThemeChange
+    if (typeof onOs === 'function') {
+      onOs((res: any) => {
+        if (manual.length === 0) {
+          theme.value = res.osTheme === 'light' ? 'light' : 'dark'
+          applyStatusBar()
+        }
+      })
+    }
+  } catch (e) {
+    // 宿主不支持时保持默认
+  }
+#endif
+#ifndef APP
+  try {
+    const anyUni: any = uni
+    const onHost = anyUni.onHostThemeChange
+    if (typeof onHost === 'function') {
+      onHost((res: any) => {
+        if (manual.length === 0) {
+          theme.value = res.hostTheme === 'light' ? 'light' : 'dark'
+          applyStatusBar()
+        }
+      })
+    }
+  } catch (e) {
+    // 宿主不支持时保持当前值
+  }
+#endif
+  // 首启同步一次状态栏文字色（主题已定，后续由 watch 驱动）
+  applyStatusBar()
+}
+
+/** 手动切换主题（立即生效并持久化，切换后不再跟随系统） */
+export function toggleTheme(): void {
+  manual = theme.value === 'dark' ? 'light' : 'dark'
+  theme.value = manual === 'light' ? 'light' : 'dark'
+  try {
+    uni.setStorageSync(KEY, manual)
+  } catch (e) {
+    // 忽略
+  }
+  applyStatusBar()
+}
+
+/** 状态栏文字色随主题切换：浅色主题用深色字，深色主题用浅色字（自定义导航页有效） */
+function applyStatusBar(): void {
+#ifdef APP
+  try {
+    const anyUni: any = uni
+    const setter = anyUni.setStatusBarStyle
+    if (typeof setter === 'function') {
+      setter(theme.value === 'light' ? 'dark' : 'light')
+    }
+  } catch (e) {
+    // 忽略
+  }
+#endif
+#ifndef APP
+  try {
+    const anyUni: any = uni
+    const setter = anyUni.setNavigationBarColor
+    if (typeof setter === 'function') {
+      setter({
+        frontColor: theme.value === 'light' ? '#000000' : '#ffffff',
+        backgroundColor: theme.value === 'light' ? '#F5F3EF' : '#0B0B0F'
+      })
+    }
+  } catch (e) {
+    // 忽略
+  }
+#endif
+}
+
+// 状态栏颜色由 initTheme / toggleTheme / 宿主主题回调显式同步
+// （uvue .uts 模块顶层不注册 watch，避免非组件上下文副作用）
+
+/** 清除手动覆盖，恢复跟随系统 */
+export function resetThemeMode(): void {
+  manual = ''
+  try {
+    uni.removeStorageSync(KEY)
+  } catch (e) {
+    // 忽略
+  }
+}
+
+/**
+ * JS 侧主题解析：深色主题返回原色；浅色主题将原版亮色/纸白叠层
+ * 映射为浅底可读的深墨/深强调色。未登记的颜色原样返回（保持兼容）。
+ */
+export function themeResolve(c: string): string {
+  if (theme.value !== 'light') {
+    return c
+  }
+  switch (c) {
+    // 纸白系
+    case '#F5F3EF':
+      return '#14140F'
+    case 'rgba(245,243,239,0.62)':
+      return 'rgba(20,20,15,0.74)'
+    case 'rgba(245,243,239,0.55)':
+      return 'rgba(20,20,15,0.62)'
+    case 'rgba(245,243,239,0.5)':
+      return 'rgba(20,20,15,0.58)'
+    case 'rgba(245,243,239,0.14)':
+      return 'rgba(20,20,15,0.08)'
+    case 'rgba(245,243,239,0.12)':
+      return 'rgba(20,20,15,0.1)'
+    // 强调系（浅色加深以保证对比度）
+    case '#FF4D2E':
+      return '#C62B12'
+    case '#7C5CFF':
+      return '#5433D6'
+    case '#00E5A0':
+      return '#007A4D'
+    case '#FFB020':
+      return '#A65E00'
+    // 标签色
+    case '#A08CFF':
+      return '#3F2AA0'
+    case 'rgba(124, 92, 255, 0.16)':
+      return 'rgba(84, 51, 214, 0.16)'
+    case 'rgba(124,92,255,0.16)':
+      return 'rgba(84,51,214,0.16)'
+    case 'rgba(0, 229, 160, 0.14)':
+      return 'rgba(0, 122, 77, 0.14)'
+    case 'rgba(0,229,160,0.14)':
+      return 'rgba(0,122,77,0.14)'
+    default:
+      return c
+  }
+}

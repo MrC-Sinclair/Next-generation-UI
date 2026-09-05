@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :class="themeClass">
     <view class="glow" :style="glowStyle"></view>
 
     <site-nav
@@ -85,6 +85,7 @@
                 class="mood"
                 :class="m.key === moodKey ? 'mood--on' : ''"
                 :style="moodStyle(m)"
+                hover-class="press"
                 @click="pickMood(m.key)"
               >
                 <text class="mood__t" :style="moodTextStyle(m)">{{ m.label }}</text>
@@ -121,9 +122,9 @@
                     :value="speedVal"
                     min="20"
                     max="240"
-                    :background-color="'rgba(245,243,239,0.12)'"
-                    :active-color="mood.color"
-                    :block-color="mood.color"
+                    :background-color="trackColor"
+                    :active-color="resolvedMoodColor(mood)"
+                    :block-color="resolvedMoodColor(mood)"
                     :block-size="18"
                     @changing="onSpeed"
                   ></slider>
@@ -200,10 +201,10 @@
             @press="go('/pages/contact/contact')"
           ></kinetic-text>
           <view class="next__row">
-            <view class="btn btn--solid" @click="go('/pages/contact/contact')">
+            <view class="btn btn--solid" hover-class="press" @click="go('/pages/contact/contact')">
               <text class="btn__t btn__t--dark">去联系方式</text>
             </view>
-            <view class="btn btn--ghost" @click="go('/pages/portfolio/portfolio')">
+            <view class="btn btn--ghost" hover-class="press" @click="go('/pages/portfolio/portfolio')">
               <text class="btn__t">看看作品集</text>
             </view>
           </view>
@@ -217,7 +218,8 @@
 <script setup lang="uts">
 import { ref, computed, type ComputedRef, type Ref } from 'vue'
 import { useViewport } from '../../composables/use-viewport'
-import { SITE, MOODS, TIMELINE, type MoodItem, type TimelineItem } from '../../common/site'
+import { SITE, MOODS, TIMELINE, FACTS, type MoodItem, type TimelineItem } from '../../common/site'
+import { themeClass, themeResolve } from '../../common/theme'
 
 const {
   winWidth,
@@ -236,15 +238,6 @@ const {
 const moodKey: Ref<string> = ref('melt')
 /** 速度滑杆原始值 20~240，映射到 0.2~2.4 倍速 */
 const speedVal: Ref<number> = ref(90)
-
-const FACTS = [
-  { k: '常用工具', v: 'Figma · VS Code · HBuilderX · 一支 0.38 的笔' },
-  { k: '在听', v: '后摇、City Pop、雨声白噪音' },
-  { k: '在学', v: '字体设计 · 着色器 · 怎么把话说短' },
-  { k: '作息', v: '深夜型，但正在努力改' },
-  { k: '偏爱', v: '高对比度、大留白、有重量的字' },
-  { k: '雷区', v: '三秒以上的加载动画、假装在动的按钮' }
-]
 
 const phrase = '文字会传达情绪'
 
@@ -339,18 +332,27 @@ const stageStyle: ComputedRef<UTSJSONObject> = computed(() => {
   return s
 })
 
+/** #12：slider 轨道色（深色纸白 12% / 浅色墨色 10%） */
+const trackColor: ComputedRef<string> = computed(() => themeResolve('rgba(245,243,239,0.12)'))
+
+/** #12：情绪主色经主题解析——深色原值，浅色自动换深强调色 */
+function resolvedMoodColor(m: MoodItem): string {
+  return themeResolve(m.color)
+}
+
 const moodStyle = (m: MoodItem): UTSJSONObject => {
   const on = m.key === moodKey.value
+  const mc = themeResolve(m.color)
   const s: UTSJSONObject = {
-    'border-color': on ? m.color : 'rgba(245,243,239,0.14)'
+    'border-color': on ? mc : themeResolve('rgba(245,243,239,0.14)')
   }
-  if (on) s['background-color'] = m.color + '1F'
+  if (on) s['background-color'] = mc + '1F'
   return s
 }
 
 const moodTextStyle = (m: MoodItem): UTSJSONObject => {
   return {
-    'color': m.key === moodKey.value ? m.color : 'rgba(245,243,239,0.5)'
+    'color': m.key === moodKey.value ? themeResolve(m.color) : themeResolve('rgba(245,243,239,0.5)')
   }
 }
 
@@ -408,7 +410,7 @@ function go(path: string) {
 .page {
   width: 100%;
   min-height: 100%;
-  background-color: #0B0B0F;
+  background-color: var(--c-bg);
 }
 
 .content {
@@ -446,13 +448,13 @@ function go(path: string) {
   border-radius: 999px;
   border-width: 1px;
   border-style: solid;
-  border-color: rgba(245, 243, 239, 0.14);
+  border-color: var(--c-soft);
 }
 
 .eyebrow__t {
   font-size: 11px;
   letter-spacing: 2px;
-  color: rgba(245, 243, 239, 0.6);
+  color: var(--c-secondary);
 }
 
 /* ---------- 正文 ---------- */
@@ -464,7 +466,8 @@ function go(path: string) {
 .prose__p {
   font-size: 16px;
   line-height: 30px;
-  color: rgba(245, 243, 239, 0.68);
+  /* 评审 #6：正文 ≥ 0.72（对齐 T_BODY） */
+  color: var(--c-body);
   margin-bottom: 20px;
   letter-spacing: 0.5px;
 }
@@ -506,7 +509,7 @@ function go(path: string) {
   border-radius: 16px;
   border-width: 1px;
   border-style: solid;
-  background-color: rgba(245, 243, 239, 0.03);
+  background-color: var(--c-surface);
   padding: 22px;
   min-height: 230px;
 }
@@ -522,13 +525,15 @@ function go(path: string) {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: rgba(245, 243, 239, 0.45);
+  /* 评审 #6：弱提示 ≥ 0.5（对齐 T_WEAK） */
+  color: var(--c-weak);
 }
 
 .stage__speed {
   font-size: 11px;
   letter-spacing: 1px;
-  color: rgba(245, 243, 239, 0.3);
+  /* 评审 #6：弱提示 ≥ 0.5（对齐 T_WEAK） */
+  color: var(--c-weak);
 }
 
 .stage__body {
@@ -545,7 +550,8 @@ function go(path: string) {
 
 .stage__desc {
   font-size: 13px;
-  color: rgba(245, 243, 239, 0.45);
+  /* 评审 #6：次要文本 ≥ 0.6（对齐 T_SECONDARY） */
+  color: var(--c-secondary);
   letter-spacing: 0.5px;
   margin-bottom: 14px;
 }
@@ -557,7 +563,7 @@ function go(path: string) {
 
 .stage__slider-t {
   font-size: 11px;
-  color: rgba(245, 243, 239, 0.3);
+  color: var(--c-dim);
 }
 
 .stage__slider-c {
@@ -586,13 +592,13 @@ function go(path: string) {
   width: 8px;
   height: 8px;
   border-radius: 4px;
-  background-color: #FF4D2E;
+  background-color: var(--c-accent);
 }
 
 .tl__line {
   width: 1px;
   flex: 1;
-  background-color: rgba(245, 243, 239, 0.14);
+  background-color: var(--c-soft);
   margin-top: 6px;
 }
 
@@ -604,7 +610,7 @@ function go(path: string) {
 .tl__year {
   font-size: 12px;
   letter-spacing: 2px;
-  color: #FF4D2E;
+  color: var(--c-accent);
   font-weight: 700;
   margin-bottom: 6px;
 }
@@ -613,15 +619,20 @@ function go(path: string) {
   margin-top: 8px;
   font-size: 12px;
   letter-spacing: 1px;
-  color: rgba(245, 243, 239, 0.4);
+  /* 评审 #6：弱提示 ≥ 0.5（对齐 T_WEAK） */
+  color: var(--c-weak);
 }
 
 .tl__desc {
   margin-top: 10px;
   font-size: 14px;
   line-height: 25px;
-  color: rgba(245, 243, 239, 0.58);
+  /* 评审 #6：次要文本 ≥ 0.6（对齐 T_SECONDARY） */
+  color: var(--c-secondary);
 }
+
+/* 评审 #9：hover-class="press" 按压反馈（情绪按钮等） */
+.press { opacity: 0.72; }
 
 /* ---------- 琐事 ---------- */
 .facts {
@@ -636,14 +647,14 @@ function go(path: string) {
 .fact__k {
   font-size: 12px;
   letter-spacing: 1.5px;
-  color: #7C5CFF;
+  color: var(--c-violet);
   margin-bottom: 8px;
 }
 
 .fact__v {
   font-size: 14px;
   line-height: 24px;
-  color: rgba(245, 243, 239, 0.6);
+  color: var(--c-secondary);
 }
 
 /* ---------- 下一步 ---------- */
@@ -669,23 +680,23 @@ function go(path: string) {
 }
 
 .btn--solid {
-  background-color: #FF4D2E;
+  background-color: var(--c-accent);
 }
 
 .btn--ghost {
   border-width: 1px;
   border-style: solid;
-  border-color: rgba(245, 243, 239, 0.22);
+  border-color: var(--c-scroll);
 }
 
 .btn__t {
   font-size: 15px;
   font-weight: 600;
-  color: #F5F3EF;
+  color: var(--c-paper);
 }
 
 .btn__t--dark {
-  color: #0B0B0F;
+  color: var(--c-bg);
   font-weight: 700;
 }
 </style>

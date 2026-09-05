@@ -35,9 +35,10 @@ function readWindowInfo() {
 function bindResize() {
   if (resizeBound) return
   resizeBound = true
-  uni.onWindowResize((res) => {
-    winWidth.value = res.size.windowWidth
-    winHeight.value = res.size.windowHeight
+  uni.onWindowResize(() => {
+    // 评审 #2：resize / 旋转时重读窗口信息，
+    // 状态栏高度与底部安全区在旋转后也会变化，不能只更新宽高
+    readWindowInfo()
   })
 }
 

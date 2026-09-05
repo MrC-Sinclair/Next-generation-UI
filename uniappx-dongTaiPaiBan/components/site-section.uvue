@@ -73,7 +73,7 @@ const titleAmp: ComputedRef<number> = computed(() => {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
-  color: #FF4D2E;
+  color: var(--c-accent);
 }
 
 .sec__titles {
@@ -85,7 +85,8 @@ const titleAmp: ComputedRef<number> = computed(() => {
   margin-top: 12px;
   font-size: 14px;
   line-height: 24px;
-  color: rgba(245, 243, 239, 0.45);
+  /* 评审 #6：次要文本 ≥ 0.6（对齐 common/site.uts T_SECONDARY） */
+  color: var(--c-secondary);
   letter-spacing: 0.5px;
 }
 

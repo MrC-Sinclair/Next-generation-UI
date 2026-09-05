@@ -8,17 +8,19 @@
 
 ```
 uniappx-dongTaiPaiBan
-├─ App.uvue                      应用入口，全局底色与字体栈
+├─ App.uvue                      应用入口，全局底色与字体栈（含前后台状态维护）
 ├─ main.uts
 ├─ pages.json                    页面注册 + easycom 规则
 ├─ manifest.json                 六端配置（app / h5 / mp-weixin / mp-harmony）
 ├─ composables/
-│  └─ use-viewport.uts           响应式断点引擎
+│  └─ use-viewport.uts           响应式断点引擎（resize/旋转时重读安全区）
 ├─ common/
-│  └─ site.uts                   站点内容 + 情绪模式定义
+│  ├─ site.uts                   站点内容 + UI 设计 Token + 动效开关 + 各页数据
+│  └─ app-state.uts              应用前后台激活状态（离屏停帧用）
 ├─ components/
-│  ├─ kinetic-text.uvue          ★ 动态排版核心组件
+│  ├─ kinetic-text.uvue          ★ 动态排版核心组件（支持 paused / reduced 降级）
 │  ├─ site-nav.uvue              响应式导航（宽屏顶部 / 窄屏底部 Tab）
+│  ├─ site-tag.uvue              统一标签组件
 │  └─ site-section.uvue          区块容器（序号 + 动态标题 + 描述）
 └─ pages/
    ├─ index/index.uvue           ★ 首页概览
@@ -63,7 +65,18 @@ uniappx-dongTaiPaiBan
 - `speed` 速度倍数，0.2 ~ 2.4
 - `interactive` 开启后点击文字触发一次冲击波
 - `letterSpacing` 额外字距
-- `paused` 离开视口时置 true，省电
+- `paused` 置 true 时停帧省电（适合滚动离屏/不可见场景；切后台会自动停，无需手动传）
+- `reduced` 置 true 时静态渲染（仅首帧淡入，glitch 停用）
+
+### 减弱动效（系统级开关）
+
+`common/site.uts` 里的 `ALLOW_MOTION` 是全局开关：
+
+```uts
+export const ALLOW_MOTION = true // 设为 false：全站 kinetic-text 降级为静态/首帧淡入
+```
+
+`kinetic-text` 内部按 `reduced prop || !ALLOW_MOTION` 判定降级：不启动定时器、逐字只做首帧淡入、glitch 模式完全停用。适合「跟随系统减弱动效」或省电场景；业务侧也可对单个组件传 `:reduced`。
 
 ### 为什么不用 CSS @keyframes
 
@@ -99,30 +112,25 @@ uni-app x 的编译器内置在 **HBuilderX 4.x** 里（web 平台支持在持�
 
 **这台机器上目前没装 HBuilderX**，所以在装好之前，本目录编译不出真正的 uni-app x 产物——这不是项目的问题，是工具链不在本地。
 
-在那之前，用下面的 `preview/` 看效果。
+在那之前，可参考仓库结构直接阅读源码；浏览器预览暂不可用，详见下方说明。
 
-### preview/ 是什么
+### preview/ 浏览器预览桩（规划中，仓库暂未包含）
 
-`preview/` 是一个**纯 Web 预览桩**：用 Vue 3 复刻了 `kinetic-text` 的算法和全部六个页面，不参与 uni-app x 编译，删掉不影响工程。
+> 当前仓库**未包含** `preview/` 目录。此前 README 中「双击 `preview/index.html` 即可预览」的表述与实际不符，已修正如下：
 
-Vue 已经放在 `preview/vendor/` 下，**离线可用，双击 `index.html` 就能开**，不需要起服务器：
+`preview/` 是一个**纯 Web 预览桩**的规划：用 Vue 3 复刻 `kinetic-text` 的算法和全部六个页面，不参与 uni-app x 编译，删掉不影响工程。它只用来验证视觉与交互，真做功能开发请改 `pages/` 和 `components/` 下的源文件。
+
+规划形态（待实现）：
 
 ```
-preview/index.html   ← 双击这个
-preview/vendor/vue.global.prod.js
+preview/index.html   ← 浏览器打开
+preview/vendor/vue.global.prod.js   ← 本地 Vue 3，离线可用
 ```
 
-想用 http 方式打开也行：
+- 顶部工具栏可切 6 档视口宽度（375 / 430 / 768 / 1280 / 1680 / 适应窗口）和 6 个页面，右上角实时显示当前断点与导航形态。
+- 用 http 方式打开：`cd preview && python -m http.server 5180` → http://127.0.0.1:5180
 
-```bash
-cd preview
-python -m http.server 5180
-# 打开 http://127.0.0.1:5180
-```
-
-顶部工具栏可切 6 档视口宽度（375 / 430 / 768 / 1280 / 1680 / 适应窗口）和 6 个页面，右上角实时显示当前断点与导航形态。
-
-> 注意：`preview/` 里的 JS 是对 `.uvue` 的**复刻**，两边不会自动同步。它只用来验证视觉与交互，真做功能开发请改 `pages/` 和 `components/` 下的源文件。
+> 注意：`preview/` 里的 JS 是对 `.uvue` 的**复刻**，两边不会自动同步。
 
 ## 定制
 
@@ -132,14 +140,27 @@ python -m http.server 5180
 - `pages.json` —— 页面路径与标题
 - `manifest.json` —— 各端 appid 与打包配置
 
-配色在 `App.uvue` 和 `common/site.uts` 的 `MOODS` 里：底色 `#0B0B0F`，纸白 `#F5F3EF`，朱红 `#FF4D2E`，紫 `#7C5CFF`，绿 `#00E5A0`。
+配色已全站主题化（#12），语义值收敛在 `common/site.uts` 的 `THEMES` / `MOODS` 与 `App.uvue` 的 `.theme--dark` / `.theme--light` CSS 变量中：深色为默认原版（底色 `#0B0B0F`，纸白 `#F5F3EF`，朱红 `#FF4D2E`，紫 `#7C5CFF`，绿 `#00E5A0`）；浅色为深墨/加深强调的对应集。改主题色时同步修改这两处与 `common/theme.uts` 的 `themeResolve` 映射表即可。
+
+## 主题（评审 #12）
+
+- 双主题：深色（默认原版）/ 浅色（纸白底 + 深墨正文 + 加深强调色，动效光晕统一降透明）
+- 机制：`App.uvue` 定义 `.theme--dark` / `.theme--light` 两套 CSS 变量，页面根节点挂 `themeClass`；JS 内联侧（文字阴影 / 渐变 / 标签色等无法用 CSS 变量的位置）统一走 `common/theme.uts` 的 `themeResolve()` 查表
+- 跟随系统：App 端读取 `uni.getAppBaseInfo().osTheme` 并监听 `onOsThemeChange`；Web / 小程序端监听 `onHostThemeChange`（宿主不支持时保持深色）。本地无手动覆盖时有效
+- 手动切换：`site-nav` 顶部（宽屏）与底部悬浮胶囊（窄屏）入口，点击即切换、写入本地存储、即时生效无需重启；再次点击反切，清空本地存储即恢复跟随系统（`resetThemeMode`）
+- 状态栏文字色随主题联动（自定义导航页面）
+- 各端结论：App 端跟随系统支持完整；Web / 小程序端是否支持跟随取决于宿主对 `onHostThemeChange` 的实现，不支持则回退为"默认深色 + 手动切换"；H5 首次进入若宿主无主题事件，初始为深色，可手动切换
 
 ## 已实现 / 待办
 
 - [x] 首页概览
 - [x] 关于我（含情绪排版实验室）
 - [x] 作品集 / 技能栈 / 博客 / 联系方式（结构与视觉完成，内容待填真实数据）
+- [x] UI/UX 评审优化 #1–#11、#13（contact 栅格溢出、安全区 resize、离屏停帧、行盒溢出、减弱动效、弱文本对比度、Token 登记、卡片/标签/进度条收敛、按压反馈、skills 居中、子页数据集中、滚动条策略）
+- [x] 深色 / 浅色主题切换（评审 #12：详见上方「主题」小节）
+- [x] 统一 site-tag 标签组件（easycom），三处标签共用一套视觉
 - [ ] 文章详情页
 - [ ] 作品详情页
-- [ ] 深色 / 浅色主题切换
+- [ ] Unicode 图标跨端一致性（评审 #14：导航/卡片图标在部分字体下渲染不一致，待替换为图标字体或矢量资源）
 - [ ] Web 端鼠标位置驱动的磁吸排版
+- [ ] preview/ 纯 Web 预览桩（规划中，仓库暂未包含该目录）

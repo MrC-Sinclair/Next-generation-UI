@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view class="page" :class="themeClass">
     <site-nav
       :mode="navMode"
       current="skills"
@@ -11,7 +11,7 @@
 
     <view class="content" :style="contentStyle">
       <view class="wrap" :style="wrapStyle">
-        <view class="head">
+        <view class="head" :style="headStyle">
           <kinetic-text
             text="技能栈"
             mode="distort"
@@ -48,7 +48,8 @@
           </view>
         </view>
 
-        <view class="back" @click="go('/pages/index/index')">
+        <!-- 评审 #9：hover-class 提供按压反馈（uvue 无 :active/:hover 伪类，用官方 hover-class） -->
+        <view class="back" hover-class="press" @click="go('/pages/index/index')">
           <text class="back__t">← 回概览</text>
         </view>
       </view>
@@ -59,17 +60,15 @@
 <script setup lang="uts">
 import { computed, type ComputedRef } from 'vue'
 import { useViewport } from '../../composables/use-viewport'
+import { SKILLS } from '../../common/site'
+import { themeClass } from '../../common/theme'
 
 const { statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } = useViewport()
 
-const SKILLS = [
-  { name: 'uni-app x / UTS', level: 92, note: '六端一套代码，主要靠它吃饭。', mode: 'bounce' },
-  { name: '动效与排版', level: 88, note: '缓动曲线、形变、节奏感。', mode: 'wave' },
-  { name: '设计系统', level: 84, note: '色板、栅格、组件的收敛能力。', mode: 'breathe' },
-  { name: 'TypeScript', level: 80, note: '类型体操只会基础款。', mode: 'distort' },
-  { name: 'Canvas / 着色器', level: 62, note: '能写，但还写不出花。', mode: 'melt' },
-  { name: '后端与部署', level: 55, note: '够自己把站跑起来。', mode: 'glitch' }
-]
+/** 评审 #11：页头间距与 about/index 对齐（窄屏 28 / 宽屏 64） */
+const headStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return { 'padding-top': (isWide.value ? 64 : 28) + 'px' }
+})
 
 const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
   return {
@@ -96,18 +95,26 @@ function go(path: string) {
 </script>
 
 <style>
-.page { width: 100%; min-height: 100%; background-color: #0B0B0F; }
+.page { width: 100%; min-height: 100%; background-color: var(--c-bg); }
 .content { width: 100%; flex-direction: column; align-items: stretch; }
 .wrap { width: 100%; flex-direction: column; }
-.head { padding-top: 40px; flex-direction: column; align-items: flex-start; }
-.head__sub { margin-top: 20px; font-size: 14px; color: rgba(245,243,239,0.45); letter-spacing: 1px; }
-.bars { margin-top: 48px; width: 100%; max-width: 720px; }
+.head { padding-top: 40px; flex-direction: column; align-items: flex-start; } /* 评审 #11：实际生效间距由内联 headStyle 提供（窄 28 / 宽 64），此处保留兜底 */
+.head__sub { margin-top: 20px; font-size: 14px; color: var(--c-secondary); letter-spacing: 1px; } /* 评审 #6：次要文本 ≥ 0.6 */
+.bars {
+  margin-top: 48px;
+  width: 100%;
+  max-width: 720px;
+  /* 评审 #10：宽屏下内容区有 max-width 时靠自身居中，避免左偏 */
+  align-self: center;
+}
 .bar { margin-bottom: 30px; width: 100%; }
 .bar__head { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.bar__pct { font-size: 13px; color: #FF4D2E; font-weight: 700; letter-spacing: 1px; }
-.bar__track { width: 100%; height: 3px; background-color: rgba(245,243,239,0.1); border-radius: 2px; }
-.bar__fill { height: 3px; background-color: #FF4D2E; border-radius: 2px; }
-.bar__note { margin-top: 10px; font-size: 12px; color: rgba(245,243,239,0.38); letter-spacing: 0.5px; }
+.bar__pct { font-size: 13px; color: var(--c-accent); font-weight: 700; letter-spacing: 1px; }
+.bar__track { width: 100%; height: 3px; background-color: var(--c-track); border-radius: 2px; } /* 评审 #8：进度条高度统一 3px / 圆角 2px */
+.bar__fill { height: 3px; background-color: var(--c-accent); border-radius: 2px; }
+.bar__note { margin-top: 10px; font-size: 12px; color: var(--c-weak); letter-spacing: 0.5px; } /* 评审 #6：次要文本 ≥ 0.5 */
 .back { margin-top: 48px; }
-.back__t { font-size: 14px; color: rgba(245,243,239,0.5); letter-spacing: 1px; }
+.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈 */
+.press { opacity: 0.72; }
 </style>

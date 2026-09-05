@@ -1,0 +1,8 @@
+import { ref } from 'vue'
+
+/**
+ * 应用前台/后台激活状态（由 App.uvue 的 onShow/onHide 维护）。
+ * kinetic-text 等动画组件订阅该值：应用退到后台后停帧，回到前台自动恢复，
+ * 避免不可见时动画空转耗电。
+ */
+export const appActive = ref(true)

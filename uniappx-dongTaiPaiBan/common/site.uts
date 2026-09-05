@@ -3,6 +3,123 @@
  * 全部集中在这里，方便接入接口后整体替换为远程数据
  */
 
+/* ================= UI 设计 Token（唯一真源） =================
+ * 新增/修改配色先改这里，再同步到各页面/组件 <style>。
+ * 注意：uvue 静态 CSS 无法引用 UTS 常量，页面里的硬编码值需与下列值保持一致，
+ * 故此处既是文档也是登记表。
+ */
+export const C_BG = '#0B0B0F'            // 页面底色
+export const C_PAPER = '#F5F3EF'         // 纸白（主文字）
+export const C_ACCENT = '#FF4D2E'        // 朱红（强调 / 主品牌色）
+export const C_VIOLET = '#7C5CFF'        // 紫
+export const C_GREEN = '#00E5A0'         // 绿
+export const C_AMBER = '#FFB020'         // 橙（紧绷）
+export const C_SURFACE = 'rgba(245,243,239,0.035)' // 卡片表面
+export const C_BORDER = 'rgba(245,243,239,0.09)'   // 卡片描边
+export const T_BODY = 0.72               // 正文文本不透明度（纸白叠加）
+export const T_SECONDARY = 0.6           // 次要文本不透明度
+export const T_WEAK = 0.5                // 弱提示不透明度（最低可见层级）
+/** 全局动效开关：设为 false 时 kinetic-text 全部静态渲染（系统减弱动效时的降级入口） */
+export const ALLOW_MOTION = true
+
+/* ================= 主题语义 Token（#12） =================
+ * 拆分 LIGHT/DARK 两套语义值，C_* / T_* 为深色原版的登记别名。
+ * CSS 侧落地：App.uvue 中 .theme--dark/.theme--light 定义同名 CSS 变量
+ * var(--c-*)，页面/组件 <style> 一律引用变量，数值须与本表保持一致。
+ * JS 内联侧落地：统一 themeResolve()（common/theme.uts）。
+ */
+export type ThemeName = 'dark' | 'light'
+
+export type ThemeTokens = {
+  /** 页面底色 */
+  bg: string
+  /** 主文字（纸白/深墨） */
+  paper: string
+  /** 弱提示（≥0.5 alpha 层） */
+  weak: string
+  /** 次要文本（≥0.6） */
+  secondary: string
+  /** 正文（≥0.72） */
+  body: string
+  /** 界面弱填充（0.3 层） */
+  dim: string
+  /** 卡片表面 */
+  surface: string
+  /** 弱面板/呼吸层（0.12~0.14） */
+  soft: string
+  /** 进度条轨道等中性填充（0.1） */
+  track: string
+  /** 分隔细线（0.08） */
+  hairline: string
+  /** 卡片描边（0.09） */
+  border: string
+  /** 滚动条滑块 */
+  scroll: string
+  /** 滚动条滑块 hover */
+  scrollHover: string
+  /** 顶部导航栏底色 */
+  navBg: string
+  /** 底部 Tab 底色 */
+  tabBg: string
+  /** 朱红强调 / 主品牌色 */
+  accent: string
+  /** 紫 */
+  violet: string
+  /** 绿 */
+  green: string
+  /** 橙（紧绷） */
+  amber: string
+  /** 紫标签文字（亮紫） */
+  violetTxt: string
+}
+
+export const THEMES: { dark: ThemeTokens; light: ThemeTokens } = {
+  dark: {
+    bg: '#0B0B0F',
+    paper: '#F5F3EF',
+    weak: 'rgba(245,243,239,0.5)',
+    secondary: 'rgba(245,243,239,0.62)',
+    body: 'rgba(245,243,239,0.72)',
+    dim: 'rgba(245,243,239,0.3)',
+    surface: 'rgba(245,243,239,0.035)',
+    soft: 'rgba(245,243,239,0.14)',
+    track: 'rgba(245,243,239,0.1)',
+    hairline: 'rgba(245,243,239,0.08)',
+    border: 'rgba(245,243,239,0.09)',
+    scroll: 'rgba(245,243,239,0.22)',
+    scrollHover: 'rgba(245,243,239,0.38)',
+    navBg: 'rgba(11,11,15,0.82)',
+    tabBg: 'rgba(11,11,15,0.94)',
+    accent: '#FF4D2E',
+    violet: '#7C5CFF',
+    green: '#00E5A0',
+    amber: '#FFB020',
+    violetTxt: '#A08CFF'
+  },
+  light: {
+    bg: '#F5F3EF',
+    paper: '#14140F',
+    weak: 'rgba(20,20,15,0.58)',
+    secondary: 'rgba(20,20,15,0.74)',
+    body: 'rgba(20,20,15,0.8)',
+    dim: 'rgba(20,20,15,0.3)',
+    surface: 'rgba(20,20,15,0.04)',
+    soft: 'rgba(20,20,15,0.08)',
+    track: 'rgba(20,20,15,0.1)',
+    hairline: 'rgba(20,20,15,0.1)',
+    border: 'rgba(20,20,15,0.12)',
+    scroll: 'rgba(20,20,15,0.18)',
+    scrollHover: 'rgba(20,20,15,0.32)',
+    navBg: 'rgba(250,248,244,0.86)',
+    tabBg: 'rgba(250,248,244,0.95)',
+    accent: '#C62B12',
+    violet: '#5433D6',
+    green: '#007A4D',
+    amber: '#A65E00',
+    violetTxt: '#3F2AA0'
+  }
+}
+
 export type NavItem = {
   key: string
   label: string
@@ -83,11 +200,12 @@ export const SITE = {
     '我做的事情横跨设计与工程的交界线：一边写能跑在六端的代码，一边纠结一个字该在什么时候弹起来。相信排版不是装饰，而是情绪本身。'
 }
 
+// 评审 #5：stats 数字统一改为极慢的 breathe，长时间停留可读；原先的高频形变影响读取
 export const STATS: StatItem[] = [
-  { value: '42', label: '上线项目', unit: '个', mode: 'bounce', pct: 84 },
-  { value: '8', label: '从业年限', unit: '年', mode: 'wave', pct: 42 },
-  { value: '136', label: '写过文章', unit: '篇', mode: 'distort', pct: 68 },
-  { value: '3.2', label: '开源 Star', unit: 'k', mode: 'melt', pct: 55 }
+  { value: '42', label: '上线项目', unit: '个', mode: 'breathe', pct: 84 },
+  { value: '8', label: '从业年限', unit: '年', mode: 'breathe', pct: 42 },
+  { value: '136', label: '写过文章', unit: '篇', mode: 'breathe', pct: 68 },
+  { value: '3.2', label: '开源 Star', unit: 'k', mode: 'breathe', pct: 55 }
 ]
 
 export const TIMELINE: TimelineItem[] = [
@@ -130,13 +248,90 @@ export type MoodItem = {
   mode: string
   desc: string
   color: string
+  /** 浅色主题下的加深强调色（#12） */
+  colorLight: string
 }
 
 export const MOODS: MoodItem[] = [
-  { key: 'calm', label: '平静', mode: 'breathe', desc: '缓慢起伏，像水面', color: '#7C5CFF' },
-  { key: 'happy', label: '雀跃', mode: 'bounce', desc: '整句往上弹', color: '#FF4D2E' },
-  { key: 'drift', label: '漂浮', mode: 'wave', desc: '正弦波依次推过去', color: '#00E5A0' },
-  { key: 'tense', label: '紧绷', mode: 'distort', desc: '挤压、歪斜、不稳定', color: '#FFB020' },
-  { key: 'melt', label: '融化', mode: 'melt', desc: '字形下沉拉长直至瘫软', color: '#FF4D2E' },
-  { key: 'noise', label: '失真', mode: 'glitch', desc: '抖动与色散', color: '#00E5A0' }
+  { key: 'calm', label: '平静', mode: 'breathe', desc: '缓慢起伏，像水面', color: '#7C5CFF', colorLight: '#5433D6' },
+  { key: 'happy', label: '雀跃', mode: 'bounce', desc: '整句往上弹', color: '#FF4D2E', colorLight: '#C62B12' },
+  { key: 'drift', label: '漂浮', mode: 'wave', desc: '正弦波依次推过去', color: '#00E5A0', colorLight: '#007A4D' },
+  { key: 'tense', label: '紧绷', mode: 'distort', desc: '挤压、歪斜、不稳定', color: '#FFB020', colorLight: '#A65E00' },
+  { key: 'melt', label: '融化', mode: 'melt', desc: '字形下沉拉长直至瘫软', color: '#FF4D2E', colorLight: '#C62B12' },
+  { key: 'noise', label: '失真', mode: 'glitch', desc: '抖动与色散', color: '#00E5A0', colorLight: '#007A4D' }
+]
+
+/* ================= 子页数据（评审 #11：自各页面迁入，集中管理） ================= */
+
+export type PortfolioItem = {
+  tag: string
+  year: string
+  name: string
+  desc: string
+  mode: string
+}
+
+export type BlogPostItem = {
+  date: string
+  tag: string
+  title: string
+  desc: string
+  mode: string
+}
+
+export type SkillItem = {
+  name: string
+  level: number
+  note: string
+  mode: string
+}
+
+export type ChannelItem = {
+  label: string
+  value: string
+  mode: string
+}
+
+export type FactItem = {
+  k: string
+  v: string
+}
+
+export const LIST: PortfolioItem[] = [
+  { tag: '开源', year: '2026', name: 'kinetic-type', desc: '跨端动态排版引擎，本站正在用的那套。', mode: 'wave' },
+  { tag: '商业', year: '2025', name: '独立书店导视系统', desc: '会呼吸的电子墨水牌，32 块屏同步。', mode: 'breathe' },
+  { tag: '工具', year: '2024', name: '网格生成器', desc: '给设计师用的版式网格与基线计算器。', mode: 'distort' },
+  { tag: '实验', year: '2024', name: '融化字体', desc: '把可变字重接到温度数据上的一次尝试。', mode: 'melt' }
+]
+
+export const POSTS: BlogPostItem[] = [
+  { date: '2026.08.24', tag: '排版', title: '在 uvue 里让每一个字单独动起来', desc: '逐字 transform 的性能账，以及为什么我放弃了 CSS @keyframes。', mode: 'wave' },
+  { date: '2026.08.11', tag: '开源', title: 'kinetic-type v0.6：新增融化与故障', desc: '两种新情绪的实现思路，和踩到的三个端差异。', mode: 'melt' },
+  { date: '2026.07.29', tag: '项目', title: '给一家书店做会呼吸的导视', desc: '32 块墨水屏，怎么做到同步误差小于 200ms。', mode: 'breathe' },
+  { date: '2026.07.02', tag: '工程', title: '六端一套代码，我做了哪些妥协', desc: '小程序不支持的、鸿蒙多出来的、以及 PC 端必须单独处理的。', mode: 'distort' }
+]
+
+export const SKILLS: SkillItem[] = [
+  { name: 'uni-app x / UTS', level: 92, note: '六端一套代码，主要靠它吃饭。', mode: 'bounce' },
+  { name: '动效与排版', level: 88, note: '缓动曲线、形变、节奏感。', mode: 'wave' },
+  { name: '设计系统', level: 84, note: '色板、栅格、组件的收敛能力。', mode: 'breathe' },
+  { name: 'TypeScript', level: 80, note: '类型体操只会基础款。', mode: 'distort' },
+  { name: 'Canvas / 着色器', level: 62, note: '能写，但还写不出花。', mode: 'melt' },
+  { name: '后端与部署', level: 55, note: '够自己把站跑起来。', mode: 'glitch' }
+]
+
+export const CHANNELS: ChannelItem[] = [
+  { label: '邮箱', value: SITE.email, mode: 'wave' },
+  { label: '微信', value: 'linshen_dev', mode: 'bounce' },
+  { label: 'GitHub', value: 'github.com/linshen', mode: 'distort' },
+  { label: '城市', value: SITE.location, mode: 'melt' }
+]
+
+export const FACTS: FactItem[] = [
+  { k: '常用工具', v: 'Figma · VS Code · HBuilderX · 一支 0.38 的笔' },
+  { k: '在听', v: '后摇、City Pop、雨声白噪音' },
+  { k: '在学', v: '字体设计 · 着色器 · 怎么把话说短' },
+  { k: '作息', v: '深夜型，但正在努力改' },
+  { k: '偏爱', v: '高对比度、大留白、有重量的字' },
+  { k: '雷区', v: '三秒以上的加载动画、假装在动的按钮' }
 ]

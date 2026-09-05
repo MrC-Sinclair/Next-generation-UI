@@ -1,15 +1,77 @@
 <script lang="uts">
+import { appActive } from './common/app-state'
+import { initTheme } from './common/theme'
+
 export default {
   onLaunch: function () {
     // 站点级初始化：这里只做轻量工作，避免拖慢首屏
+    initTheme()
   },
-  onShow: function () {},
-  onHide: function () {}
+  onShow: function () {
+    // 回到前台：恢复全局动效（kinetic-text 订阅 appActive）
+    appActive.value = true
+  },
+  onHide: function () {
+    // 退到后台：暂停全局动效，避免不可见动画空转耗电
+    appActive.value = false
+  }
 }
 </script>
 
 <style>
-/* 全局页面底色与默认字体栈，覆盖所有端 */
+/* ---------- 主题 CSS 变量集（#12） ----------
+ * uvue 页面根节点挂载 themeClass（.theme--dark / .theme--light，见 common/theme.uts），
+ * 变量沿元素树向下继承，页面/组件 <style> 统一引用 var(--c-*)。
+ * 数值须与 common/site.uts 中 THEMES.dark / THEMES.light 保持一致。
+ */
+.theme--dark {
+  --c-bg: #0B0B0F;
+  --c-paper: #F5F3EF;
+  --c-weak: rgba(245,243,239,0.5);
+  --c-secondary: rgba(245,243,239,0.62);
+  --c-body: rgba(245,243,239,0.72);
+  --c-dim: rgba(245,243,239,0.3);
+  --c-surface: rgba(245,243,239,0.035);
+  --c-soft: rgba(245,243,239,0.14);
+  --c-track: rgba(245,243,239,0.1);
+  --c-hairline: rgba(245,243,239,0.08);
+  --c-border: rgba(245,243,239,0.09);
+  --c-scroll: rgba(245,243,239,0.22);
+  --c-scroll-hover: rgba(245,243,239,0.38);
+  --c-nav-bg: rgba(11,11,15,0.82);
+  --c-tab-bg: rgba(11,11,15,0.94);
+  --c-accent: #FF4D2E;
+  --c-violet: #7C5CFF;
+  --c-green: #00E5A0;
+  --c-amber: #FFB020;
+  --c-violet-txt: #A08CFF;
+}
+
+.theme--light {
+  --c-bg: #F5F3EF;
+  --c-paper: #14140F;
+  --c-weak: rgba(20,20,15,0.58);
+  --c-secondary: rgba(20,20,15,0.74);
+  --c-body: rgba(20,20,15,0.8);
+  --c-dim: rgba(20,20,15,0.3);
+  --c-surface: rgba(20,20,15,0.04);
+  --c-soft: rgba(20,20,15,0.08);
+  --c-track: rgba(20,20,15,0.1);
+  --c-hairline: rgba(20,20,15,0.1);
+  --c-border: rgba(20,20,15,0.12);
+  --c-scroll: rgba(20,20,15,0.18);
+  --c-scroll-hover: rgba(20,20,15,0.32);
+  --c-nav-bg: rgba(250,248,244,0.86);
+  --c-tab-bg: rgba(250,248,244,0.95);
+  --c-accent: #C62B12;
+  --c-violet: #5433D6;
+  --c-green: #007A4D;
+  --c-amber: #A65E00;
+  --c-violet-txt: #3F2AA0;
+}
+
+/* 全局兜底底色（主题 class 挂在页面根节点，page 自身取不到 CSS 变量，故保留深色字面量；
+ * 各页面根 view 已铺满 var(--c-bg)，浅色主题下正常可视区域不受影响） */
 page {
   background-color: #0B0B0F;
   color: #F5F3EF;
@@ -18,9 +80,28 @@ page {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 隐藏滚动条但保留滚动能力（H5 生效，App/小程序忽略） */
+/* 评审 #13：滚动条策略
+ * 说明：uvue 静态 CSS 不支持 @media (pointer: coarse) 这类条件，无法按"是否触屏"切样式；
+ * 触屏端（iOS/Android WebView 及绝大多数移动浏览器）滚动条为 overlay 模式、不占位不常驻，
+ * 因此全局声明"细 6px 半透明滚动条"后，触屏端视觉上仍近乎隐藏，PC/H5 则获得可辨识的细滚动条。
+ * App/小程序端该选择器被忽略，不影响原生滚动表现。
+ */
 ::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  /* page 级滚动条同样取不到主题变量，沿用深色半透明即可适配两套底色 */
+  background-color: rgba(245, 243, 239, 0.22);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(245, 243, 239, 0.38);
 }
 </style>
