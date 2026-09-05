@@ -6,8 +6,9 @@ import 'package:flutter_3d_site/theme/app_theme.dart';
 import 'package:flutter_3d_site/widgets/jelly.dart';
 import 'package:flutter_3d_site/widgets/nav_items.dart';
 import 'package:flutter_3d_site/widgets/reveal.dart';
+import 'package:flutter_3d_site/widgets/tilt3d.dart';
 
-/// 数据卡（首页统计）
+/// 数据卡（首页统计）：玻璃卡 + 轻透视 tilt
 class StatCard extends StatelessWidget {
   final Stat stat;
   final int index;
@@ -15,27 +16,30 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      radius: 24,
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GradientText(
-            '${stat.value}${stat.suffix}',
-            size: 34,
-            gradient: AppGradients.all[index % AppGradients.all.length],
-          ),
-          const SizedBox(height: 6),
-          Text(stat.label,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
-        ],
+    return Tilt3D(
+      maxAngle: 0.045,
+      child: GlassCard(
+        radius: 24,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GradientText(
+              '${stat.value}${stat.suffix}',
+              size: 34,
+              gradient: AppGradients.all[index % AppGradients.all.length],
+            ),
+            const SizedBox(height: 6),
+            Text(stat.label,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// 快捷入口卡（首页）
+/// 快捷入口卡（首页）：鼠标透视 tilt + 果冻图标（浮雕字形）
 class QuickLinkCard extends StatelessWidget {
   final NavItem item;
   final VoidCallback onTap;
@@ -45,23 +49,26 @@ class QuickLinkCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: GlassCard(
-        radius: 24,
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            JellyIcon(icon: item.icon, gradient: item.gradient, size: 50),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(item.label,
-                  style: const TextStyle(
-                      color: AppColors.textLight,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 17)),
-            ),
-            Icon(Icons.arrow_forward_rounded,
-                color: AppColors.textMuted, size: 20),
-          ],
+      child: Tilt3D(
+        maxAngle: 0.055,
+        child: GlassCard(
+          radius: 24,
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              JellyIcon(icon: item.icon, gradient: item.gradient, size: 50),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(item.label,
+                    style: const TextStyle(
+                        color: AppColors.textLight,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 17)),
+              ),
+              Icon(Icons.arrow_forward_rounded,
+                  color: AppColors.textMuted, size: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -94,7 +101,7 @@ final List<IconData> _projectIcons = [
   Icons.favorite_rounded,
 ];
 
-/// 作品卡
+/// 作品卡：玻璃卡 + 鼠标透视 tilt；缩略图中央图标为浮雕字形（非扁平贴片）
 class ProjectCard extends StatelessWidget {
   final Project project;
   final VoidCallback? onTap;
@@ -106,24 +113,31 @@ class ProjectCard extends StatelessWidget {
     final icon = _projectIcons[project.gradientIndex % _projectIcons.length];
     return GestureDetector(
       onTap: onTap,
-      child: GlassCard(
-        radius: 26,
-        padding: const EdgeInsets.all(22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 缩略图（体积果冻：径向受光 + 高光 + 暗弧收口）
-            SizedBox(
-              height: 120,
-              child: VolumeBox(
-                gradient: grad,
-                radius: 20,
-                elevation: 16,
-                child: Center(
-                  child: Icon(icon, color: Colors.white, size: 46),
+      child: Tilt3D(
+        maxAngle: 0.055,
+        child: GlassCard(
+          radius: 26,
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 缩略图（shader 受光果冻 + 浮雕字形）
+              SizedBox(
+                height: 120,
+                child: VolumeBox(
+                  gradient: grad,
+                  radius: 20,
+                  elevation: 16,
+                  child: Center(
+                    child: EmbossIcon(
+                      icon: icon,
+                      size: 52,
+                      color: Colors.white,
+                      depth: 2.2,
+                    ),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -158,6 +172,7 @@ class ProjectCard extends StatelessWidget {
                   .toList(),
             ),
           ],
+        ),
         ),
       ),
     );

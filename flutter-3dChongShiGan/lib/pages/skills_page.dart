@@ -7,6 +7,7 @@ import 'package:flutter_3d_site/widgets/jelly.dart';
 import 'package:flutter_3d_site/widgets/reveal.dart';
 import 'package:flutter_3d_site/widgets/responsive.dart';
 import 'package:flutter_3d_site/widgets/section_title.dart';
+import 'package:flutter_3d_site/widgets/tilt3d.dart';
 
 class SkillsPage extends StatelessWidget {
   const SkillsPage({super.key});
@@ -41,31 +42,34 @@ class SkillsPage extends StatelessWidget {
 
   Widget _categoryCard(SkillCategory cat) {
     final grad = AppGradients.all[cat.gradientIndex % AppGradients.all.length];
-    return GlassCard(
-      radius: 26,
-      padding: const EdgeInsets.all(26),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              JellyIcon(
-                icon: Icons.star_rounded,
-                gradient: grad,
-                size: 42,
-                iconScale: 0.5,
-              ),
-              const SizedBox(width: 12),
-              Text(cat.name,
-                  style: const TextStyle(
-                      color: AppColors.textLight,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18)),
-            ],
-          ),
-          const SizedBox(height: 18),
-          ...cat.skills.map((s) => SkillBar(skill: s, gradient: grad)),
-        ],
+    return Tilt3D(
+      maxAngle: 0.05,
+      child: GlassCard(
+        radius: 26,
+        padding: const EdgeInsets.all(26),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                JellyIcon(
+                  icon: Icons.star_rounded,
+                  gradient: grad,
+                  size: 42,
+                  iconScale: 0.5,
+                ),
+                const SizedBox(width: 12),
+                Text(cat.name,
+                    style: const TextStyle(
+                        color: AppColors.textLight,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18)),
+              ],
+            ),
+            const SizedBox(height: 18),
+            ...cat.skills.map((s) => SkillBar(skill: s, gradient: grad)),
+          ],
+        ),
       ),
     );
   }

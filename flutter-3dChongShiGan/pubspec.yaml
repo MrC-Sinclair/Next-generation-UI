@@ -57,6 +57,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # 果冻受光体实时光照 shader（偏置光源 + 内阴影近似 + 镜面高光 + 菲涅尔边缘光）
+  shaders:
+    - assets/shaders/jelly_shader.frag
+
   # 本地中文字体：Web 端不依赖系统字体/Google Fonts 网络下载，避免文字渲染空白
   fonts:
     - family: SimHei

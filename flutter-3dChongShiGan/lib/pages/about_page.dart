@@ -6,6 +6,7 @@ import 'package:flutter_3d_site/widgets/jelly.dart';
 import 'package:flutter_3d_site/widgets/reveal.dart';
 import 'package:flutter_3d_site/widgets/responsive.dart';
 import 'package:flutter_3d_site/widgets/section_title.dart';
+import 'package:flutter_3d_site/widgets/tilt3d.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -77,27 +78,30 @@ class AboutPage extends StatelessWidget {
     return RevealOnLoad(
       child: Column(
         children: [
-          SizedBox(
-            width: 180,
-            height: 180,
-            child: VolumeBox(
-              gradient: AppGradients.purplePink,
-              radius: 48,
-              elevation: 30,
-              child: Center(
-                child: Text(Profile.initials,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 76,
-                        fontWeight: FontWeight.w800,
-                        shadows: [
-                          // 首字母下方深色阴影层：凹陷感
-                          Shadow(
-                            color: Color(0x66000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 5),
-                          ),
-                        ])),
+          Tilt3D(
+            maxAngle: 0.09,
+            child: SizedBox(
+              width: 180,
+              height: 180,
+              child: VolumeBox(
+                gradient: AppGradients.purplePink,
+                radius: 48,
+                elevation: 30,
+                child: Center(
+                  child: Text(Profile.initials,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 76,
+                          fontWeight: FontWeight.w800,
+                          shadows: [
+                            // 首字母下方深色阴影层：凹陷感
+                            Shadow(
+                              color: Color(0x66000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 5),
+                            ),
+                          ])),
+                ),
               ),
             ),
           ),

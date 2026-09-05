@@ -74,12 +74,14 @@ class AppTheme {
 
   /// 体积径向渐变：由线性渐变派生"亮顶 → 主色 → 暗底"的受光体积渐变，
   /// 用于把平面渐变块塑造为 3D 果冻受光体。
-  static RadialGradient volumeGradient(Gradient gradient) {
+  /// [light] 为光源中心（-1..1），倾侧重投影时可按姿态微移。
+  static RadialGradient volumeGradient(Gradient gradient,
+      {Alignment light = const Alignment(-0.35, -0.55)}) {
     final colors = gradient.colors;
     final begin = colors.isEmpty ? const Color(0xFFA855F7) : colors.first;
     final end = colors.length > 1 ? colors.last : begin;
     return RadialGradient(
-      center: const Alignment(-0.35, -0.55),
+      center: light,
       radius: 1.15,
       colors: [
         // 亮顶（提亮主色）

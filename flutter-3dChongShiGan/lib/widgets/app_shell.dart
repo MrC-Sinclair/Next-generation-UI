@@ -4,6 +4,7 @@ import 'package:flutter_3d_site/theme/app_theme.dart';
 import 'package:flutter_3d_site/widgets/blob_background.dart';
 import 'package:flutter_3d_site/widgets/nav_items.dart';
 import 'package:flutter_3d_site/widgets/responsive.dart';
+import 'package:flutter_3d_site/widgets/tilt3d.dart';
 import 'package:flutter_3d_site/pages/home_page.dart';
 import 'package:flutter_3d_site/pages/about_page.dart';
 import 'package:flutter_3d_site/pages/portfolio_page.dart';
@@ -122,31 +123,35 @@ class _AppShellState extends State<AppShell> {
       padding: const EdgeInsets.only(bottom: 10),
       child: GestureDetector(
         onTap: () => _go(i),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-          decoration: active
-              ? AppTheme.jelly(
-                  gradient: navItems[i].gradient,
-                  radius: BorderRadius.circular(18),
-                  elevation: 14,
-                )
-              : BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-          child: Row(
-            children: [
-              Icon(navItems[i].icon,
-                  color: active ? Colors.white : AppColors.textMuted, size: 22),
-              const SizedBox(width: 14),
-              Text(navItems[i].label,
-                  style: TextStyle(
-                    color: active ? Colors.white : AppColors.textMuted,
-                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 15,
-                  )),
-            ],
+        // 导航项透视 tilt（桌面 hover 生效，移动端无影响）
+        child: Tilt3D(
+          maxAngle: active ? 0.05 : 0.04,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            decoration: active
+                ? AppTheme.jelly(
+                    gradient: navItems[i].gradient,
+                    radius: BorderRadius.circular(18),
+                    elevation: 14,
+                  )
+                : BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+            child: Row(
+              children: [
+                Icon(navItems[i].icon,
+                    color: active ? Colors.white : AppColors.textMuted, size: 22),
+                const SizedBox(width: 14),
+                Text(navItems[i].label,
+                    style: TextStyle(
+                      color: active ? Colors.white : AppColors.textMuted,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: 15,
+                    )),
+              ],
+            ),
           ),
         ),
       ),
@@ -216,31 +221,39 @@ class _AppShellState extends State<AppShell> {
       spacing: 12,
       runSpacing: 12,
       children: Profile.socials.map((s) {
-        return Container(
-          width: 42,
-          height: 42,
-          decoration: AppTheme.glass(radius: BorderRadius.circular(14), alpha: 0.1),
-          child: Center(child: Icon(s.icon, color: AppColors.textLight, size: 20)),
+        return Tilt3D(
+          maxAngle: 0.08,
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration:
+                AppTheme.glass(radius: BorderRadius.circular(14), alpha: 0.1),
+            child:
+                Center(child: Icon(s.icon, color: AppColors.textLight, size: 20)),
+          ),
         );
       }).toList(),
     );
   }
 
   Widget _brand({bool compact = false}) {
-    final logo = Container(
-      width: compact ? 40 : 48,
-      height: compact ? 40 : 48,
-      decoration: AppTheme.jelly(
-        gradient: AppGradients.purplePink,
-        radius: BorderRadius.circular(compact ? 12 : 16),
-        elevation: 14,
-      ),
-      child: Center(
-        child: Text(Profile.initials,
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: compact ? 20 : 24)),
+    final logo = Tilt3D(
+      maxAngle: 0.08,
+      child: Container(
+        width: compact ? 40 : 48,
+        height: compact ? 40 : 48,
+        decoration: AppTheme.jelly(
+          gradient: AppGradients.purplePink,
+          radius: BorderRadius.circular(compact ? 12 : 16),
+          elevation: 14,
+        ),
+        child: Center(
+          child: Text(Profile.initials,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: compact ? 20 : 24)),
+        ),
       ),
     );
     if (compact) {
