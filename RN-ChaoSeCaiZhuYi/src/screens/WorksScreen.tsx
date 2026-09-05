@@ -93,6 +93,7 @@ export function WorksScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void}
           pad={{h: 24, v: 22}}
           radius={R.lg}
           shadow={7}
+          glow={selected.color}
           style={{marginBottom: 24, overflow: 'hidden'}}>
           <View style={{flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between'}}>
             <View style={{flex: 1, paddingRight: 12}}>

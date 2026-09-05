@@ -1,6 +1,6 @@
 import React from 'react';
 import {Pressable, StyleProp, Text, ViewStyle} from 'react-native';
-import {BORDER, C, FONT, R, W, cursorPointer, hardShadow, noSelect} from '../../theme/tokens';
+import {BORDER, C, FONT, R, W, cursorPointer, hardGlow, hardShadow, noSelect} from '../../theme/tokens';
 
 export interface NeoButtonProps {
   title: string;
@@ -13,6 +13,8 @@ export interface NeoButtonProps {
   size?: 'sm' | 'md' | 'lg';
   icon?: string;
   disabled?: boolean;
+  /** 启用霓虹辉光（重点 CTA 用），发光色同主色 */
+  glow?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -35,6 +37,7 @@ export function NeoButton({
   size = 'md',
   icon,
   disabled,
+  glow,
   style,
 }: NeoButtonProps) {
   const solid = variant === 'solid';
@@ -57,7 +60,11 @@ export function NeoButton({
           paddingVertical: PAD[size].v,
           opacity: disabled ? 0.45 : 1,
         },
-        hardShadow(pressed || disabled ? 0 : 4, solid ? C.ink : color),
+        pressed || disabled
+          ? null
+          : glow
+          ? hardGlow(4, solid ? C.ink : color, solid ? color : C.ink)
+          : hardShadow(4, solid ? C.ink : color),
         pressed && {transform: [{translateX: 4}, {translateY: 4}]},
         cursorPointer,
         noSelect,

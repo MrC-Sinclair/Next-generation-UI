@@ -1,6 +1,6 @@
 import React from 'react';
 import {Pressable, Text, View} from 'react-native';
-import {BORDER, C, FONT, R, S, W, cursorPointer, hardShadow, noSelect} from '../theme/tokens';
+import {BORDER, C, FONT, R, S, W, cursorPointer, hardGlow, hardShadow, noSelect} from '../theme/tokens';
 import {Post, Work, SkillGroup} from '../data/profile';
 import {Tag, TagRow} from './ui/Tag';
 import {Hoverable} from './ui/Hoverable';
@@ -35,7 +35,7 @@ export function StatCard({
           minHeight: 104,
           justifyContent: 'space-between',
         },
-        hardShadow(5, C.ink),
+        hardGlow(5, C.ink, color, 16),
       ]}>
       <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
         <Text style={{fontFamily: FONT.display, fontSize: 34, lineHeight: 34, color: C.ink}}>{value}</Text>

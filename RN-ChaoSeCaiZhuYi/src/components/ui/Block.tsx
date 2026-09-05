@@ -1,6 +1,6 @@
 import React from 'react';
-import {StyleProp, View, ViewStyle} from 'react-native';
-import {BORDER, C, R, hardShadow} from '../../theme/tokens';
+import {Platform, StyleProp, View, ViewStyle} from 'react-native';
+import {BORDER, C, R, glowShadow, hardGlow, hardShadow} from '../../theme/tokens';
 
 export interface BlockProps {
   /** 底色，默认纸白 */
@@ -14,7 +14,7 @@ export interface BlockProps {
   /** 硬阴影位移，false 关闭 */
   shadow?: number | false;
   shadowColor?: string;
-  /** 荧光描边（Web 有效，原生回落为硬阴影） */
+  /** 霓虹辉光色：Web 与硬阴影叠加为真实光晕；原生回落为同色辉光阴影 */
   glow?: string;
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -53,7 +53,13 @@ export function Block({
           borderRadius: radius,
         },
         padding,
-        shadow !== false ? hardShadow(shadow, shadowColor) : null,
+        glow
+          ? Platform.OS === 'web' && shadow !== false
+            ? hardGlow(shadow as number, shadowColor, glow)
+            : glowShadow(glow)
+          : shadow !== false
+          ? hardShadow(shadow, shadowColor)
+          : null,
         style,
       ]}>
       {children}

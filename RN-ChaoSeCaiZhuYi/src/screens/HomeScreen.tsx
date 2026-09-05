@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, View} from 'react-native';
-import {BORDER, C, FONT, R, S, W, hardShadow, pickAccent} from '../theme/tokens';
+import {BORDER, C, FONT, R, S, W, hardShadow, neonText, pickAccent} from '../theme/tokens';
 import {useResponsive} from '../utils/responsive';
 import {NAV_ITEMS, ScreenKey, posts, profile, skills, works} from '../data/profile';
 import {Block} from '../components/ui/Block';
@@ -61,7 +61,7 @@ export function HomeScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void})
               color: C.ink,
             }}>
             {profile.taglineParts.map((p, i) => (
-              <Text key={i} style={{color: p.c ?? C.ink}}>
+              <Text key={i} style={[p.c ? {color: p.c} : {color: C.ink}, p.c ? neonText(p.c, 12) : null]}>
                 {p.t}
               </Text>
             ))}
@@ -112,7 +112,14 @@ export function HomeScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void})
           {/* 行动按钮 */}
           <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 26}}>
             <View style={{marginRight: 14, marginBottom: 10}}>
-              <NeoButton title="看看我的作品" icon="◆" color={C.magenta} size="lg" onPress={() => onNavigate('works')} />
+              <NeoButton
+                title="看看我的作品"
+                icon="◆"
+                color={C.magenta}
+                size="lg"
+                glow
+                onPress={() => onNavigate('works')}
+              />
             </View>
             <View style={{marginBottom: 10}}>
               <NeoButton
@@ -146,6 +153,7 @@ export function HomeScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void})
             radius={R.md}
             shadow={5}
             shadowColor={C.magenta}
+            glow={C.cyan}
             pad={{h: 14, v: 12}}
             style={{width: 210, marginTop: 12}}>
             <Text style={{fontFamily: FONT.body, fontWeight: W.bold, fontSize: 11, letterSpacing: 2, color: C.cyan}}>

@@ -1,4 +1,4 @@
-import {Platform, ShadowStyleIOS, ViewStyle} from 'react-native';
+import {Platform, ShadowStyleIOS, TextStyle, ViewStyle} from 'react-native';
 
 /* ============================================================
  *  CHROMA · 超色彩主义设计系统
@@ -119,6 +119,27 @@ export function glowShadow(color: string, blur = 24, offset = 0): ShadowResult {
     shadowRadius: Math.min(blur / 3, 12),
     elevation: 6,
   } as any;
+}
+
+/**
+ * 硬阴影 + 霓虹辉光组合（重点元素的首选发光方式）。
+ * Web 端 boxShadow 用多阴影叠加：保留新粗野主义的实心硬投影，再叠一圈真实霓虹光晕；
+ * 原生端一次只能渲染一种阴影色，回落为纯硬阴影，避免丢失粗描边质感。
+ */
+export function hardGlow(offset = 6, hardColor: string = C.ink, glowColor: string = C.cyan, glowBlur = 18): ShadowResult {
+  if (Platform.OS === 'web') {
+    return {boxShadow: `${offset}px ${offset}px 0px ${hardColor}, 0 0 ${glowBlur}px ${glowColor}`} as any;
+  }
+  return hardShadow(offset, hardColor);
+}
+
+/** 霓虹文字光晕：跨端可用（Web 与原生 RN 的 Text 均支持 textShadow*），用于撞色标题关键词发光 */
+export function neonText(color: string = C.cyan, blur = 10): TextStyle {
+  return {
+    textShadowColor: color,
+    textShadowOffset: {width: 0, height: 0},
+    textShadowRadius: blur,
+  };
 }
 
 /** 纯 Web 的鼠标手型（原生端会被忽略，无副作用） */

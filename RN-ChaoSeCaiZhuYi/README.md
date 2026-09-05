@@ -2,7 +2,7 @@
 
 > 一套 React Native 代码，跑 **PC 浏览器 / Android / iOS / 鸿蒙 / 微信小程序** 五个端的个人网站。
 >
-> 视觉风格：**超色彩主义** —— 高饱和撞色、荧光点缀、粗描边、硬阴影、巨型字。
+> 视觉风格：**超色彩主义** —— 高饱和撞色、荧光点缀、粗描边、硬阴影、巨型字、霓虹光晕。
 
 ## 一、长什么样
 
@@ -94,19 +94,44 @@ export const contacts = [...]; // 联系方式
 
 ## 五、设计系统
 
-全部 token 集中在 `src/theme/tokens.ts`：
+全部 token 集中在 `src/theme/tokens.ts`，**一套 token 五端共用**（PC / Android / iOS / 鸿蒙 / 小程序）。
+
+**CHROMA 色板 = 墨/纸底 + 五大高饱和撞色 + 荧光点缀色**：
 
 ```ts
-C.magenta #FF2E88   C.cyan #00E0FF   C.yellow #FFD400
-C.violet  #7C3AED   C.lime  #B8FF2E  C.orange #FF5A1F
-C.ink     #0D0620   C.paper #FFF6E9
+// 底 / 纸色：深墨与暖白负责压场，衬托撞色更"吵"
+C.ink #0D0620   C.inkSoft #2A1B4D   C.paper #FFF6E9   C.paperDeep #FFE9C9
+
+// 五大高饱和撞色主色（卡片 / 标签 / 区块按 ACCENTS 循环发牌）
+C.magenta #FF2E88   C.cyan #00E0FF   C.yellow #FFD400   C.violet #7C3AED   C.lime #B8FF2E
+
+// 荧光点缀色（霓虹感 accent）
+C.orange #FF5A1F   C.green #00D98B   C.blue #2B5CFF   C.pink #FF8FB1   C.purple #C04CFF
 ```
 
-三个核心工具：
+**画面语言四件套**：粗描边（2–6px `BORDER`）、无模糊实心硬阴影、撞色条纹 / 巨型字 / 整块纯色、霓虹光晕点缀。
 
-- `hardShadow(offset, color)` —— 无模糊的实心硬投影，Web 用 `boxShadow`，原生用 `shadowOffset + elevation`
+核心工具：
+
+- `hardShadow(offset, color)` —— 无模糊的实心硬投影，Web 用 `boxShadow`，原生用 `shadowOffset + elevation`；新粗野主义的基石
+- `glowShadow(color, blur)` —— 纯霓虹光晕：Web 端真实光晕，原生回落为同色阴影
+- `hardGlow(offset, hardColor, glowColor, blur)` —— **硬阴影 + 霓虹辉光组合**：Web 端多阴影叠加（保留墨色硬投影，再叠一层真实辉光），重点卡片与主按钮的首选；原生端保留硬阴影质感
+- `neonText(color, blur)` —— 霓虹文字光晕（基于 `textShadow*`，Web / 原生 RN 均可用），给撞色标题关键词发光
 - `pickAccent(i)` —— 按顺序发牌撞色，保证满屏都是颜色但不打架
 - `Hoverable` —— 只在 PC 上生效的悬停位移，移动端自动忽略
+
+**霓虹光晕已落地到重点元素**（本次新增，通过 `Block.glow` / `NeoButton.glow` / `hardGlow` / `neonText` 接入）：
+
+| 元素 | 发光方式 |
+| --- | --- |
+| 首页 Hero 巨型标题（"点一下"撞色词） | `neonText` 品红文字霓虹 |
+| 首页 Hero 主 CTA "看看我的作品" | `NeoButton glow` 品红辉光 |
+| 页脚主 CTA "联系我 →" | `hardGlow` 品红辉光 |
+| 首页数据速览 StatCard | `hardGlow` 各卡同色辉光 |
+| 作品详情展开面板 | `Block.glow` 同色辉光 |
+| Hero 右侧墨底信息卡 | `Block.glow` 青色辉光 |
+
+发光只落在视觉焦点头部，正文 / 低饱和纸底不发光，保证超色彩主义的"吵"不牺牲可读性；跨端安全——Web 是真实 `boxShadow` 光晕，原生端自动回落为硬阴影或同色辉光。
 
 想整体换风格只改 `tokens.ts` 里的 `ACCENTS` 数组即可，全站配色会跟着变。
 

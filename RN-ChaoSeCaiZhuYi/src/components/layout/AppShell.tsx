@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
 import {Pressable, ScrollView, StatusBar, Text, View} from 'react-native';
-import {BORDER, C, FONT, R, W, cursorPointer, hardShadow, noSelect} from '../../theme/tokens';
+import {BORDER, C, FONT, R, W, cursorPointer, hardGlow, hardShadow, noSelect} from '../../theme/tokens';
 import {Metrics, useResponsive} from '../../utils/responsive';
 import {NAV_ITEMS, ScreenKey, profile} from '../../data/profile';
 import {LiveDot, Stripes} from '../ui/Decor';
@@ -336,7 +336,7 @@ function SiteFooter({m, onPress}: {m: Metrics; onPress: (k: ScreenKey) => void})
               paddingHorizontal: 22,
               paddingVertical: 11,
             },
-            hardShadow(4, C.ink),
+            hardGlow(4, C.ink, C.magenta, 20),
             cursorPointer,
           ]}>
           <Text style={{fontFamily: FONT.display, fontSize: 14, color: C.ink}}>联系我 →</Text>
