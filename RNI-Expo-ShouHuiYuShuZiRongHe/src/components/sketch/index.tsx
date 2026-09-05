@@ -9,6 +9,7 @@ import {
   mulberry32,
   sketchArrowPath,
   sketchEllipsePath,
+  sketchHLinePath,
   sketchRectPath,
   sketchScribblePath,
   sketchStarPath,
@@ -36,6 +37,9 @@ type SketchBoxProps = {
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
 };
+
+/** 手绘路径的四周余量：过冲与抖动会越出矩形，画布必须比容器大一圈才不被裁切 */
+const SKETCH_PAD = 6;
 
 export function SketchBox({
   children,
@@ -81,10 +85,10 @@ export function SketchBox({
       <View style={contentStyle}>{children}</View>
       {d ? (
         <Svg
-          width={size.w}
-          height={size.h}
-          viewBox={`0 0 ${size.w} ${size.h}`}
-          style={[styles.absolute, { zIndex: -1 }]}
+          width={size.w + SKETCH_PAD * 2}
+          height={size.h + SKETCH_PAD * 2}
+          viewBox={`${-SKETCH_PAD} ${-SKETCH_PAD} ${size.w + SKETCH_PAD * 2} ${size.h + SKETCH_PAD * 2}`}
+          style={[styles.absolute, { top: -SKETCH_PAD, left: -SKETCH_PAD, zIndex: -1 }]}
           pointerEvents="none"
         >
           <Path d={d} fill={fill} fillOpacity={fillOpacity} />
@@ -332,10 +336,11 @@ export function StickyNote({
 }) {
   const line = useMemo(() => {
     const rand = mulberry32(seed);
-    // 便利贴底部微微翘起的折线阴影
-    const w = 100;
-    let d = `M 0 ${88 + rand()}`;
-    for (let i = 1; i <= 6; i++) d += ` L ${(w / 6) * i} ${88 + (rand() * 2 - 1) * 1.5}`;
+    // 便利贴底部微微翘起的折线阴影（画在 100×14 的翘角条里）
+    let d = `M 0 ${(6 + rand() * 2).toFixed(1)} `;
+    for (let i = 1; i <= 6; i++) {
+      d += `L ${((100 / 6) * i).toFixed(1)} ${(6 + (rand() * 2 - 1) * 2.2).toFixed(1)} `;
+    }
     return d;
   }, [seed]);
 
@@ -354,8 +359,7 @@ export function StickyNote({
       </View>
       {/* 便利贴翘角 */}
       <Svg height="14" viewBox="0 0 100 14" preserveAspectRatio="none" style={{ width: '100%' }}>
-        <Path d="M 100 0 L 100 0" stroke="none" />
-        <Path d={line.replace(/88/g, '6')} fill="none" stroke="rgba(90,80,50,0.25)" strokeWidth="1.4" />
+        <Path d={line} fill="none" stroke="rgba(90,80,50,0.25)" strokeWidth="1.4" />
       </Svg>
     </View>
   );
@@ -429,6 +433,118 @@ export function measureCjk(text: string, fontSize: number): number {
     else units += 0.45;
   }
   return Math.round(units * fontSize * 0.98);
+}
+
+/* ------------------------------------------------------------------ */
+/* 手绘小标签：单笔抖动边框（替代生硬的圆角矩形）                            */
+/* ------------------------------------------------------------------ */
+
+type SketchTagProps = {
+  children?: React.ReactNode;
+  /** 边框色 */
+  color?: string;
+  /** 底色（透传透明则不画填充） */
+  bg?: string;
+  seed?: number;
+  style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
+};
+
+export function SketchTag({
+  children,
+  color = Palette.stroke,
+  bg,
+  seed = 1,
+  style,
+  contentStyle,
+}: SketchTagProps) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+
+  const d = useMemo(() => {
+    if (size.w < 6 || size.h < 6) return '';
+    // 小尺寸收敛抖动：角更圆、过冲更短，否则糊成一团
+    return sketchRectPath(size.w, size.h, seed, 1.0, 2.5, 1.6);
+  }, [size.w, size.h, seed]);
+
+  return (
+    <View
+      style={[{ zIndex: 0 }, style]}
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        if (Math.abs(width - size.w) > 0.5 || Math.abs(height - size.h) > 0.5) {
+          setSize({ w: width, h: height });
+        }
+      }}
+    >
+      <View style={[{ paddingHorizontal: 10, paddingVertical: 4 }, contentStyle]}>{children}</View>
+      {d ? (
+        <Svg
+          width={size.w + SKETCH_PAD * 2}
+          height={size.h + SKETCH_PAD * 2}
+          viewBox={`${-SKETCH_PAD} ${-SKETCH_PAD} ${size.w + SKETCH_PAD * 2} ${size.h + SKETCH_PAD * 2}`}
+          style={[styles.absolute, { top: -SKETCH_PAD, left: -SKETCH_PAD, zIndex: -1 }]}
+          pointerEvents="none"
+        >
+          {bg ? <Path d={d} fill={bg} /> : null}
+          <Path
+            d={d}
+            fill="none"
+            stroke={color}
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ) : null}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 手绘分隔线：自测量宽度（不传 width 时撑满父容器）                          */
+/* ------------------------------------------------------------------ */
+
+export function SketchDivider({
+  width,
+  color = 'rgba(58,53,46,0.45)',
+  strokeWidth = 1.4,
+  seed = 7,
+  style,
+}: {
+  width?: number;
+  color?: string;
+  strokeWidth?: number;
+  seed?: number;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const [measured, setMeasured] = useState(0);
+  const w = width ?? measured;
+
+  return (
+    <View
+      style={[{ height: 8 }, style]}
+      onLayout={
+        width === undefined
+          ? (e) => {
+              const nw = e.nativeEvent.layout.width;
+              if (Math.abs(nw - measured) > 0.5) setMeasured(nw);
+            }
+          : undefined
+      }
+    >
+      {w > 4 ? (
+        <Svg width={w} height={8} viewBox={`0 0 ${w} 8`} pointerEvents="none">
+          <Path
+            d={sketchHLinePath(w, seed)}
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+        </Svg>
+      ) : null}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -3,11 +3,12 @@
  * 未上线模块显示"敬请期待"小贴纸。
  */
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link, usePathname } from 'expo-router';
 
-import { CircleMark, SketchUnderline } from '@/components/sketch';
+import { CircleMark, SketchTag, SketchUnderline } from '@/components/sketch';
 import { profile } from '@/content/profile';
+import { useViewportWidth } from '@/hooks/use-viewport-width';
 import { FontFamily, Layout, Palette, Space, TypeScale } from '@/theme/tokens';
 
 type NavItem = { href: string; label: string; soon?: boolean };
@@ -23,7 +24,7 @@ const NAV: NavItem[] = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { width } = useWindowDimensions();
+  const width = useViewportWidth();
   const wide = width >= Layout.wideBreak;
   const contentW = Math.min(width, Layout.maxContent) - Space.lg * 2;
 
@@ -87,9 +88,14 @@ function NavItemView({ item, active }: { item: NavItem; active: boolean }) {
         {item.label}
       </Text>
       {item.soon ? (
-        <View style={styles.soonTag}>
+        <SketchTag
+          color="rgba(201,80,42,0.5)"
+          bg="rgba(201,80,42,0.12)"
+          contentStyle={{ paddingHorizontal: 5, paddingVertical: 1 }}
+          style={styles.soonTag}
+        >
           <Text style={styles.soonText}>敬请期待</Text>
-        </View>
+        </SketchTag>
       ) : null}
       {active ? (
         <View style={styles.activeMark} pointerEvents="none">
@@ -103,8 +109,15 @@ function NavItemView({ item, active }: { item: NavItem; active: boolean }) {
     return <View style={styles.navItem}>{content}</View>;
   }
   return (
-    <Link href={item.href as never} style={styles.navItem}>
-      {content}
+    <Link href={item.href as never} asChild>
+      <Pressable
+        style={({ hovered, pressed }) => [
+          styles.navItem,
+          (hovered || pressed) && styles.navItemActive,
+        ]}
+      >
+        {content}
+      </Pressable>
     </Link>
   );
 }
@@ -161,6 +174,9 @@ const styles = StyleSheet.create({
   navItem: {
     paddingVertical: 6,
   },
+  navItemActive: {
+    opacity: 0.55,
+  },
   navItemInner: {
     position: 'relative',
     alignItems: 'center',
@@ -181,12 +197,6 @@ const styles = StyleSheet.create({
   },
   soonTag: {
     marginLeft: 4,
-    backgroundColor: 'rgba(201,80,42,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(201,80,42,0.5)',
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
     transform: [{ rotate: '-2deg' }],
   },
   soonText: {

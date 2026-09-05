@@ -2,7 +2,7 @@
  * 首页概览：手写 hero + 现在便签 + 身份标签 + 模块预告
  */
 import React from 'react';
-import { Linking, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link, Stack } from 'expo-router';
 
 import {
@@ -10,6 +10,7 @@ import {
   DoodleArrow,
   HandTitle,
   SketchBox,
+  SketchTag,
   Scribble,
   Star,
   Tape,
@@ -18,10 +19,11 @@ import { MarkerTitle } from '@/components/sketch/marker-title';
 import { AvatarDoodle } from '@/components/sketch/avatar';
 import { profile } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
+import { useViewportWidth } from '@/hooks/use-viewport-width';
 import { FontFamily, Layout, Palette, Space, TypeScale } from '@/theme/tokens';
 
 export default function Home() {
-  const { width } = useWindowDimensions();
+  const width = useViewportWidth();
   const wide = width >= Layout.wideBreak;
   usePageTitle(`${profile.name}的小站 · ${profile.role}`);
 
@@ -114,9 +116,15 @@ export default function Home() {
             {['TypeScript', 'React Native', 'Expo', '写字', '造轮子', '手绘'].map((tag, i) => {
               const rot = [-1.2, 0.8, -0.5, 1.1, -0.8, 0.6][i % 6];
               return (
-                <View key={tag} style={[styles.tag, { transform: [{ rotate: `${rot}deg` }] }]}>
+                <SketchTag
+                  key={tag}
+                  seed={9 + i * 3}
+                  bg="rgba(255,253,247,0.9)"
+                  contentStyle={{ paddingHorizontal: 12, paddingVertical: 5 }}
+                  style={{ transform: [{ rotate: `${rot}deg` }] }}
+                >
                   <Text style={styles.tagText}>{tag}</Text>
-                </View>
+                </SketchTag>
               );
             })}
           </View>
@@ -127,7 +135,14 @@ export default function Home() {
           <HandTitle text="找我 Find me" underlineColor={Palette.markerBlue} />
           <View style={{ gap: Space.sm }}>
             {profile.links.map((l, i) => (
-              <Pressable key={l.label} onPress={() => Linking.openURL(l.href)} style={styles.linkRow}>
+              <Pressable
+                key={l.label}
+                onPress={() => Linking.openURL(l.href)}
+                style={({ hovered, pressed }) => [
+                  styles.linkRow,
+                  (hovered || pressed) && styles.rowActive,
+                ]}
+              >
                 <Text style={styles.linkArrow}>→</Text>
                 <Text style={styles.linkText}>{l.label}</Text>
                 <Text style={styles.linkUrl}>{l.href.replace(/^https?:\/\//, '')}</Text>
@@ -173,8 +188,15 @@ function DrawerCard({
   seed: number;
 }) {
   return (
-    <Link href={href} style={styles.drawerCard}>
-      <SketchBox seed={seed} tilt={seed % 2 ? 1 : -1}>
+    <Link href={href} asChild>
+      <Pressable
+        style={({ hovered, pressed }) => [
+          styles.drawerCard,
+          (hovered || pressed) && { opacity: 0.8 },
+          pressed && { transform: [{ scale: 0.985 }] },
+        ]}
+      >
+        <SketchBox seed={seed} tilt={seed % 2 ? 1 : -1}>
         <View style={styles.drawerInner}>
           <Text style={styles.drawerTitle}>{title}</Text>
           <Text style={styles.drawerDesc}>{desc}</Text>
@@ -184,6 +206,7 @@ function DrawerCard({
           </View>
         </View>
       </SketchBox>
+      </Pressable>
     </Link>
   );
 }
@@ -328,14 +351,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Space.sm,
   },
-  tag: {
-    borderWidth: 1.6,
-    borderColor: Palette.stroke,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    backgroundColor: 'rgba(255,253,247,0.9)',
-  },
   tagText: {
     fontFamily: FontFamily.kai,
     fontSize: 16,
@@ -351,6 +366,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: Space.xs,
+    paddingVertical: 2,
+  },
+  rowActive: {
+    opacity: 0.6,
+    transform: [{ translateX: 2 }],
   },
   linkArrow: {
     fontFamily: FontFamily.kai,

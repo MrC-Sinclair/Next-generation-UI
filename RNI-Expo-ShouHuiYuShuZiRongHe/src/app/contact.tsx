@@ -8,7 +8,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
+  
   View,
 } from 'react-native';
 import { Stack } from 'expo-router';
@@ -17,10 +17,11 @@ import { PageShell } from '@/components/page-shell';
 import { CircleMark, DoodleArrow, SketchBox, SketchUnderline, Star, StickyNote, Tape } from '@/components/sketch';
 import { contact, profile } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
+import { useViewportWidth } from '@/hooks/use-viewport-width';
 import { FontFamily, Layout, Palette, Space } from '@/theme/tokens';
 
 export default function Contact() {
-  const { width } = useWindowDimensions();
+  const width = useViewportWidth();
   const wide = width >= Layout.wideBreak;
   const [copied, setCopied] = useState(false);
   usePageTitle(`联系方式 · 阿澈的小站`);
@@ -51,7 +52,13 @@ export default function Contact() {
             <View style={styles.cardInner}>
               <Text style={styles.cardLabel}>寄信地址 · 收件人：{profile.name}</Text>
 
-              <Pressable onPress={copyEmail} style={styles.emailBlock}>
+              <Pressable
+                onPress={copyEmail}
+                style={({ hovered, pressed }) => [
+                  styles.emailBlock,
+                  (hovered || pressed) && styles.rowActive,
+                ]}
+              >
                 <Text style={styles.email}>{contact.email}</Text>
                 <SketchUnderline
                   width={300}
@@ -80,7 +87,11 @@ export default function Contact() {
                 <Pressable
                   key={l.label}
                   onPress={() => Linking.openURL(l.href)}
-                  style={[styles.linkRow, { transform: [{ rotate: `${rot}deg` }] }]}
+                  style={({ hovered, pressed }) => [
+                    styles.linkRow,
+                    { transform: [{ rotate: `${rot}deg` }] },
+                    (hovered || pressed) && styles.rowActive,
+                  ]}
                 >
                   <Text style={styles.linkLabel}>{l.label}</Text>
                   <DoodleArrow width={34} height={14} color={Palette.pencil} seed={513 + i} />
@@ -149,6 +160,11 @@ const styles = StyleSheet.create({
   },
   emailBlock: {
     gap: 2,
+    alignSelf: 'flex-start',
+  },
+  rowActive: {
+    opacity: 0.6,
+    transform: [{ translateY: 1 }],
   },
   email: {
     fontFamily: FontFamily.kaiBold,

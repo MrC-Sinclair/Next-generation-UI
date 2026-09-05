@@ -6,7 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 
 import { PageShell } from '@/components/page-shell';
-import { SketchBox, SketchUnderline, StickyNote } from '@/components/sketch';
+import { SketchBox, SketchTag, SketchUnderline, StickyNote } from '@/components/sketch';
 import { posts } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
 import { FontFamily, Palette, Space } from '@/theme/tokens';
@@ -45,9 +45,9 @@ function PostRow({ post, seed }: { post: (typeof posts)[number]; seed: number })
         <View style={styles.inner}>
           <View style={styles.metaRow}>
             <Text style={styles.date}>{post.date}</Text>
-            <View style={[styles.tag, { backgroundColor: c.bg, borderColor: c.border }]}>
+            <SketchTag color={c.border} bg={c.bg} contentStyle={{ paddingHorizontal: 7, paddingVertical: 1 }}>
               <Text style={[styles.tagText, { color: c.text }]}>{post.tag}</Text>
-            </View>
+            </SketchTag>
           </View>
           <Text style={styles.title}>{post.title}</Text>
           <SketchUnderline
@@ -98,12 +98,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.handBody,
     fontSize: 16,
     color: Palette.pencil,
-  },
-  tag: {
-    borderWidth: 1.3,
-    borderRadius: 4,
-    paddingHorizontal: 7,
-    paddingVertical: 1,
   },
   tagText: {
     fontFamily: FontFamily.kai,

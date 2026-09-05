@@ -2,7 +2,7 @@
  * 关于我：名片 + 故事（荧光笔高亮） + 一些数字 + 便利贴墙
  */
 import React from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 
 import {
@@ -18,6 +18,7 @@ import {
 import { AvatarDoodle } from '@/components/sketch/avatar';
 import { profile } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
+import { useViewportWidth } from '@/hooks/use-viewport-width';
 import { FontFamily, Layout, Palette, Space, TypeScale } from '@/theme/tokens';
 
 const STICKY_COLORS = {
@@ -27,7 +28,7 @@ const STICKY_COLORS = {
 } as const;
 
 export default function About() {
-  const { width } = useWindowDimensions();
+  const width = useViewportWidth();
   const wide = width >= Layout.wideBreak;
   usePageTitle(`关于 ${profile.name} · ${profile.name}的小站`);
 

@@ -2,19 +2,20 @@
  * 技能栈：手绘星级（自己打的，仅供参考）
  */
 import React from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 
 import { PageShell } from '@/components/page-shell';
-import { SketchBox, Star } from '@/components/sketch';
+import { SketchBox, SketchDivider, SketchTag, Star } from '@/components/sketch';
 import { skillGroups } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
+import { useViewportWidth } from '@/hooks/use-viewport-width';
 import { FontFamily, Layout, Palette, Space } from '@/theme/tokens';
 
 const GROUP_ACCENT = [Palette.markerRed, Palette.markerBlue, Palette.markerGreen] as const;
 
 export default function Skills() {
-  const { width } = useWindowDimensions();
+  const width = useViewportWidth();
   const wide = width >= Layout.wideBreak;
   usePageTitle(`技能栈 · 阿澈的小站`);
 
@@ -54,15 +55,20 @@ function SkillGroupCard({
             <Text style={styles.groupTitle}>{group.name}</Text>
             <Text style={styles.groupNote}>（{group.note}）</Text>
           </View>
-          <View style={styles.divider} />
+          <SketchDivider seed={seed * 3 + 1} style={styles.divider} />
           {group.items.map((s, si) => (
             <View key={s.name} style={styles.skillRow}>
               <View style={styles.nameBlock}>
                 <Text style={styles.skillName}>{s.name}</Text>
                 {'note' in s && s.note ? (
-                  <View style={styles.noteTag}>
+                  <SketchTag
+                    color="rgba(201,80,42,0.45)"
+                    bg="rgba(201,80,42,0.12)"
+                    contentStyle={{ paddingHorizontal: 5, paddingVertical: 1 }}
+                    style={styles.noteTag}
+                  >
                     <Text style={styles.noteText}>{s.note}</Text>
-                  </View>
+                  </SketchTag>
                 ) : null}
               </View>
               <View style={styles.stars}>
@@ -87,6 +93,7 @@ function SkillGroupCard({
 const styles = StyleSheet.create({
   grid: {
     gap: Space.xl,
+    flexWrap: 'wrap',
   },
   cardWrap: {
     flex: 1,
@@ -115,9 +122,7 @@ const styles = StyleSheet.create({
     color: Palette.pencil,
   },
   divider: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(58,53,46,0.25)',
-    borderStyle: 'dashed',
+    alignSelf: 'stretch',
   },
   skillRow: {
     flexDirection: 'row',
@@ -137,12 +142,6 @@ const styles = StyleSheet.create({
     color: Palette.ink,
   },
   noteTag: {
-    backgroundColor: 'rgba(201,80,42,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(201,80,42,0.45)',
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
     transform: [{ rotate: '-2deg' }],
   },
   noteText: {

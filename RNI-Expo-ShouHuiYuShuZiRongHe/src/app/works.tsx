@@ -2,13 +2,14 @@
  * 作品集：手绘项目卡（胶带 + 状态章 + 技术标签）
  */
 import React from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 
 import { PageShell } from '@/components/page-shell';
-import { DoodleArrow, SketchBox, Tape } from '@/components/sketch';
+import { DoodleArrow, SketchBox, SketchTag, Tape } from '@/components/sketch';
 import { works } from '@/content/profile';
 import { usePageTitle } from '@/hooks/use-page-title';
+import { useViewportWidth } from '@/hooks/use-viewport-width';
 import { FontFamily, Layout, Palette, Space } from '@/theme/tokens';
 
 const STATUS_COLOR = {
@@ -17,7 +18,7 @@ const STATUS_COLOR = {
 } as const;
 
 export default function Works() {
-  const { width } = useWindowDimensions();
+  const width = useViewportWidth();
   const wide = width >= Layout.wideBreak;
   usePageTitle(`作品集 · 阿澈的小站`);
 
@@ -51,17 +52,29 @@ function ProjectCard({
         <View style={styles.inner}>
           <View style={styles.metaRow}>
             <Text style={styles.year}>{work.year}</Text>
-            <View style={[styles.status, { backgroundColor: c.bg, borderColor: c.border }]}>
+            <SketchTag
+              color={c.border}
+              bg={c.bg}
+              contentStyle={{ paddingHorizontal: 8, paddingVertical: 2 }}
+              style={{ transform: [{ rotate: '2deg' }] }}
+            >
               <Text style={[styles.statusText, { color: c.text }]}>{work.statusText}</Text>
-            </View>
+            </SketchTag>
           </View>
           <Text style={styles.title}>{work.title}</Text>
           <Text style={styles.desc}>{work.desc}</Text>
           <View style={styles.techRow}>
-            {work.tech.map((t) => (
-              <View key={t} style={styles.techTag}>
+            {work.tech.map((t, ti) => (
+              <SketchTag
+                key={t}
+                color="rgba(61,107,153,0.55)"
+                bg="rgba(61,107,153,0.08)"
+                seed={seed + 7 + ti * 5}
+                contentStyle={{ paddingHorizontal: 8, paddingVertical: 2 }}
+                style={{ transform: [{ rotate: `${ti % 2 ? 0.6 : -0.6}deg` }] }}
+              >
                 <Text style={styles.techText}>{t}</Text>
-              </View>
+              </SketchTag>
             ))}
           </View>
         </View>
@@ -73,6 +86,7 @@ function ProjectCard({
 const styles = StyleSheet.create({
   grid: {
     gap: Space.xl,
+    flexWrap: 'wrap',
   },
   cardWrap: {
     flex: 1,
@@ -99,13 +113,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: Palette.pencil,
   },
-  status: {
-    borderWidth: 1.4,
-    borderRadius: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    transform: [{ rotate: '2deg' }],
-  },
   statusText: {
     fontFamily: FontFamily.kaiBold,
     fontSize: 14,
@@ -126,15 +133,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Space.sm,
     marginTop: Space.xs,
-  },
-  techTag: {
-    borderWidth: 1.3,
-    borderColor: 'rgba(61,107,153,0.55)',
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    backgroundColor: 'rgba(61,107,153,0.08)',
-    transform: [{ rotate: '-0.6deg' }],
   },
   techText: {
     fontFamily: FontFamily.kai,

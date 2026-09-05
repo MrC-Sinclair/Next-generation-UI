@@ -90,6 +90,12 @@ export function sketchRectPath(
   return d;
 }
 
+/** 手绘横线（分隔线）：两端稳、中段下垂一点点，像随手画的尺线 */
+export function sketchHLinePath(w: number, seed: number, rough = 1.2): string {
+  const rand = mulberry32(seed);
+  return ptsToPath(jitterLine(0, 0, w, 0, rand, rough, 18), true);
+}
+
 /** 手绘波浪下划线（红笔勾重点） */
 export function sketchUnderlinePath(w: number, seed: number, amp = 2.6, period = 34): string {
   const rand = mulberry32(seed);

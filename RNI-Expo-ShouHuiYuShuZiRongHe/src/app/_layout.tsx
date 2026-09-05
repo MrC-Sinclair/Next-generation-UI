@@ -2,13 +2,13 @@
  * 根布局：字体加载 → 纸面背景 → 顶栏 + 路由 + 页脚
  */
 import React, { useCallback, useEffect } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
 import '@/global.css';
 import { SiteHeader } from '@/components/site-header';
-import { Star } from '@/components/sketch';
+import { SketchDivider, Star } from '@/components/sketch';
 import { useSiteFonts } from '@/hooks/use-fonts';
 import { profile } from '@/content/profile';
 import { FontFamily, Palette, Space } from '@/theme/tokens';
@@ -40,13 +40,18 @@ export default function RootLayout() {
         />
       </View>
       <SiteHeader />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'fade',
-          contentStyle: { backgroundColor: 'transparent' },
-        }}
-      />
+      {/* web 端 html/body/#root 被 expo-reset 锁在 100vh，页面内容会溢出画过页脚。
+          把滚动收进内容区（顶栏 / 滚动区 / 页脚 三段式），页脚稳定贴底不再被内容叠盖。
+          原生端本来就是内部滚动，保持 flex:1 即可。 */}
+      <View style={stackAreaStyle}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'fade',
+            contentStyle: { backgroundColor: 'transparent' },
+          }}
+        />
+      </View>
       <SiteFooter />
     </View>
   );
@@ -54,13 +59,26 @@ export default function RootLayout() {
 
 function SiteFooter() {
   return (
-    <View style={styles.footer}>
-      <Star size={16} color={Palette.markerRed} seed={12} style={styles.footerStar} />
-      <Text style={styles.footerText}>{profile.footer}</Text>
-      <Star size={13} color={Palette.markerBlue} seed={19} style={styles.footerStar} />
+    <View style={styles.footerWrap}>
+      {/* 收尾的手绘底线：像写完一页后随手画的那条横线 */}
+      <View style={styles.footerLine}>
+        <SketchDivider width={300} color="rgba(58,53,46,0.35)" seed={87} />
+      </View>
+      <View style={styles.footer}>
+        <Star size={16} color={Palette.markerRed} seed={12} style={styles.footerStar} />
+        <Text style={styles.footerText}>{profile.footer}</Text>
+        <Star size={13} color={Palette.markerBlue} seed={19} style={styles.footerStar} />
+      </View>
     </View>
   );
 }
+
+const stackAreaStyle: ViewStyle = {
+  flex: 1,
+  // RN 的 ViewStyle 类型只收 visible/hidden/scroll，但 react-native-web 运行时支持
+  // CSS overflow:auto（只在需要的那条轴出现滚动条），这里断言绕过类型层面。
+  ...(Platform.OS === 'web' ? { overflow: 'auto' as unknown as 'hidden' } : {}),
+};
 
 const styles = StyleSheet.create({
   root: {
@@ -81,12 +99,19 @@ const styles = StyleSheet.create({
     // 噪点本身已带低 alpha 像素，这里再整体压低，避免过"脏"
     opacity: 0.55,
   },
+  footerWrap: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  footerLine: {
+    alignItems: 'center',
+  },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Space.sm,
-    paddingVertical: Space.xl,
+    paddingVertical: Space.lg,
   },
   footerStar: {
     opacity: 0.8,
