@@ -36,6 +36,29 @@ export const ACCENTS = [C.magenta, C.cyan, C.yellow, C.violet, C.lime, C.orange,
 
 export const pickAccent = (i: number) => ACCENTS[((i % ACCENTS.length) + ACCENTS.length) % ACCENTS.length];
 
+/**
+ * 按背景亮度自动选可读前景色：亮底（品红/黄/青/橙）配墨字，深底（墨/紫/蓝）配纸字。
+ * 阈值 0.32 按本套色板调校，保证 WCAG 级别的对比度，杜绝"黑底黑字"。
+ */
+export function readableFg(bg: string, onLight: string = C.ink, onDark: string = C.paper): string {
+  const hex = bg.replace('#', '');
+  const full = hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex;
+  const n = parseInt(full.slice(0, 6), 16);
+  const lin = (v: number) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  const lum =
+    0.2126 * lin(((n >> 16) & 255) / 255) + 0.7152 * lin(((n >> 8) & 255) / 255) + 0.0722 * lin((n & 255) / 255);
+  return lum > 0.32 ? onLight : onDark;
+}
+
+/** 纸底点阵纹理：印刷网点感（仅 Web；原生端优雅降级为纯色纸底） */
+export const bgDots =
+  Platform.OS === 'web'
+    ? ({
+        backgroundImage: 'radial-gradient(rgba(13,6,32,0.10) 1.4px, transparent 1.5px)',
+        backgroundSize: '24px 24px',
+      } as any)
+    : {};
+
 /** 间距：4 的倍数 */
 export const S = {
   xxs: 2,
@@ -124,13 +147,20 @@ export function glowShadow(color: string, blur = 24, offset = 0): ShadowResult {
 /**
  * 硬阴影 + 霓虹辉光组合（重点元素的首选发光方式）。
  * Web 端 boxShadow 用多阴影叠加：保留新粗野主义的实心硬投影，再叠一圈真实霓虹光晕；
- * 原生端一次只能渲染一种阴影色，回落为纯硬阴影，避免丢失粗描边质感。
+ * 原生端一次只能渲染一种阴影色，用"发光色 + 少量模糊"的偏移投影兼顾深度与荧光感，
+ * 避免完全丢失"色彩在发光"的表达。
  */
 export function hardGlow(offset = 6, hardColor: string = C.ink, glowColor: string = C.cyan, glowBlur = 18): ShadowResult {
   if (Platform.OS === 'web') {
     return {boxShadow: `${offset}px ${offset}px 0px ${hardColor}, 0 0 ${glowBlur}px ${glowColor}`} as any;
   }
-  return hardShadow(offset, hardColor);
+  return {
+    shadowColor: glowColor,
+    shadowOffset: {width: offset, height: offset},
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: Math.min(offset + 4, 12),
+  } as any;
 }
 
 /** 霓虹文字光晕：跨端可用（Web 与原生 RN 的 Text 均支持 textShadow*），用于撞色标题关键词发光 */

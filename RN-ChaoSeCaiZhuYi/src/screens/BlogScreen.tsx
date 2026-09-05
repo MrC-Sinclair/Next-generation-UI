@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Pressable, ScrollView, Text, View} from 'react-native';
-import {BORDER, C, FONT, R, W, cursorPointer, hardShadow} from '../theme/tokens';
+import {BORDER, C, FONT, R, W, cursorPointer, hardGlow} from '../theme/tokens';
 import {useResponsive} from '../utils/responsive';
 import {POST_CATEGORIES, Post, ScreenKey, posts} from '../data/profile';
 import {Block} from '../components/ui/Block';
@@ -52,7 +52,7 @@ export function BlogScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void})
       </View>
 
       {/* 头条 */}
-      <Block bg={hero.color} pad={{h: 24, v: 22}} radius={R.lg} shadow={7} style={{marginBottom: 26, overflow: 'hidden'}}>
+      <Block bg={hero.color} pad={{h: 24, v: 22}} radius={R.lg} shadow={7} glow={hero.color} style={{marginBottom: 26, overflow: 'hidden'}}>
         <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12}}>
           <Tag label="FEATURED" color={C.ink} variant="solid" />
           <Text style={{fontFamily: FONT.body, fontSize: 12, color: C.ink, marginLeft: 10}}>
@@ -108,7 +108,7 @@ export function BlogScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void})
                   borderColor: C.ink,
                   backgroundColor: isActive ? color : C.white,
                 },
-                hardShadow(isActive ? 4 : 0, C.ink),
+                isActive ? hardGlow(4, C.ink, color, 16) : null,
                 cursorPointer,
               ]}>
               <Text

@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Animated, Easing, Text, View} from 'react-native';
-import {ACCENTS, BORDER, C, FONT, R, W, hardShadow} from '../../theme/tokens';
+import {ACCENTS, BORDER, C, FONT, R, W, hardShadow, pickAccent} from '../../theme/tokens';
 
 /** 撞色条纹条：最便宜也最有效的色彩宣言 */
 export function Stripes({colors, height = 14, radius = R.pill}: {colors?: string[]; height?: number; radius?: number}) {
@@ -93,11 +93,11 @@ export function Portrait({text, bg, ring, size = 160}: {text: string; bg: string
   );
 }
 
-/** 跑马灯：滚动的文字条，能量感的来源 */
+/** 跑马灯：滚动的文字条，能量感的来源。文字按撞色循环着色（传 fg 则统一用单色） */
 export function Marquee({
   items,
   bg = C.ink,
-  fg = C.yellow,
+  fg,
   height = 40,
   pxPerSec = 60,
 }: {
@@ -128,7 +128,15 @@ export function Marquee({
   const line = (pass: number) =>
     items.map((t, i) => (
       <View key={`${pass}-${i}`} style={{flexDirection: 'row', alignItems: 'center', flexShrink: 0}}>
-        <Text style={{fontFamily: FONT.display, fontSize: 14, color: fg, letterSpacing: 1.5}}>{t}</Text>
+        <Text
+          style={{
+            fontFamily: FONT.display,
+            fontSize: 14,
+            color: fg ?? pickAccent(i + 1),
+            letterSpacing: 1.5,
+          }}>
+          {t}
+        </Text>
         <View
           style={{
             width: 7,

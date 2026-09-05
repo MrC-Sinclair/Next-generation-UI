@@ -54,22 +54,11 @@ export function StatCard({
 export function WorkCard({work, onPress}: {work: Work; onPress?: () => void}) {
   return (
     <Hoverable
-      style={{flex: 1}}
-      hoverStyle={{transform: [{translateX: -3}, {translateY: -3}]} as any}>
+      style={[{flex: 1}, hardShadow(6, C.ink)]}
+      hoverStyle={[{transform: [{translateX: -4}, {translateY: -4}]} as any, hardShadow(10, C.ink)]}>
       <Pressable
         onPress={onPress}
-        style={[
-          {
-            flex: 1,
-            backgroundColor: C.white,
-            borderWidth: BORDER.base,
-            borderColor: C.ink,
-            borderRadius: R.lg,
-            overflow: 'hidden',
-          },
-          hardShadow(6, C.ink),
-          cursorPointer,
-        ]}>
+        style={[{flex: 1, backgroundColor: C.white, borderWidth: BORDER.base, borderColor: C.ink, borderRadius: R.lg, overflow: 'hidden'}, cursorPointer]}>
         {/* 顶部色带 */}
         <View
           style={{
@@ -125,7 +114,9 @@ export function WorkCard({work, onPress}: {work: Work; onPress?: () => void}) {
 /* ---------------- 文章卡 ---------------- */
 export function PostCard({post, onPress, compact}: {post: Post; onPress?: () => void; compact?: boolean}) {
   return (
-    <Hoverable style={{flex: 1}} hoverStyle={{transform: [{translateX: -3}, {translateY: -3}]} as any}>
+    <Hoverable
+      style={[{flex: 1}, hardShadow(5, C.ink)]}
+      hoverStyle={[{transform: [{translateX: -3}, {translateY: -3}]} as any, hardShadow(9, C.ink)]}>
       <Pressable
         onPress={onPress}
         style={[
@@ -137,7 +128,6 @@ export function PostCard({post, onPress, compact}: {post: Post; onPress?: () => 
             borderRadius: R.lg,
             padding: 18,
           },
-          hardShadow(5, C.ink),
           cursorPointer,
           noSelect,
         ]}>

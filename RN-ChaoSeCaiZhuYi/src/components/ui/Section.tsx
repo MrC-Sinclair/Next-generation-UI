@@ -88,7 +88,11 @@ export function Section({
   return (
     <View style={[{marginBottom: 56}, style]}>
       <SectionHeader index={index} title={title} en={en} color={color} right={right} size={headerSize} />
-      <View style={{height: 3, backgroundColor: C.ink, marginTop: 12, marginBottom: 24}} />
+      {/* 撞色双线：墨线 + 区块色线，比单线更有印刷海报的节奏感 */}
+      <View style={{marginTop: 12, marginBottom: 24}}>
+        <View style={{height: 3, backgroundColor: C.ink}} />
+        <View style={{height: 3, backgroundColor: color ?? C.magenta, marginTop: 3, width: '62%'}} />
+      </View>
       {children}
     </View>
   );

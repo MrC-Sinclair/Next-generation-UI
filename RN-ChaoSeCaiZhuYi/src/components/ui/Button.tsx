@@ -1,6 +1,6 @@
-import React from 'react';
-import {Pressable, StyleProp, Text, ViewStyle} from 'react-native';
-import {BORDER, C, FONT, R, W, cursorPointer, hardGlow, hardShadow, noSelect} from '../../theme/tokens';
+import React, {useState} from 'react';
+import {Platform, Pressable, StyleProp, Text, ViewStyle} from 'react-native';
+import {BORDER, C, FONT, R, W, cursorPointer, hardGlow, hardShadow, noSelect, readableFg} from '../../theme/tokens';
 
 export interface NeoButtonProps {
   title: string;
@@ -41,12 +41,18 @@ export function NeoButton({
   style,
 }: NeoButtonProps) {
   const solid = variant === 'solid';
-  const fg = textColor ?? (solid ? (color === C.yellow || color === C.lime ? C.ink : C.white) : C.ink);
+  const [hover, setHover] = useState(false);
+  const fg = textColor ?? (solid ? readableFg(color) : C.ink);
+  const hoverProps =
+    Platform.OS === 'web'
+      ? ({onHoverIn: () => setHover(true), onHoverOut: () => setHover(false)} as any)
+      : {};
 
   return (
     <Pressable
       disabled={disabled}
       onPress={onPress}
+      {...hoverProps}
       style={({pressed}) => [
         {
           alignSelf: 'flex-start',
@@ -63,9 +69,10 @@ export function NeoButton({
         pressed || disabled
           ? null
           : glow
-          ? hardGlow(4, solid ? C.ink : color, solid ? color : C.ink)
-          : hardShadow(4, solid ? C.ink : color),
+          ? hardGlow(hover ? 6 : 4, solid ? C.ink : color, solid ? color : C.ink)
+          : hardShadow(hover ? 6 : 4, solid ? C.ink : color),
         pressed && {transform: [{translateX: 4}, {translateY: 4}]},
+        hover && !pressed && !disabled && {transform: [{translateX: -2}, {translateY: -2}]},
         cursorPointer,
         noSelect,
         style,

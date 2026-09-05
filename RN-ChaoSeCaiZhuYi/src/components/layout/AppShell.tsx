@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
 import {Pressable, ScrollView, StatusBar, Text, View} from 'react-native';
-import {BORDER, C, FONT, R, W, cursorPointer, hardGlow, hardShadow, noSelect} from '../../theme/tokens';
+import {BORDER, C, FONT, R, W, bgDots, cursorPointer, glowShadow, hardGlow, hardShadow, noSelect} from '../../theme/tokens';
 import {Metrics, useResponsive} from '../../utils/responsive';
 import {NAV_ITEMS, ScreenKey, profile} from '../../data/profile';
 import {LiveDot, Stripes} from '../ui/Decor';
@@ -30,7 +30,7 @@ export function AppShell({
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: C.paper}}>
+    <View style={[{flex: 1, backgroundColor: C.paper}, bgDots]}>
       <StatusBar barStyle="dark-content" backgroundColor={C.paper} />
 
       <View style={{flex: 1, flexDirection: m.showSidebar ? 'row' : 'column'}}>
@@ -133,7 +133,7 @@ function Sidebar({
                   borderColor: C.ink,
                   transform: [{translateX: pressed && !isActive ? 2 : 0}],
                 },
-                isActive ? hardShadow(3, C.paper) : null,
+                isActive ? hardGlow(3, C.paper, item.color, 16) : null,
                 cursorPointer,
                 noSelect,
               ]}>
@@ -195,18 +195,21 @@ function TopBar({m, active, onPress}: {m: Metrics; active: ScreenKey; onPress: (
           paddingTop: 12,
         }}>
         <View style={{flexDirection: 'row', alignItems: 'center', marginRight: 16}}>
-          <View
-            style={{
-              width: 22,
-              height: 22,
-              backgroundColor: C.magenta,
-              borderWidth: 2,
-              borderColor: C.paper,
-              borderRadius: 4,
-              marginRight: 8,
-            }}
-          />
-          <Text style={{fontFamily: FONT.display, fontSize: 17, color: C.paper}}>CHROMA</Text>
+          {[C.magenta, C.yellow, C.cyan].map((c, i) => (
+            <View
+              key={i}
+              style={{
+                width: 14,
+                height: 14,
+                backgroundColor: c,
+                borderWidth: 2,
+                borderColor: C.paper,
+                borderRadius: i === 1 ? 0 : 3,
+                marginRight: 3,
+              }}
+            />
+          ))}
+          <Text style={{fontFamily: FONT.display, fontSize: 17, color: C.paper, marginLeft: 3}}>CHROMA</Text>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{flex: 1}}>
@@ -267,16 +270,19 @@ function BottomTabs({m, active, onPress}: {m: Metrics; active: ScreenKey; onPres
             onPress={() => onPress(item.key)}
             style={[{flex: 1, alignItems: 'center', paddingHorizontal: 2}, cursorPointer]}>
             <View
-              style={{
-                width: 30,
-                height: 26,
-                borderRadius: 8,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: isActive ? item.color : 'transparent',
-                borderWidth: isActive ? 2 : 0,
-                borderColor: C.paper,
-              }}>
+              style={[
+                {
+                  width: 30,
+                  height: 26,
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isActive ? item.color : 'transparent',
+                  borderWidth: isActive ? 2 : 0,
+                  borderColor: C.paper,
+                },
+                isActive ? glowShadow(item.color, 14) : null,
+              ]}>
               <Text style={{fontFamily: FONT.display, fontSize: 12, color: isActive ? C.ink : item.color}}>
                 {item.icon}
               </Text>

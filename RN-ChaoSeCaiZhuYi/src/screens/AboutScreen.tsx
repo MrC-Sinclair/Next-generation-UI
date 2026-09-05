@@ -154,16 +154,19 @@ export function AboutScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void}
               {/* 轴 */}
               <View style={{width: 44, alignItems: 'center'}}>
                 <View
-                  style={{
-                    width: 22,
-                    height: 22,
-                    backgroundColor: t.color,
-                    borderWidth: BORDER.thin,
-                    borderColor: C.ink,
-                    borderRadius: 3,
-                    transform: [{rotate: '45deg'}],
-                    marginTop: 4,
-                  }}
+                  style={[
+                    {
+                      width: 22,
+                      height: 22,
+                      backgroundColor: t.color,
+                      borderWidth: BORDER.thin,
+                      borderColor: C.ink,
+                      borderRadius: 3,
+                      transform: [{rotate: '45deg'}],
+                      marginTop: 4,
+                    },
+                    hardShadow(3, C.ink),
+                  ]}
                 />
                 {i < profile.timeline.length - 1 && (
                   <View style={{width: 3, flex: 1, backgroundColor: C.ink, marginTop: 6, marginBottom: 4}} />

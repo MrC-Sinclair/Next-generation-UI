@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
-import {BORDER, C, FONT, R, S, W, cursorPointer, hardShadow} from '../theme/tokens';
+import {BORDER, C, FONT, R, S, W, cursorPointer, glowShadow, hardShadow} from '../theme/tokens';
 import {useResponsive} from '../utils/responsive';
 import {ScreenKey, contacts, profile, socials} from '../data/profile';
 import {Block} from '../components/ui/Block';
@@ -274,6 +274,7 @@ function Field({
   color: string;
   multiline?: boolean;
 }) {
+  const [focused, setFocused] = useState(false);
   return (
     <View style={{marginBottom: 16}}>
       <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 6}}>
@@ -286,6 +287,8 @@ function Field({
         placeholder={placeholder}
         placeholderTextColor="#9A8FC4"
         multiline={multiline}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         style={[
           {
             borderWidth: BORDER.base,
@@ -300,7 +303,7 @@ function Field({
             minHeight: multiline ? 104 : 46,
             textAlignVertical: multiline ? 'top' : 'center',
           },
-          hardShadow(3, C.ink),
+          focused ? glowShadow(color, 18) : hardShadow(3, C.ink),
         ]}
       />
     </View>

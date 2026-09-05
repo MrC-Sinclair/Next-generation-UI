@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleProp, Text, View, ViewStyle} from 'react-native';
-import {BORDER, C, FONT, R, W} from '../../theme/tokens';
+import {BORDER, C, FONT, R, W, readableFg} from '../../theme/tokens';
 
 export interface TagProps {
   label: string;
@@ -36,7 +36,7 @@ export function Tag({label, color = C.cyan, variant = 'outline', size = 'sm', st
           fontWeight: W.bold,
           fontSize: fs,
           letterSpacing: 0.6,
-          color: isSolid ? (color === C.yellow || color === C.lime ? C.ink : C.ink) : color,
+          color: isSolid ? readableFg(color) : color,
         }}>
         {label}
       </Text>

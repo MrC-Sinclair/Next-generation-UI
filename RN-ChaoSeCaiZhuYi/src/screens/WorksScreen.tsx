@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Pressable, ScrollView, Text, View} from 'react-native';
-import {BORDER, C, FONT, R, S, W, cursorPointer, hardShadow} from '../theme/tokens';
+import {BORDER, C, FONT, R, S, W, cursorPointer, hardGlow} from '../theme/tokens';
 import {useResponsive} from '../utils/responsive';
 import {WORK_CATEGORIES, Work, ScreenKey, works} from '../data/profile';
 import {Block} from '../components/ui/Block';
@@ -69,7 +69,7 @@ export function WorksScreen({onNavigate}: {onNavigate: (key: ScreenKey) => void}
                   borderColor: C.ink,
                   backgroundColor: isActive ? color : C.white,
                 },
-                hardShadow(isActive ? 4 : 0, C.ink),
+                isActive ? hardGlow(4, C.ink, color, 16) : null,
                 cursorPointer,
               ]}>
               <Text
