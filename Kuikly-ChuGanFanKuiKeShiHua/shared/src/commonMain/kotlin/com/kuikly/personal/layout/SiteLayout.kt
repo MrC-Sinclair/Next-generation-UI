@@ -94,7 +94,10 @@ class SiteLayout(width: Float) {
      * 的组合下，会把子 Text 的可用宽度算成很小（接近 1 字符），导致按字符换行。
      * 显式给一个合理宽度就稳了。
      */
-    val heroCopyWidth: Float get() = (contentMaxWidth - 200f).coerceAtLeast(0f)
+    val heroCopyWidth: Float get() = (contentMaxWidth - heroCardWidth - 32f).coerceAtLeast(0f)
+
+    /** Hero 右侧名片卡宽度（仅 Desktop） */
+    val heroCardWidth: Float = 300f
 }
 
 /**

@@ -34,6 +34,8 @@ enum class Elevation(
     val sinkDp: Float,
     /** 按下时的缩放系数 */
     val pressedScale: Float,
+    /** 静止时"离桌高度"示意值（≈ rest 的 offsetY），按压深度演示用 */
+    val liftDp: Float = 0f,
 ) {
     /** 平面：已选中的导航项。静止即贴平桌面，按下只再沉一点点、不缩放。 */
     Flat(
@@ -51,6 +53,7 @@ enum class Elevation(
         pressed = shadow(0f, 1f, 0x33),
         sinkDp = 1f,
         pressedScale = 0.985f,
+        liftDp = 2f,
     ),
 
     /** 中高度：常规卡片。最常用的档位。 */
@@ -60,6 +63,7 @@ enum class Elevation(
         pressed = shadow(1f, 3f, 0x30),
         sinkDp = 2f,
         pressedScale = 0.975f,
+        liftDp = 5f,
     ),
 
     /** 高高度：主行动按钮、悬浮元素。 */
@@ -69,6 +73,7 @@ enum class Elevation(
         pressed = shadow(1f, 4f, 0x33),
         sinkDp = 3f,
         pressedScale = 0.97f,
+        liftDp = 8f,
     ),
 
     /** 悬浮：Hero 头像、置顶卡片。 */
@@ -78,6 +83,7 @@ enum class Elevation(
         pressed = shadow(2f, 6f, 0x2E),
         sinkDp = 4f,
         pressedScale = 0.965f,
+        liftDp = 12f,
     ),
 }
 

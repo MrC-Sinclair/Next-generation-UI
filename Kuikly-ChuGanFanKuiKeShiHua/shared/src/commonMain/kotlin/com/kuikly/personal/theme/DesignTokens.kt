@@ -55,6 +55,8 @@ object Tokens {
     // ------------------------------------------------------------------
     val success = Color(0xFF16A34A)
     val successSoft = Color(0xFFE6F6EC)
+    /** 深一档的成功色，专用于软底上的文字，保证对比度 */
+    val successDeep = Color(0xFF15803D)
     val warning = Color(0xFFF59E0B)
     val warningSoft = Color(0xFFFEF4E3)
 
@@ -75,9 +77,9 @@ object Tokens {
     // 圆角（dp）
     // ------------------------------------------------------------------
     object Radius {
-        const val sm = 10f
-        const val md = 14f
-        const val lg = 20f
+        const val sm = 12f
+        const val md = 16f
+        const val lg = 22f
         const val xl = 28f
         /** 胶囊形，用于标签 / 按钮 */
         const val pill = 999f

@@ -1,6 +1,7 @@
 package com.kuikly.personal.pages
 
 import com.tencent.kuikly.core.annotations.Page
+import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.base.ViewBuilder
 import com.tencent.kuikly.core.base.ViewContainer
 import com.tencent.kuikly.core.directives.vif
@@ -10,6 +11,7 @@ import com.tencent.kuikly.core.views.Scroller
 import com.tencent.kuikly.core.views.View
 import com.kuikly.personal.components.bottomTabBar
 import com.kuikly.personal.components.sideNav
+import com.kuikly.personal.components.siteFooter
 import com.kuikly.personal.components.topBar
 import com.kuikly.personal.data.Section
 import com.kuikly.personal.layout.SiteLayout
@@ -20,7 +22,6 @@ import com.kuikly.personal.sections.homeSection
 import com.kuikly.personal.sections.skillsSection
 import com.kuikly.personal.sections.worksSection
 import com.kuikly.personal.theme.PressState
-import com.kuikly.personal.theme.Tokens
 
 /**
  * 站点主页面。
@@ -109,7 +110,8 @@ class SitePage : Pager() {
         return {
             attr {
                 flexDirectionRow()
-                backgroundColor(Tokens.bgPage)
+                // 根视图透明：页面氛围（渐变光斑）由宿主 index.html 的 body 背景承担
+                backgroundColor(Color.TRANSPARENT)
                 width(ctx.pageData.pageViewWidth)
                 height(ctx.pageData.pageViewHeight)
             }
@@ -137,32 +139,27 @@ class SitePage : Pager() {
                         showScrollerIndicator(false)
                     }
 
-                    // 内容居中容器
+                    // 居中容器：负责水平居中与左右留白
                     View {
                         attr {
                             val layout = ctx.siteLayout()
-                            val available = ctx.pageData.pageViewWidth -
-                                layout.sideNavWidth -
-                                layout.gutter * 2
-                            val contentWidth = if (available <= 0f) {
-                                layout.contentMaxWidth
-                            } else {
-                                minOf(layout.contentMaxWidth, available)
-                            }
 
-                            width(ctx.pageData.pageViewWidth - layout.sideNavWidth)
+                            flexDirectionColumn()
                             alignItemsCenter()
+                            // 注意：只给 width，不要再叠加 maxWidth——
+                            // H5 端 CSS 里 width 会被 max-width 钳住，
+                            // 再经 alignItemsCenter 居中会算出负偏移，
+                            // 让正文首字被侧边栏盖住（已踩过的坑）。
+                            width(ctx.pageData.pageViewWidth - layout.sideNavWidth)
                             padding(
                                 top = layout.verticalPadding,
                                 left = layout.gutter,
                                 bottom = 0f,
                                 right = layout.gutter,
                             )
-                            // 把算好的宽度透传给内层，避免重复计算
-                            maxWidth(contentWidth)
                         }
 
-                        // 正文列
+                        // 正文列：固定宽度，交给上面的容器居中
                         View {
                             attr {
                                 val layout = ctx.siteLayout()
@@ -174,9 +171,9 @@ class SitePage : Pager() {
                                     if (available <= 0f) layout.contentMaxWidth
                                     else minOf(layout.contentMaxWidth, available)
                                 )
-                                padding(0f, 0f, 48f, 0f)
                             }
                             ctx.renderSections(this)
+                            siteFooter(ctx)
                         }
                     }
                 }

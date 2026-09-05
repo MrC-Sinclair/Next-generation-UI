@@ -14,15 +14,13 @@ import com.kuikly.personal.theme.Tokens
 enum class Section(
     val id: String,
     val title: String,
-    /** 用字符代替图标资源，避免引入图片依赖，跨端零成本 */
-    val glyph: String,
 ) {
-    Home("home", "首页概览", "◎"),
-    About("about", "关于我", "☺"),
-    Works("works", "作品集", "◈"),
-    Skills("skills", "技能栈", "⬢"),
-    Blog("blog", "博客", "✎"),
-    Contact("contact", "联系方式", "✉"),
+    Home("home", "首页概览"),
+    About("about", "关于我"),
+    Works("works", "作品集"),
+    Skills("skills", "技能栈"),
+    Blog("blog", "博客"),
+    Contact("contact", "联系方式"),
     ;
 
     companion object {
@@ -31,7 +29,7 @@ enum class Section(
 }
 
 /** 概览统计数字 */
-data class Stat(val value: String, val label: String, val glyph: String)
+data class Stat(val value: String, val label: String)
 
 /** 经历时间线 */
 data class TimelineItem(val period: String, val title: String, val org: String, val desc: String)
@@ -40,7 +38,7 @@ data class TimelineItem(val period: String, val title: String, val org: String, 
 data class Skill(val name: String, val level: Int)
 
 /** 技能分组 */
-data class SkillGroup(val group: String, val glyph: String, val items: List<Skill>)
+data class SkillGroup(val group: String, val items: List<Skill>)
 
 /** 作品 */
 data class Work(
@@ -63,8 +61,8 @@ data class Post(
     val readMinutes: Int,
 )
 
-/** 联系方式 */
-data class Contact(val label: String, val value: String, val glyph: String)
+/** 联系方式（abbr 是徽章上的 1~2 字缩写，替代字符图标） */
+data class Contact(val label: String, val value: String, val abbr: String)
 
 /** 站点全部内容 */
 object SiteDataSource {
@@ -77,7 +75,8 @@ object SiteDataSource {
     const val LOCATION = "中国 · 深圳"
     /** 用文字首字 + 渐变底做头像，避免依赖图片资源 */
     const val AVATAR_TEXT = "林"
-    const val STATUS = "● 目前可接受新的合作"
+    /** 可用状态（前面的圆点由 statusPill 组件绘制，不放在文案里） */
+    const val STATUS = "目前可接受新的合作"
 
     /** 一句话简介（首页 Hero 区） */
     const val TAGLINE = "用一套代码，把同一种手感带到五块屏幕上。"
@@ -107,29 +106,29 @@ object SiteDataSource {
     // 首页概览统计
     // ------------------------------------------------------------------
     val STATS: List<Stat> = listOf(
-        Stat("8 年", "从业经验", "⏱"),
-        Stat("5 端", "一套代码覆盖", "◫"),
-        Stat("30+", "开源贡献", "✦"),
-        Stat("12k", "文章阅读量", "◉"),
+        Stat("8 年", "从业经验"),
+        Stat("5 端", "一套代码覆盖"),
+        Stat("30+", "开源贡献"),
+        Stat("12k", "文章阅读量"),
     )
 
     // ------------------------------------------------------------------
     // 技能栈
     // ------------------------------------------------------------------
     val SKILL_GROUPS: List<SkillGroup> = listOf(
-        SkillGroup("跨端与框架", "◫", listOf(
+        SkillGroup("跨端与框架", listOf(
             Skill("Kotlin Multiplatform", 92),
             Skill("Kuikly", 88),
             Skill("Compose Multiplatform", 80),
             Skill("React Native", 62),
         )),
-        SkillGroup("原生平台", "▣", listOf(
+        SkillGroup("原生平台", listOf(
             Skill("Android / Kotlin", 90),
             Skill("iOS / Swift", 74),
             Skill("HarmonyOS / ArkTS", 70),
             Skill("Web / TypeScript", 78),
         )),
-        SkillGroup("工程与工具", "⚙", listOf(
+        SkillGroup("工程与工具", listOf(
             Skill("Gradle / KSP", 85),
             Skill("CI / CD", 76),
             Skill("性能优化", 84),
@@ -217,9 +216,9 @@ object SiteDataSource {
     // 联系方式
     // ------------------------------------------------------------------
     val CONTACTS: List<Contact> = listOf(
-        Contact("邮箱", "hello@example.com", "✉"),
-        Contact("GitHub", "github.com/example", "◍"),
-        Contact("微信", "example_wechat", "◉"),
-        Contact("城市", "中国 · 深圳", "⌂"),
+        Contact("邮箱", "hello@example.com", "邮"),
+        Contact("GitHub", "github.com/example", "GH"),
+        Contact("微信", "example_wechat", "微"),
+        Contact("城市", "中国 · 深圳", "城"),
     )
 }

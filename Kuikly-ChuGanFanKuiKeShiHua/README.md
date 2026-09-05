@@ -274,7 +274,7 @@ yarnDownloadBaseUrl=https://ghfast.top/https://github.com/yarnpkg/yarn/releases/
 
 | 端 | 状态 | 备注 |
 | --- | --- | --- |
-| H5 / Web | ✅ 已验证 | 收窄前 H5 三端时代已完成完整验证：构建通过 + 浏览器实测 6 个板块全部渲染、深链可用、24 个按压元素、无运行时错误；收窄为 H5-only 后重新执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物 `h5App/build/site/index.html` / `h5App.js` / `page/nativevue2.js` 均为最新；2026-09-05 完成「可点才可压」标签语义修复（`hapticTag` 无 `onTap` 时不再注册按压事件）后再次执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物已更新 |
+| H5 / Web | ✅ 已验证 | 收窄前 H5 三端时代已完成完整验证：构建通过 + 浏览器实测 6 个板块全部渲染、深链可用、24 个按压元素、无运行时错误；收窄为 H5-only 后重新执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物 `h5App/build/site/index.html` / `h5App.js` / `page/nativevue2.js` 均为最新；2026-09-05 完成「可点才可压」标签语义修复（`hapticTag` 无 `onTap` 时不再注册按压事件）后再次执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物已更新；同日完成 UI 成品化打磨（修复桌面端正文被侧边栏裁切的布局 bug、去字符图标改为编号/徽章体系、板块 kicker 标题、Hero 名片卡、按压演示高度示意图、页脚与状态胶囊、宿主页渐变氛围），桌面 1440×900 与移动 390×844 全板块截图验证，导航点击切换正常 |
 | Android | ➖ 已移除 | 收窄为 H5-only 时删除 androidApp 宿主，不再构建与维护 |
 | 小程序 | ➖ 已移除 | 收窄为 H5-only 时删除 miniApp 宿主，不再构建与维护 |
 | iOS | ➖ 已移除 | 收窄为 H5-only 时删除 iosApp 宿主与 README 中"待接入"状态，不再维护（shared 下遗留的 shared.podspec 不参与构建） |
@@ -307,6 +307,20 @@ yarnDownloadBaseUrl=https://ghfast.top/https://github.com/yarnpkg/yarn/releases/
 检查 `gradle.properties` 的 `yarnDownloadBaseUrl` 是否被注释，或者换别的镜像。
 也可以临时手动从 GitHub Releases 下载 `yarn-v1.22.17.tar.gz` 放到
 `~/.gradle/caches/.../yarn/1.22.17/` 里。
+
+**Q：改了 `shared` 源码，`buildSite` 出来的站点还是旧界面？**
+
+`buildSite` 的业务 bundle 来自 `:shared:packLocalJSBundleRelease` 打出的
+`shared/build/outputs/kuikly/js/release/local/nativevue2.zip`，而这个任务的
+增量检查不可靠：源码变了它仍可能报 UP-TO-DATE，zip 里一直是旧 JS。
+改完业务代码后按这个顺序构建：
+
+```bash
+./gradlew.bat :shared:packLocalJSBundleRelease --rerun   # 强制重打业务 zip
+./gradlew.bat :h5App:buildSite
+```
+
+只改了 `h5App`（比如 `index.html`）则不需要 `--rerun`，直接 `buildSite` 即可。
 
 **Q：`kotlinNpmInstall` 卡住不动（十几分钟没输出）？**
 

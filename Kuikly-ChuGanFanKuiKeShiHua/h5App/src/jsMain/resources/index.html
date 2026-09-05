@@ -2,9 +2,12 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Kuikly-Web-Render</title>
+    <title>林深 · 跨端工程师</title>
+    <meta name="description" content="林深的个人站点——用 Kuikly 构建，把物理世界的按压感翻译成看得见的阴影反馈。">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232F5CFF'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='%23FFFFFF' font-family='sans-serif'%3E%E6%9E%97%3C/text%3E%3C/svg%3E">
 </head>
 <style>
     *{
@@ -13,9 +16,24 @@
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
+    html, body { height: 100%; }
     body {
-        overflow: hidden
+        overflow: hidden;
+        /* 注意：这里故意不声明 font-family——Kuikly H5 渲染器对 Text 的
+           测量字体与实际渲染字体必须一致，否则中英混排文本会被测窄 1px
+           而在空格处折行。系统默认字体（Windows 雅黑 / macOS 苹方）本身
+           就是期望的中文字体。 */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        /* 页面氛围：页面本体交给 Kuikly（根视图透明），渐变光斑从底下透出来 */
+        background-color: #EEF0F4;
+        background-image:
+            radial-gradient(1100px 540px at 88% -10%, rgba(47, 92, 255, 0.09), transparent 62%),
+            radial-gradient(920px 500px at -12% 110%, rgba(255, 122, 69, 0.08), transparent 58%),
+            linear-gradient(180deg, #F3F5F9 0%, #EDEFF4 100%);
+        background-attachment: fixed;
     }
+    ::selection { background: rgba(47, 92, 255, 0.16); }
     /* 隐藏输入框边框的样式 */
     input:focus {
       outline: none;

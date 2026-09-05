@@ -17,18 +17,16 @@ import com.kuikly.personal.theme.applyElevation
  *
  * 三者的按压反馈统一走 page.pressStateOf(key)，
  * 保证全站"按下去"的手感完全一致。
+ *
+ * 视觉约定：导航不使用字符图标——选中项用「主色竖条 + 主色字」表达，
+ * 未选中项纯文字，干净且不需要图标资源。
  */
 
-/** 导航项：按下时收紧阴影并下沉，选中态用主色浅底区分 */
+/** 导航项：按下时收紧阴影并下沉，选中态用左侧主色竖条 + 浅底区分 */
 private fun ViewContainer<*, *>.navRow(
     page: SitePage,
     section: Section,
     key: String,
-    glyphSize: Float,
-    titleSize: Float,
-    rowHeight: Float,
-    horizontalPadding: Float,
-    marginBottom: Float,
 ) {
     View {
         attr {
@@ -38,9 +36,9 @@ private fun ViewContainer<*, *>.navRow(
 
             flexDirectionRow()
             alignItemsCenter()
-            height(rowHeight)
-            marginBottom(marginBottom)
-            padding(0f, horizontalPadding, 0f, horizontalPadding)
+            height(42f)
+            marginBottom(4f)
+            padding(0f, 12f, 0f, 12f)
             borderRadius(Tokens.Radius.sm)
 
             // 阴影 / 底色 / 下沉统一交给 applyElevation，与全站手感保持一致。
@@ -63,20 +61,22 @@ private fun ViewContainer<*, *>.navRow(
             click { page.go(section.id) }
         }
 
-        Text {
+        // 选中竖条：未选中时透明占位，保证文字对齐不跳动
+        View {
             attr {
-                text(section.glyph)
-                fontSize(glyphSize)
+                width(3f)
+                height(16f)
+                borderRadius(2f)
                 marginRight(10f)
-                color(if (page.isActive(section.id)) Tokens.primary else Tokens.textSecondary)
+                backgroundColor(if (page.isActive(section.id)) Tokens.primary else Color.TRANSPARENT)
             }
         }
         Text {
             attr {
                 text(section.title)
-                fontSize(titleSize)
+                fontSize(14f)
                 color(if (page.isActive(section.id)) Tokens.primary else Tokens.textSecondary)
-                fontWeightMedium()
+                if (page.isActive(section.id)) fontWeightSemiBold() else fontWeightMedium()
             }
         }
     }
@@ -90,7 +90,7 @@ internal fun ViewContainer<*, *>.sideNav(page: SitePage) {
             height(page.pageData.pageViewHeight)
             flexDirectionColumn()
             backgroundColor(Tokens.bgSurface)
-            padding(top = 28f, left = 16f, bottom = 20f, right = 16f)
+            padding(top = 28f, left = 18f, bottom = 20f, right = 18f)
             // 侧边栏本身比内容区"高"一层，用阴影压出层次
             boxShadow(Elevation.Medium.rest)
             zIndex(10)
@@ -101,7 +101,6 @@ internal fun ViewContainer<*, *>.sideNav(page: SitePage) {
             attr {
                 flexDirectionRow()
                 alignItemsCenter()
-                marginBottom(6f)
             }
             avatarBadge(page, size = 44f, fontSize = 19f)
             View {
@@ -113,7 +112,7 @@ internal fun ViewContainer<*, *>.sideNav(page: SitePage) {
                 Text {
                     attr {
                         text(SiteDataSource.NAME)
-                        fontSize(15.9f)
+                        fontSize(16f)
                         fontWeightBold()
                         color(Tokens.textPrimary)
                     }
@@ -133,8 +132,10 @@ internal fun ViewContainer<*, *>.sideNav(page: SitePage) {
             attr {
                 text(SiteDataSource.TITLE)
                 fontSize(Tokens.Type.caption)
-                color(Tokens.textSecondary)
-                marginBottom(20f)
+                color(Tokens.textTertiary)
+                lineHeight(18f)
+                marginTop(10f)
+                marginBottom(24f)
             }
         }
 
@@ -144,23 +145,15 @@ internal fun ViewContainer<*, *>.sideNav(page: SitePage) {
                 page = page,
                 section = section,
                 key = "nav_${section.id}",
-                glyphSize = 15f,
-                titleSize = 14f,
-                rowHeight = 44f,
-                horizontalPadding = 12f,
-                marginBottom = 4f,
             )
         }
 
-        // 底部状态
-        Text {
-            attr {
-                text(SiteDataSource.STATUS)
-                fontSize(Tokens.Type.micro)
-                color(Tokens.success)
-                marginTop(20f)
-            }
+        // 弹性占位：把状态胶囊推到底部
+        View {
+            attr { flex(1f) }
         }
+
+        statusPill(page)
     }
 }
 
@@ -180,10 +173,20 @@ internal fun ViewContainer<*, *>.topBar(page: SitePage) {
         Text {
             attr {
                 text(SiteDataSource.NAME)
-                fontSize(15.9f)
+                fontSize(16f)
                 fontWeightBold()
                 color(Tokens.textPrimary)
                 marginLeft(10f)
+            }
+        }
+        View {
+            attr {
+                width(3f)
+                height(3f)
+                borderRadius(2f)
+                backgroundColor(Tokens.dividerStrong)
+                marginLeft(10f)
+                marginRight(10f)
             }
         }
         Text {
@@ -191,21 +194,21 @@ internal fun ViewContainer<*, *>.topBar(page: SitePage) {
                 text(Section.fromId(page.currentSectionId).title)
                 fontSize(Tokens.Type.caption)
                 color(Tokens.textTertiary)
-                marginLeft(8f)
             }
         }
     }
 }
 
-/** 手机：底部 Tab 栏 */
+/** 手机：底部 Tab 栏（纯文字 + 选中圆点，不使用字符图标） */
 internal fun ViewContainer<*, *>.bottomTabBar(page: SitePage) {
     val layout = page.siteLayout()
     View {
         attr {
             height(layout.bottomBarHeight)
             flexDirectionRow()
+            alignItemsCenter()
             backgroundColor(Tokens.bgSurface)
-            padding(top = 4f, left = 4f, bottom = 4f, right = 4f)
+            padding(top = 6f, left = 6f, bottom = 6f, right = 6f)
             // 底部栏浮在内容之上
             boxShadow(Elevation.High.rest)
         }
@@ -215,6 +218,7 @@ internal fun ViewContainer<*, *>.bottomTabBar(page: SitePage) {
                     val pressState = page.pressStateOf("tab_${section.id}")
                     val active = page.isActive(section.id)
                     flex(1f)
+                    height(48f)
                     flexDirectionColumn()
                     allCenter()
                     borderRadius(Tokens.Radius.sm)
@@ -226,8 +230,6 @@ internal fun ViewContainer<*, *>.bottomTabBar(page: SitePage) {
                         hoverColor = Tokens.bgSubtle,
                         sunkenColor = Tokens.bgSunken,
                     )
-                    val tint = if (active) Tokens.primary else Tokens.textTertiary
-                    // 图标与文字颜色在下面两个 Text 里各自读取
                 }
                 event {
                     touchDown { page.pressDown("tab_${section.id}") }
@@ -235,19 +237,24 @@ internal fun ViewContainer<*, *>.bottomTabBar(page: SitePage) {
                     touchCancel { page.pressUp("tab_${section.id}") }
                     click { page.go(section.id) }
                 }
-                Text {
+                // 选中圆点：未选中时透明占位，文字不跳动
+                View {
                     attr {
-                        text(section.glyph)
-                        fontSize(17.1f)
-                        color(if (page.isActive(section.id)) Tokens.primary else Tokens.textTertiary)
+                        width(4f)
+                        height(4f)
+                        borderRadius(2f)
+                        marginBottom(3f)
+                        backgroundColor(
+                            if (page.isActive(section.id)) Tokens.primary else Color.TRANSPARENT
+                        )
                     }
                 }
                 Text {
                     attr {
                         text(section.title)
                         fontSize(Tokens.Type.micro)
-                        marginTop(2f)
                         color(if (page.isActive(section.id)) Tokens.primary else Tokens.textTertiary)
+                        if (page.isActive(section.id)) fontWeightSemiBold() else fontWeightMedium()
                     }
                 }
             }
@@ -255,7 +262,7 @@ internal fun ViewContainer<*, *>.bottomTabBar(page: SitePage) {
     }
 }
 
-/** 文字头像：用主色渐变块 + 首字，避免引入图片资源 */
+/** 文字头像：主色圆 + 首字，避免引入图片资源 */
 internal fun ViewContainer<*, *>.avatarBadge(page: SitePage, size: Float, fontSize: Float) {
     View {
         attr {
@@ -264,8 +271,8 @@ internal fun ViewContainer<*, *>.avatarBadge(page: SitePage, size: Float, fontSi
             borderRadius(size / 2f)
             backgroundColor(Tokens.primary)
             allCenter()
-            // 头像用最高一档阴影，像是浮雕在页面上
-            boxShadow(Elevation.Floating.rest)
+            // 头像用高一档阴影，像是浮雕在页面上
+            boxShadow(Elevation.High.rest)
         }
         Text {
             attr {

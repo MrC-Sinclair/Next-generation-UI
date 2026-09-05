@@ -5,10 +5,10 @@ import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
 import com.kuikly.personal.components.bodyText
 import com.kuikly.personal.components.cardTitle
-import com.kuikly.personal.components.divider
 import com.kuikly.personal.components.hapticSurface
 import com.kuikly.personal.components.hapticTag
 import com.kuikly.personal.components.sectionTitle
+import com.kuikly.personal.components.statusPill
 import com.kuikly.personal.data.Post
 import com.kuikly.personal.data.SiteDataSource
 import com.kuikly.personal.data.Work
@@ -22,9 +22,11 @@ import com.kuikly.personal.theme.Tokens
 
 internal fun ViewContainer<*, *>.worksSection(page: SitePage) {
     val layout = page.siteLayout()
-    sectionTitle("作品集", "近期做过的一些东西")
+    sectionTitle("作品集", "挑了几个能说明做事方式的项目", kicker = "WORKS")
 
-    SiteDataSource.WORKS.chunked(layout.gridColumns).forEachIndexed { rowIndex, row ->
+    // 桌面端固定 2 列：4 个作品正好 2×2，避免尾行单卡拉成通栏
+    val columns = if (layout.isDesktop) 2 else layout.gridColumns
+    SiteDataSource.WORKS.chunked(columns).forEachIndexed { rowIndex, row ->
         View {
             attr {
                 flexDirectionRow()
@@ -34,6 +36,8 @@ internal fun ViewContainer<*, *>.worksSection(page: SitePage) {
                 workCard(
                     page = page,
                     work = work,
+                    // 全列表稳定序号
+                    number = rowIndex * columns + index + 1,
                     flexWeight = 1f,
                     marginRight = if (index == row.lastIndex) 0f else Tokens.Space.sm,
                     marginBottom = Tokens.Space.sm,
@@ -46,6 +50,7 @@ internal fun ViewContainer<*, *>.worksSection(page: SitePage) {
 private fun ViewContainer<*, *>.workCard(
     page: SitePage,
     work: Work,
+    number: Int,
     flexWeight: Float?,
     marginRight: Float,
     marginBottom: Float,
@@ -62,20 +67,30 @@ private fun ViewContainer<*, *>.workCard(
         View {
             attr { flexDirectionColumn() }
 
-            // 封面占位：真实项目里换成 Image
+            // 封面占位：编辑感的大序号 + 年份角标（真实项目里换成封面图）
             View {
                 attr {
                     height(110f)
                     backgroundColor(work.tintSoft)
                     borderRadius(Tokens.Radius.md)
+                    flexDirectionColumn()
                     allCenter()
                 }
                 Text {
                     attr {
-                        text(work.year)
-                        fontSize(26.1f)
+                        text("0$number")
+                        fontSize(28f)
                         fontWeightBold()
                         color(work.tint)
+                    }
+                }
+                Text {
+                    attr {
+                        text(work.year)
+                        fontSize(Tokens.Type.micro)
+                        fontWeightMedium()
+                        color(work.tint)
+                        marginTop(4f)
                     }
                 }
             }
@@ -114,7 +129,7 @@ private fun ViewContainer<*, *>.workCard(
 
 internal fun ViewContainer<*, *>.skillsSection(page: SitePage) {
     val layout = page.siteLayout()
-    sectionTitle("技能栈", "按熟练度拆分，满分 100")
+    sectionTitle("技能栈", "按熟练度拆分，满分 100", kicker = "SKILLS")
 
     SiteDataSource.SKILL_GROUPS.chunked(if (layout.isDesktop) 3 else 1).forEachIndexed { rowIndex, row ->
         View {
@@ -136,15 +151,15 @@ internal fun ViewContainer<*, *>.skillsSection(page: SitePage) {
                         attr { flexDirectionColumn() }
                         View {
                             attr { flexDirectionRow(); alignItemsCenter() }
+                            cardTitle(group.group, size = Tokens.Type.h3)
                             Text {
                                 attr {
-                                    text(group.glyph)
-                                    fontSize(15.9f)
-                                    color(Tokens.primary)
-                                    marginRight(8f)
+                                    text("${group.items.size} 项")
+                                    fontSize(Tokens.Type.caption)
+                                    color(Tokens.textTertiary)
+                                    marginLeft(8f)
                                 }
                             }
-                            cardTitle(group.group, size = Tokens.Type.h3)
                         }
 
                         group.items.forEach { skill ->
@@ -204,7 +219,7 @@ internal fun ViewContainer<*, *>.skillsSection(page: SitePage) {
 // -----------------------------------------------------------------------------
 
 internal fun ViewContainer<*, *>.blogSection(page: SitePage) {
-    sectionTitle("博客", "写过的一些技术笔记")
+    sectionTitle("博客", "跨端、渲染与设计系统方向的笔记", kicker = "BLOG")
 
     SiteDataSource.POSTS.forEach { post ->
         postCard(page, post)
@@ -258,7 +273,7 @@ private fun ViewContainer<*, *>.postCard(page: SitePage, post: Post) {
 
 internal fun ViewContainer<*, *>.contactSection(page: SitePage) {
     val layout = page.siteLayout()
-    sectionTitle("联系方式", "欢迎直接联系，看到都会回")
+    sectionTitle("联系方式", "欢迎直接联系，看到都会回", kicker = "CONTACT")
 
     SiteDataSource.CONTACTS.chunked(if (layout.isDesktop) 2 else 1).forEachIndexed { rowIndex, row ->
         View {
@@ -278,6 +293,7 @@ internal fun ViewContainer<*, *>.contactSection(page: SitePage) {
                 ) {
                     View {
                         attr { flexDirectionRow(); alignItemsCenter() }
+                        // 缩写徽章：1~2 字缩写替代字符图标，观感统一
                         View {
                             attr {
                                 width(40f)
@@ -289,8 +305,9 @@ internal fun ViewContainer<*, *>.contactSection(page: SitePage) {
                             }
                             Text {
                                 attr {
-                                    text(contact.glyph)
-                                    fontSize(17.1f)
+                                    text(contact.abbr)
+                                    fontSize(14f)
+                                    fontWeightBold()
                                     color(Tokens.primary)
                                 }
                             }
@@ -314,9 +331,9 @@ internal fun ViewContainer<*, *>.contactSection(page: SitePage) {
         }
     }
 
-    divider(marginTop = Tokens.Space.lg, marginBottom = Tokens.Space.md)
-    bodyText(
-        SiteDataSource.STATUS,
-        color = Tokens.success,
-    )
+    // 包一层 row：column 的默认 stretch 会把胶囊拉成通栏色带
+    View {
+        attr { flexDirectionRow() }
+        statusPill(page, marginTop = Tokens.Space.lg)
+    }
 }
