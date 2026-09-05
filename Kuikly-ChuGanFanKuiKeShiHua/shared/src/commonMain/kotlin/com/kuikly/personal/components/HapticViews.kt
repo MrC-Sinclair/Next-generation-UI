@@ -164,7 +164,13 @@ internal fun ViewContainer<*, *>.hapticOutlineButton(
     }
 }
 
-/** 标签：最低一档高度，按下几乎贴平 */
+/**
+ * 标签 / 徽章。
+ *
+ * 语义约定：标签默认是**纯展示徽章**——不注册按压事件、不产生"看着能按"
+ * 的反馈；只有调用方真的传入 onTap（有明确落点动作）时，才升级为可按压标签
+ * （内部走 hapticSurface，享受全站统一的按压反馈）。
+ */
 internal fun ViewContainer<*, *>.hapticTag(
     page: SitePage,
     key: String,
@@ -175,23 +181,29 @@ internal fun ViewContainer<*, *>.hapticTag(
     marginBottom: Float = 6f,
     onTap: (() -> Unit)? = null,
 ) {
-    hapticSurface(
-        page = page,
-        key = key,
-        elevation = Elevation.Low,
-        surfaceColor = softTint,
-        sunkenColor = Tokens.bgSunken,
-        radius = Tokens.Radius.pill,
-        innerPadding = 0f,
-        marginRight = marginRight,
-        marginBottom = marginBottom,
-        // 有按压反馈就必须有落点，否则"看着能按、点了没反应"
-        onTap = onTap,
-    ) {
+    if (onTap != null) {
+        hapticSurface(
+            page = page,
+            key = key,
+            elevation = Elevation.Low,
+            surfaceColor = softTint,
+            sunkenColor = Tokens.bgSunken,
+            radius = Tokens.Radius.pill,
+            innerPadding = 0f,
+            marginRight = marginRight,
+            marginBottom = marginBottom,
+            onTap = onTap,
+        ) {
+            hapticTagInner(label, tint)
+        }
+    } else {
         View {
             attr {
+                borderRadius(Tokens.Radius.pill)
                 padding(6f, 12f, 6f, 12f)
-                allCenter()
+                marginRight(marginRight)
+                marginBottom(marginBottom)
+                backgroundColor(softTint)
             }
             Text {
                 attr {
@@ -199,6 +211,23 @@ internal fun ViewContainer<*, *>.hapticTag(
                     fontSize(Tokens.Type.caption)
                     color(tint)
                 }
+            }
+        }
+    }
+}
+
+/** 标签内部布局（两种形态共用，保证视觉一致） */
+private fun ViewContainer<*, *>.hapticTagInner(label: String, tint: Color) {
+    View {
+        attr {
+            padding(6f, 12f, 6f, 12f)
+            allCenter()
+        }
+        Text {
+            attr {
+                text(label)
+                fontSize(Tokens.Type.caption)
+                color(tint)
             }
         }
     }

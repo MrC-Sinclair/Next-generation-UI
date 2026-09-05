@@ -41,6 +41,26 @@ cd h5App/build/site && python -m http.server 8080
 
 支持深链：`http://localhost:8080/?section=about`
 
+### 网络环境与镜像开关（交付 / 新机器 / 交给 AI 前必读）
+
+本仓库默认假设**国内网络**，构建链路上有三处镜像；在海外或能直连 GitHub 的机器上，
+需要按下面清单关闭它们，否则会卡在依赖下载（尤其 yarn）：
+
+| 镜像 | 位置 | 下载什么 | 非国内网络怎么办 |
+| --- | --- | --- | --- |
+| yarn 下载源 `https://ghfast.top/...` | `gradle.properties` 的 `yarnDownloadBaseUrl` | Kotlin/JS 构建用的 yarn 本体 | 注释掉该行，回退官方 GitHub Releases |
+| npm registry `https://registry.npmmirror.com` | 根 `build.gradle.kts` 注入的环境变量（默认值） | webpack / karma 等 npm 包 | 删掉注入段，或设 `npmRegistry` 为空回退官方源 |
+| 腾讯 Maven 镜像 `mirrors.tencent.com` | `settings.gradle.kts` / 根 `build.gradle.kts` | Kuikly 制品与插件 | 公网一般可达；若不通，需手动把 Kuikly 制品放入本地仓库（制品同步于 GitHub Release） |
+
+关闭方法均已在对应文件注释里说明，三处镜像都支持通过 `gradle.properties` 覆盖，不需要改逻辑代码。
+
+**交付前请清理这些本地环境文件**（它们被 `.gitignore` 忽略，本就不该随仓库走）：
+
+- `local.properties`：含本机 `sdk.dir=D:/AndroidSDK`。本工程是 **H5-only，不需要 Android SDK**，直接删除即可，不要带到新机器；
+- `.gradle/`、`*/build/`、`node_modules/`、`.kotlin/`：构建缓存与产物，整目录复制时建议删掉，否则体积大且可能让新环境误用旧缓存。
+
+最小可交付集合 = 源码 + 构建脚本 + wrapper + `README.md`，新机器上装好 JDK 17 后执行第二节的构建命令即可。
+
 ---
 
 ## 二、目录结构
@@ -122,6 +142,44 @@ Kuikly H5 把一份站点拆成两份 JS 一起加载：
 所有可按压元素都走 `hapticSurface()`，内部只有一处调用 `applyElevation()`。
 这是为了保证「按下去」的手感在任何地方都一致——如果每个组件自己写一遍阴影，
 迟早会出现「这个按钮按下去的样子跟那个卡片不一样」。
+
+### 按压的「过渡过程」由谁实现
+
+两点客观限制（本工程 · Kuikly 2.26 实测结论，详见 `Haptic.kt` 顶部说明）：
+
+1. 在本工程里 Kuikly 的动画管线从未被触发：声明式 `animate()` 与命令式
+   `animateToAttr()` 都一样，属性直接跳变，元素上从不出现 animation 属性。
+2. 渲染端只实现了 `opacity / transform / backgroundColor / frame` 四类动画
+   Handler，**boxShadow 在任何端都不可动画**。
+
+因此 `applyElevation()` 只负责把目标状态（阴影 / 底色 / 位移 / 缩放）写进属性，
+**过渡过程由 H5 宿主 CSS 承接**——见 `h5App/src/jsMain/resources/index.html`：
+
+```css
+#root div {
+    transition:
+        transform 140ms cubic-bezier(0.2, 0, 0, 1),
+        box-shadow 140ms cubic-bezier(0.2, 0, 0, 1),
+        background-color 140ms ease-out;
+}
+```
+
+曲线 `cubic-bezier(0.2,0,0,1)` 是快起快落的「咔哒」手感，140ms 既跟手又不拖。
+选中 `#root div` 而非 `*`：按压元素都是 div，且避免误伤其它宿主节点。
+**这是 H5-only 工程成立的前提**——若未来重新接回 Android / iOS / 小程序端，
+需要各端宿主自行实现等价过渡，否则按压态会直接跳变。
+
+### 组件语义约定：可点才可压
+
+全站按压反馈只挂在**真的会响应动作**的元素上，避免「看着能按、点了没反应」：
+
+| 组件 | 无动作时 | 有动作时 |
+| --- | --- | --- |
+| `hapticSurface` | 内容卡片：保留按压反馈作为主题演示（首页演示块、统计、作品、博客等），不下沉语义仅作可视化 | 传 `onTap`，按压反馈 + 落点（按钮 / 导航 / 直达卡） |
+| `hapticTag` | **纯展示徽章**：不注册按压事件，不产生可点暗示 | 传 `onTap`，升级为可按压标签（走 `hapticSurface`） |
+
+> 说明：`hapticTag` 早期实现无论是否传 `onTap` 都会给出按压反馈，而作品 / 博客卡里的
+> 分类标签只是展示用，导致「按下去有反应、点了没动作」。已修复为按 `onTap` 有无分流。
 
 ### 按压状态放哪
 
@@ -216,7 +274,7 @@ yarnDownloadBaseUrl=https://ghfast.top/https://github.com/yarnpkg/yarn/releases/
 
 | 端 | 状态 | 备注 |
 | --- | --- | --- |
-| H5 / Web | ✅ 已验证 | 收窄前 H5 三端时代已完成完整验证：构建通过 + 浏览器实测 6 个板块全部渲染、深链可用、24 个按压元素、无运行时错误；收窄为 H5-only 后重新执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物 `h5App/build/site/index.html` / `h5App.js` / `page/nativevue2.js` 均为最新 |
+| H5 / Web | ✅ 已验证 | 收窄前 H5 三端时代已完成完整验证：构建通过 + 浏览器实测 6 个板块全部渲染、深链可用、24 个按压元素、无运行时错误；收窄为 H5-only 后重新执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物 `h5App/build/site/index.html` / `h5App.js` / `page/nativevue2.js` 均为最新；2026-09-05 完成「可点才可压」标签语义修复（`hapticTag` 无 `onTap` 时不再注册按压事件）后再次执行 `gradlew.bat :h5App:buildSite`，**BUILD SUCCESSFUL**，产物已更新 |
 | Android | ➖ 已移除 | 收窄为 H5-only 时删除 androidApp 宿主，不再构建与维护 |
 | 小程序 | ➖ 已移除 | 收窄为 H5-only 时删除 miniApp 宿主，不再构建与维护 |
 | iOS | ➖ 已移除 | 收窄为 H5-only 时删除 iosApp 宿主与 README 中"待接入"状态，不再维护（shared 下遗留的 shared.podspec 不参与构建） |
