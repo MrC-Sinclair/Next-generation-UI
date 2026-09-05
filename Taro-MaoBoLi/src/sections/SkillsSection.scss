@@ -32,6 +32,23 @@
 .skills__card {
   display: flex;
   flex-direction: column;
+
+  // 玻璃面微调：提高表面明度并叠加本区专属极光 tint，
+  // 拉开技能卡与深色极光背景的明度/层次差，增强玻璃“透出感”（与 Hero/Work 一致）。
+  // 只覆盖背景/描边，glass() 的 backdrop-filter、内高光与阴影保持不变。
+  @if $H5 {
+    background:
+      linear-gradient(150deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.085) 46%, rgba(255, 255, 255, 0.04) 100%),
+      radial-gradient(110% 80% at 8% 0%, rgba(34, 211, 238, 0.13) 0%, rgba(34, 211, 238, 0) 58%),
+      radial-gradient(120% 90% at 96% 108%, rgba(139, 92, 246, 0.17) 0%, rgba(139, 92, 246, 0) 62%);
+    border-color: rgba(255, 255, 255, 0.19);
+  } @else {
+    background:
+      linear-gradient(150deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.11) 46%, rgba(255, 255, 255, 0.05) 100%),
+      radial-gradient(110% 80% at 8% 0%, rgba(34, 211, 238, 0.15) 0%, rgba(34, 211, 238, 0) 58%),
+      radial-gradient(120% 90% at 96% 108%, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0) 62%);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
 }
 
 .skills__head {

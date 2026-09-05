@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 40c8af801da8629c99b9e5611c578fea_1b2e9cbda88511f1be88525400aeaaa3
+    ReservedCode1: Npsn6Ec4zhY/4NaWKDpnTjvlNU2vBAcpNVlfQT0KEkQU7GzFLneiwVUjhm9E1vEEVsVqixbXbMD7uZveVaA3/9iN2Uy5wbW8OhX1sUS4w8KQXtrKRIrcvmojKHq5Aj5ch1zpy8cZrfqnT0dGVeMUXtBDA0Z85SvvwAYcr03gwTd3xJ/pNhwxuLzK8Ms=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 40c8af801da8629c99b9e5611c578fea_1b2e9cbda88511f1be88525400aeaaa3
+    ReservedCode2: Npsn6Ec4zhY/4NaWKDpnTjvlNU2vBAcpNVlfQT0KEkQU7GzFLneiwVUjhm9E1vEEVsVqixbXbMD7uZveVaA3/9iN2Uy5wbW8OhX1sUS4w8KQXtrKRIrcvmojKHq5Aj5ch1zpy8cZrfqnT0dGVeMUXtBDA0Z85SvvwAYcr03gwTd3xJ/pNhwxuLzK8Ms=
+---
+
 # Aurora Glass · 极光液态毛玻璃个人网站
 
 基于 **Taro 4 + React 18 + TypeScript** 的单代码库个人网站，一套代码同时产出 **PC 响应式网页 / 安卓 / iOS / 鸿蒙 / 微信小程序**。
@@ -186,3 +197,20 @@ Taro 默认的 `pxtransform` 在 H5 上按视口等比缩放——在 1920px 的
 - **鸿蒙端**：`build:harmony` 产出的是 ArkTS 源码，需在 DevEco Studio 中编译签名才能安装到设备。
 - **RN 端**：需要本地配置 Android SDK / Xcode 原生环境；若只想快速产出 App，走 Capacitor 路径。
 - 小程序端 `backdrop-filter` 走的是渐变降级方案，在纯白背景下与 H5 的通透感会有细微差异。
+
+---
+
+## 八、视觉验收标准（拟物毛玻璃）
+
+用于验收"看起来像不像真实拟物玻璃"的口径，以及每项对应的实现手段与代码位置（方便回归时按图索骥）。
+
+| # | 验收项 | 达成判据 | 实现手段 | 位置 |
+| --- | --- | --- | --- | --- |
+| ① | **通透毛玻璃质感** | 玻璃卡真实模糊并透出背后极光光斑，而非半透明色块 | `backdrop-filter: blur() saturate()` 真背景模糊（`glass()` / `glass-strong()` 玻璃基座 mixin，H5 生效；非 H5 用高不透明度渐变降级） | `src/styles/_mixins.scss`、`src/components/GlassCard.scss`、各 `src/sections/*.scss` |
+| ② | **轻盈悬浮感** | 卡片/头像/标签悬浮于背景之上，有柔和阴影与浮动/入场动画 | 深色柔和外投影 + `rise-in` 入场抬升 + H5 `hover-lift` 悬停上浮；液态头像球 `float-y` / `pulse-ring` / `breathe` | `src/styles/_mixins.scss`、`_animations.scss`、`src/components/GlassCard.scss`、`src/sections/HeroSection.scss` |
+| ③ | **清晰视觉层次（Z 轴）** | 背景 → 玻璃层 → 前景内容三层分明，前景不与玻璃粘连 | fixed 极光背景放 `z-index: 0`，玻璃卡（backdrop-filter 中景）承接光斑，内容 `z-index: 1` 浮于玻璃之上 | `src/components/AuroraBackdrop.scss`、`GlassCard.scss`、各 `src/sections/*.scss` |
+| ④ | **鲜艳极光色点缀** | 青/蓝/紫/粉作为点缀色出现（进度条、标签、发光按钮、液态球高光），不喧宾夺主 | 极光青紫色板与渐变 + accent 强调色 CSS 变量 + 渐变文字/进度条/高光条，背景四团光斑 `aurora-drift` 漂移 | `src/styles/_tokens.scss`、`_accents.scss`、`_mixins.scss`（`text-aurora`）、`src/components/AuroraBackdrop.scss` |
+| ⑤ | **微妙精致边框** | 玻璃元素有细描边、顶部内高光/底部内反光与液态高光条，精致但不廉价 | 1px 半透明白描边 + `inset` 顶部高光与底部反光 + 液态高光条（`shimmer-x` 扫光 / `glass-sheen`） | `src/styles/_mixins.scss`、`src/components/GlassCard.scss`、各 `src/sections/*.scss` |
+
+**实测结论**：已在 **H5 1440px 视口**逐屏实测整体达标——玻璃卡真实透出背后漂移的极光光斑、悬浮层次分明、边框细节完整，无塑料感/灰脏感/层次混乱。实测发现三处轻微瑕疵（Skills 区玻璃透射感弱、About 时间线背景噪感、Work 卡片描边/投影偏厚重），已在对应区块样式内微调修复（见 `src/sections/SkillsSection.scss` / `AboutSection.scss` / `ProjectsSection.scss`），未改动全局 mixin 与其它区块观感。
+*（内容由AI生成，仅供参考）*
