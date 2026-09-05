@@ -82,7 +82,8 @@
   height: 78vw;
   min-width: 460px;
   min-height: 460px;
-  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.82), rgba(139, 92, 246, 0) 66%);
+  // 下半页主光斑：浓度低于 cyan/blue，避免压过玻璃卡对比
+  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.66), rgba(139, 92, 246, 0) 66%);
   animation-duration: 29s, 23s;
   animation-delay: -20s, -11s;
 }
@@ -90,11 +91,11 @@
 .aurora__blob--magenta {
   top: 48%;
   right: -6%;
-  width: 52vw;
-  height: 52vw;
-  min-width: 320px;
-  min-height: 320px;
-  background: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.62), rgba(244, 114, 182, 0) 66%);
+  width: 48vw;
+  height: 48vw;
+  min-width: 300px;
+  min-height: 300px;
+  background: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.5), rgba(244, 114, 182, 0) 66%);
   animation-duration: 35s, 27s;
   animation-delay: -27s, -16s;
 }
@@ -106,5 +107,5 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(115% 85% at 50% 42%, rgba(4, 5, 13, 0) 38%, rgba(4, 5, 13, 0.62) 100%);
+  background: radial-gradient(115% 85% at 50% 42%, rgba(4, 5, 13, 0) 36%, rgba(4, 5, 13, 0.66) 100%);
 }

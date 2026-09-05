@@ -8,13 +8,52 @@
   padding-bottom: px(220);
 }
 
+// 品牌后方光雾：呼应全站极光，避免页脚死黑
+.footer::before {
+  content: '';
+  position: absolute;
+  top: px(-40);
+  left: 50%;
+  width: px(720);
+  height: px(360);
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    rgba(79, 140, 255, 0.14) 0%,
+    rgba(139, 92, 246, 0.08) 46%,
+    transparent 72%
+  );
+
+  @if $H5 {
+    filter: blur(48px);
+  }
+}
+
 .footer__inner {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: px(48);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: px(52);
   text-align: center;
+
+  // 渐变发丝线：两端隐没、中段微彩，替代单调的白色分割线
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: raw(1);
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.14) 22%,
+        rgba(34, 211, 238, 0.28) 46%,
+        rgba(139, 92, 246, 0.26) 62%,
+        rgba(255, 255, 255, 0.1) 84%,
+        transparent 100%);
+  }
 }
 
 .footer__brand {
@@ -52,14 +91,14 @@
 
 .footer__note {
   display: block;
-  margin-bottom: px(14);
+  margin-bottom: px(16);
   font-size: fs(22);
   line-height: 1.8;
-  color: $c-text-3;
+  color: rgba(238, 242, 255, 0.5);
 }
 
 .footer__copy {
   display: block;
   font-size: fs(21);
-  color: rgba(238, 242, 255, 0.28);
+  color: rgba(238, 242, 255, 0.34);
 }

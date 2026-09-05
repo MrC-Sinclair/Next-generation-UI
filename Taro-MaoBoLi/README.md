@@ -212,5 +212,5 @@ Taro 默认的 `pxtransform` 在 H5 上按视口等比缩放——在 1920px 的
 | ④ | **鲜艳极光色点缀** | 青/蓝/紫/粉作为点缀色出现（进度条、标签、发光按钮、液态球高光），不喧宾夺主 | 极光青紫色板与渐变 + accent 强调色 CSS 变量 + 渐变文字/进度条/高光条，背景四团光斑 `aurora-drift` 漂移 | `src/styles/_tokens.scss`、`_accents.scss`、`_mixins.scss`（`text-aurora`）、`src/components/AuroraBackdrop.scss` |
 | ⑤ | **微妙精致边框** | 玻璃元素有细描边、顶部内高光/底部内反光与液态高光条，精致但不廉价 | 1px 半透明白描边 + `inset` 顶部高光与底部反光 + 液态高光条（`shimmer-x` 扫光 / `glass-sheen`） | `src/styles/_mixins.scss`、`src/components/GlassCard.scss`、各 `src/sections/*.scss` |
 
-**实测结论**：已在 **H5 1440px 视口**逐屏实测整体达标——玻璃卡真实透出背后漂移的极光光斑、悬浮层次分明、边框细节完整，无塑料感/灰脏感/层次混乱。实测发现三处轻微瑕疵（Skills 区玻璃透射感弱、About 时间线背景噪感、Work 卡片描边/投影偏厚重），已在对应区块样式内微调修复（见 `src/sections/SkillsSection.scss` / `AboutSection.scss` / `ProjectsSection.scss`），未改动全局 mixin 与其它区块观感。
+**实测结论**：已在 **H5 1440px 视口**逐屏实测整体达标——玻璃卡真实透出背后漂移的极光光斑、悬浮层次分明、边框细节完整，无塑料感/灰脏感/层次混乱。实测发现三处轻微瑕疵（Skills 区玻璃透射感弱、About 时间线背景噪感、Work 卡片描边/投影偏厚重），已在对应区块样式内微调修复（见 `src/sections/SkillsSection.scss` / `AboutSection.scss` / `ProjectsSection.scss`），未改动全局 mixin 与其它区块观感。第二轮回归又修复两处：下半页 violet/magenta 光斑浓度偏高削弱玻璃卡对比（见 `src/components/AuroraBackdrop.scss`），页脚分割线单调、背景死黑（渐变发丝线 + 品牌光雾，见 `src/sections/SiteFooter.scss`），均在 1440px 与 390px 视口复验通过。
 *（内容由AI生成，仅供参考）*
