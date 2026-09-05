@@ -18,12 +18,12 @@
             :font-size="heroSize"
             :amplitude="heroSize * 0.12"
             :speed="0.8"
-            accent="#00E5A0"
+            accent="#FF4D2E"
             color="#F5F3EF"
             font-weight="800"
             :interactive="true"
           ></kinetic-text>
-          <text class="head__sub">写下来的思考，按时间倒序。</text>
+          <text class="head__sub">技术思考与实践记录，按时间倒序。</text>
         </view>
 
         <view class="list">
@@ -36,9 +36,9 @@
               :text="a.title"
               :mode="a.mode"
               :font-size="isWide ? 22 : 18"
-              :amplitude="isWide ? 3 : 2.5"
+              :amplitude="isWide ? 5 : 4"
               :speed="0.75"
-              accent="#7C5CFF"
+              accent="#FF4D2E"
               color="#F5F3EF"
               font-weight="700"
             ></kinetic-text>
@@ -106,8 +106,23 @@ function go(path: string) {
 /* 评审 #8：标签已统一走 site-tag 组件（原 .post__tag 文本标签移除） */
 .post__desc { margin-top: 12px; font-size: 14px; line-height: 24px; color: var(--c-secondary); } /* 评审 #6：次要文本 ≥ 0.6 */
 .post__line { width: 100%; height: 1px; background-color: var(--c-hairline); margin-top: 22px; }
-.back { margin-top: 40px; }
-.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
-/* 评审 #9：hover-class="press" 按压反馈 */
-.press { opacity: 0.72; }
+.back {
+  margin-top: 40px;
+  align-self: flex-start;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--c-border);
+  background-color: var(--c-surface);
+  cursor: pointer;
+}
+.back__t { font-size: 13px; color: var(--c-secondary); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈，叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 </style>

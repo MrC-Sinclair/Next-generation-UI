@@ -29,7 +29,7 @@
             :font-size="heroSubSize"
             :amplitude="heroSubSize * 0.18"
             :speed="0.8"
-            accent="#00E5A0"
+            accent="#F5F3EF"
             color="rgba(245,243,239,0.62)"
             font-weight="400"
             :letter-spacing="2"
@@ -48,12 +48,12 @@
           ></kinetic-text>
 
           <kinetic-text
-            text="让文字动起来"
+            text="让排版传达情绪"
             mode="distort"
             :font-size="heroThirdSize"
             :amplitude="heroThirdSize * 0.16"
             :speed="0.75"
-            accent="#7C5CFF"
+            accent="#FF4D2E"
             color="#F5F3EF"
             font-weight="700"
           ></kinetic-text>
@@ -62,10 +62,10 @@
 
           <view class="hero__cta" :class="isWide ? 'hero__cta--row' : ''">
             <view class="btn btn--solid" hover-class="press" @click="go('/pages/portfolio/portfolio')">
-              <text class="btn__t btn__t--dark">看看我做的东西</text>
+              <text class="btn__t btn__t--dark">浏览作品集</text>
             </view>
             <view class="btn btn--ghost" hover-class="press" @click="go('/pages/contact/contact')">
-              <text class="btn__t">或者直接聊聊</text>
+              <text class="btn__t">联系我</text>
             </view>
           </view>
 
@@ -78,7 +78,7 @@
         <site-section
           index="01"
           title="概览"
-          subtitle="几组数字，说清我这些年大概在忙什么。"
+          subtitle="几组数字，概括这些年的工作轨迹。"
           title-mode="breathe"
           :title-size="titleSize"
           :margin-top="heroGap"
@@ -101,7 +101,7 @@
               </view>
               <text class="stat__label">{{ item.label }}</text>
               <view class="stat__bar">
-                <view class="stat__bar-fill" :style="{ width: item.pct + '%' }"></view>
+                <view class="stat__bar-fill" :style="barFillStyle(item.pct)"></view>
               </view>
             </view>
           </view>
@@ -110,8 +110,8 @@
         <!-- ============ 快捷入口 ============ -->
         <site-section
           index="02"
-          title="去哪儿"
-          subtitle="整站六个板块，挑一个进去逛逛。"
+          title="栏目导航"
+          subtitle="六个板块的快速入口。"
           title-mode="bounce"
           :title-size="titleSize"
           :margin-top="sectionGap"
@@ -125,7 +125,9 @@
               hover-class="press"
               @click="go(item.path)"
             >
-              <text class="card__icon">{{ item.icon }}</text>
+              <view class="card__icon">
+                <site-icon :name="item.key" :size="20" color="#FF4D2E"></site-icon>
+              </view>
               <text class="card__label">{{ item.label }}</text>
               <text class="card__desc">{{ item.desc }}</text>
               <view class="card__arrow">
@@ -139,10 +141,9 @@
         <site-section
           index="03"
           title="最近"
-          subtitle="最近的三次输出。"
+          subtitle="最新三条动态。"
           title-mode="melt"
           :title-size="titleSize"
-          accent="#00E5A0"
           :margin-top="sectionGap"
         >
           <view class="feeds">
@@ -161,9 +162,9 @@
                   :text="f.title"
                   :mode="f.mode"
                   :font-size="feedTitleSize"
-                  :amplitude="feedTitleSize * 0.16"
+                  :amplitude="feedTitleAmp"
                   :speed="0.8"
-                  accent="#7C5CFF"
+                  accent="#FF4D2E"
                   color="#F5F3EF"
                   font-weight="700"
                 ></kinetic-text>
@@ -176,7 +177,7 @@
         <view class="foot" :style="footStyle">
           <view class="foot__line"></view>
           <text class="foot__t">{{ SITE.name }}　·　{{ SITE.email }}</text>
-          <text class="foot__s">用 uni-app x 写的，跑在六个端上。</text>
+          <text class="foot__s">基于 uni-app x 构建 · 一套代码，六端运行</text>
         </view>
 
       </view>
@@ -185,9 +186,9 @@
 </template>
 
 <script setup lang="uts">
-import { computed, type ComputedRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, type ComputedRef, type Ref } from 'vue'
 import { useViewport } from '../../composables/use-viewport'
-import { NAV_ITEMS, SITE, STATS, FEEDS, type NavItem, type StatItem } from '../../common/site'
+import { ALLOW_MOTION, NAV_ITEMS, SITE, STATS, FEEDS, type NavItem, type StatItem } from '../../common/site'
 import { themeClass } from '../../common/theme'
 
 const {
@@ -216,6 +217,9 @@ const statNumSize: ComputedRef<number> = computed(() => {
 })
 /** 动态标题字号 */
 const feedTitleSize: ComputedRef<number> = computed(() => (isWide.value ? 20 : 17))
+
+/** 动态标题幅度系数：小字号下按偏大比例取，否则形变小到看不见 */
+const feedTitleAmp: ComputedRef<number> = computed(() => feedTitleSize.value * 0.22)
 
 /** 顶部导航占位 / 底部 Tab 占位 */
 const contentStyle: ComputedRef<UTSJSONObject> = computed(() => {
@@ -281,6 +285,38 @@ const unitStyle: ComputedRef<UTSJSONObject> = computed(() => {
   return { 'font-size': (statNumSize.value * 0.3).toFixed(0) + 'px' }
 })
 
+/* ---------------- 进度条入场（一次性生长，~0.8s ease-out） ---------------- */
+/** 生长进度 0→1；ALLOW_MOTION=false 时直接满格静态渲染 */
+const reveal: Ref<number> = ref(ALLOW_MOTION ? 0 : 1)
+let revealTimer: number = 0
+
+onMounted(() => {
+  if (reveal.value >= 1) return
+  revealTimer = setInterval((): void => {
+    reveal.value = reveal.value + 0.04
+    if (reveal.value >= 1) {
+      reveal.value = 1
+      if (revealTimer != 0) {
+        clearInterval(revealTimer)
+        revealTimer = 0
+      }
+    }
+  }, 32)
+})
+
+onUnmounted(() => {
+  if (revealTimer != 0) {
+    clearInterval(revealTimer)
+    revealTimer = 0
+  }
+})
+
+/** easeOutCubic 后映射到宽度，进度条从 0 长到目标值 */
+const barFillStyle = (pct: number): UTSJSONObject => {
+  const p = reveal.value >= 1 ? 1 : 1 - Math.pow(1 - reveal.value, 3)
+  return { width: (pct * p).toFixed(1) + '%' }
+}
+
 /** 入口卡片栅格 */
 const cardsStyle: ComputedRef<UTSJSONObject> = computed(() => {
   return {
@@ -318,22 +354,22 @@ const footStyle: ComputedRef<UTSJSONObject> = computed(() => {
 })
 
 const glowAStyle: ComputedRef<UTSJSONObject> = computed(() => {
-  const s = heroSize.value * 2.2
+  const s = heroSize.value * 3.4
   return {
     'width': s + 'px',
     'height': s + 'px',
-    'top': '-' + (s * 0.35).toFixed(0) + 'px',
-    'right': '-' + (s * 0.3).toFixed(0) + 'px'
+    'top': '-' + (s * 0.42).toFixed(0) + 'px',
+    'right': '-' + (s * 0.38).toFixed(0) + 'px'
   }
 })
 
 const glowBStyle: ComputedRef<UTSJSONObject> = computed(() => {
-  const s = heroSize.value * 1.8
+  const s = heroSize.value * 2.8
   return {
     'width': s + 'px',
     'height': s + 'px',
-    'top': (heroSize.value * 2.4).toFixed(0) + 'px',
-    'left': '-' + (s * 0.45).toFixed(0) + 'px'
+    'top': (heroSize.value * 3.0).toFixed(0) + 'px',
+    'left': '-' + (s * 0.5).toFixed(0) + 'px'
   }
 })
 
@@ -365,11 +401,12 @@ function go(path: string) {
   flex-direction: column;
 }
 
-/* ---------- 背景光斑 ---------- */
+/* ---------- 背景光斑 ----------
+ * 大尺寸 + 低不透明度：只露一段弧，避免出现完整圆形的"贴纸感" */
 .glow {
   position: absolute;
   border-radius: 9999px;
-  opacity: 0.16;
+  opacity: 0.1;
   pointer-events: none;
 }
 
@@ -379,7 +416,7 @@ function go(path: string) {
 
 .glow--b {
   background-color: var(--c-violet);
-  opacity: 0.12;
+  opacity: 0.07;
 }
 
 /* ---------- HERO ---------- */
@@ -445,6 +482,7 @@ function go(path: string) {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
+  cursor: pointer;
 }
 
 .hero__cta--row .btn {
@@ -541,11 +579,13 @@ function go(path: string) {
   padding: 22px;
   flex-direction: column;
   align-items: flex-start;
+  cursor: pointer;
 }
 
 .card__icon {
-  font-size: 20px;
-  color: var(--c-accent);
+  height: 20px;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 14px;
 }
 
@@ -637,6 +677,6 @@ function go(path: string) {
   letter-spacing: 1px;
 }
 
-/* 评审 #9：hover-class="press" 按压反馈（按钮/入口卡片） */
-.press { opacity: 0.72; }
+/* 评审 #9：hover-class="press" 按压反馈（按钮/入口卡片），叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 </style>

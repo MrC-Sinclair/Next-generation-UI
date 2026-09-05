@@ -1,0 +1,274 @@
+<template>
+  <view class="si" :style="boxStyle">
+    <!-- 概览：2×2 网格 -->
+    <view v-if="name === 'index'" :style="gridBoxStyle">
+      <view :style="gridRowStyle">
+        <view :style="gridCellStyle"></view>
+        <view :style="gridCellStyle"></view>
+      </view>
+      <view :style="gridRowStyle">
+        <view :style="gridCellStyle"></view>
+        <view :style="gridCellStyle"></view>
+      </view>
+    </view>
+
+    <!-- 关于：人形 -->
+    <view v-else-if="name === 'about'" :style="aboutBoxStyle">
+      <view :style="aboutHeadStyle"></view>
+      <view :style="aboutBodyStyle"></view>
+    </view>
+
+    <!-- 作品：取景框 -->
+    <view v-else-if="name === 'portfolio'" :style="frameStyle">
+      <view :style="frameCoreStyle"></view>
+    </view>
+
+    <!-- 技能：三柱 -->
+    <view v-else-if="name === 'skills'" :style="barsBoxStyle">
+      <view :style="barStyle(0)"></view>
+      <view :style="barStyle(1)"></view>
+      <view :style="barStyle(2)"></view>
+    </view>
+
+    <!-- 博客：文本行 -->
+    <view v-else-if="name === 'blog'" :style="linesBoxStyle">
+      <view :style="lineStyle"></view>
+      <view :style="lineStyle"></view>
+      <view :style="lineStyle"></view>
+    </view>
+
+    <!-- 联系：信封（外框 + 折角两笔） -->
+    <view v-else-if="name === 'contact'" :style="envStyle">
+      <view class="si__abs" :style="envInnerStyle">
+        <view :style="flapLStyle"></view>
+        <view :style="flapRStyle"></view>
+      </view>
+    </view>
+
+    <!-- 品牌标：圆角菱形 -->
+    <view v-else :style="logoStyle"></view>
+  </view>
+</template>
+
+<script setup lang="uts">
+/**
+ * 统一几何图标（评审 #14 的落地）
+ *
+ * 不用 Unicode 字符（跨端字体渲染不一致）也不引图标字体/SVG 资产，
+ * 全部用 view + 描边 + 圆角 + transform 画出极简线性标记，六端渲染完全一致。
+ * name 取 NAV_ITEMS 的 key（index/about/portfolio/skills/blog/contact），另含 logo。
+ * 颜色统一经 themeResolve：深色原值、浅色自动加深。
+ */
+import { computed, type ComputedRef } from 'vue'
+import { themeResolve } from '../common/theme'
+
+const props = defineProps({
+  /** 图标名：index / about / portfolio / skills / blog / contact / logo */
+  name: { type: String, default: 'index' },
+  /** 边长（px），图形在框内绘制 */
+  size: { type: Number, default: 18 },
+  /** 线条/填充色（浅色主题自动加深） */
+  color: { type: String, default: '#FF4D2E' }
+})
+
+const s: ComputedRef<number> = computed(() => props.size)
+const c: ComputedRef<string> = computed(() => themeResolve(props.color))
+
+const px = (n: number): string => (Math.round(n * 10) / 10).toFixed(1) + 'px'
+
+const boxStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'width': px(s.value),
+    'height': px(s.value),
+    'align-items': 'center',
+    'justify-content': 'center'
+  }
+})
+
+/* ---------- 概览：2×2 网格 ---------- */
+const gridCell = computed((): number => Math.max(2, Math.round(s.value * 0.36)))
+const gridCellStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'width': px(gridCell.value),
+    'height': px(gridCell.value),
+    'background-color': c.value,
+    'border-radius': px(Math.max(1, gridCell.value * 0.2))
+  }
+})
+const gridRowStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return { 'width': px(s.value), 'flex-direction': 'row', 'justify-content': 'space-between' }
+})
+const gridBoxStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'width': px(s.value),
+    'height': px(s.value),
+    'flex-direction': 'column',
+    'justify-content': 'space-between'
+  }
+})
+
+/* ---------- 关于：人形 ---------- */
+const aboutHeadStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const d = Math.max(3, Math.round(s.value * 0.3))
+  return { 'width': px(d), 'height': px(d), 'background-color': c.value, 'border-radius': '999px' }
+})
+const aboutBodyStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = Math.round(s.value * 0.58)
+  const h = Math.max(3, Math.round(s.value * 0.26))
+  return {
+    'width': px(w),
+    'height': px(h),
+    'background-color': c.value,
+    'border-radius': px(h / 2)
+  }
+})
+const aboutBoxStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  return {
+    'width': px(s.value),
+    'height': px(s.value),
+    'flex-direction': 'column',
+    'align-items': 'center',
+    'justify-content': 'space-between'
+  }
+})
+
+/* ---------- 作品：取景框 ---------- */
+const frameStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const f = Math.round(s.value * 0.78)
+  return {
+    'width': px(f),
+    'height': px(f),
+    'border-width': '1.5px',
+    'border-style': 'solid',
+    'border-color': c.value,
+    'border-radius': px(Math.max(2, s.value * 0.1)),
+    'align-items': 'center',
+    'justify-content': 'center'
+  }
+})
+const frameCoreStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const k = Math.max(3, Math.round(s.value * 0.3))
+  return {
+    'width': px(k),
+    'height': px(k),
+    'background-color': c.value,
+    'border-radius': px(Math.max(1, k * 0.2))
+  }
+})
+
+/* ---------- 技能：三柱 ---------- */
+const barsBoxStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const bw = Math.max(2, Math.round(s.value * 0.16))
+  const gap = Math.max(2, Math.round(s.value * 0.14))
+  return {
+    'width': px(bw * 3 + gap * 2),
+    'height': px(s.value),
+    'flex-direction': 'row',
+    'align-items': 'flex-end',
+    'justify-content': 'space-between'
+  }
+})
+const barStyle = (i: number): UTSJSONObject => {
+  const ratios: number[] = [0.36, 0.56, 0.76]
+  const bw = Math.max(2, Math.round(s.value * 0.16))
+  const h = Math.max(3, Math.round(s.value * ratios[i]))
+  return {
+    'width': px(bw),
+    'height': px(h),
+    'background-color': c.value,
+    'border-radius': px(Math.max(1, bw * 0.3))
+  }
+}
+
+/* ---------- 博客：文本行 ---------- */
+const lineStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const lw = Math.round(s.value * 0.72)
+  const lh = Math.max(2, Math.round(s.value * 0.11))
+  return {
+    'width': px(lw),
+    'height': px(lh),
+    'background-color': c.value,
+    'border-radius': px(lh / 2)
+  }
+})
+const linesBoxStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const lh = Math.max(2, Math.round(s.value * 0.11))
+  return {
+    'width': px(Math.round(s.value * 0.72)),
+    'height': px(lh * 3 + Math.round(s.value * 0.14) * 2),
+    'flex-direction': 'column',
+    'justify-content': 'space-between'
+  }
+})
+
+/* ---------- 联系：信封 ---------- */
+const envStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = Math.round(s.value * 0.8)
+  const h = Math.round(s.value * 0.56)
+  return {
+    'width': px(w),
+    'height': px(h),
+    'border-width': '1.5px',
+    'border-style': 'solid',
+    'border-color': c.value,
+    'border-radius': px(Math.max(2, s.value * 0.08)),
+    'position': 'relative'
+  }
+})
+const envInnerStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = Math.round(s.value * 0.8)
+  const h = Math.round(s.value * 0.56)
+  return { 'position': 'absolute', 'left': '0px', 'top': '0px', 'width': px(w), 'height': px(h) }
+})
+const flapLStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = Math.round(s.value * 0.8)
+  const h = Math.round(s.value * 0.56)
+  const bw = Math.round(w * 0.38)
+  return {
+    'position': 'absolute',
+    'left': px(w * 0.5 - bw + 1),
+    'top': px(h * 0.5 - 1),
+    'width': px(bw),
+    'height': '1.5px',
+    'background-color': c.value,
+    'transform': 'rotate(13deg)'
+  }
+})
+const flapRStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const w = Math.round(s.value * 0.8)
+  const h = Math.round(s.value * 0.56)
+  const bw = Math.round(w * 0.38)
+  return {
+    'position': 'absolute',
+    'left': px(w * 0.5 - 1),
+    'top': px(h * 0.5 - 1),
+    'width': px(bw),
+    'height': '1.5px',
+    'background-color': c.value,
+    'transform': 'rotate(-13deg)'
+  }
+})
+
+/* ---------- 品牌标：圆角菱形 ---------- */
+const logoStyle: ComputedRef<UTSJSONObject> = computed(() => {
+  const d = Math.max(4, Math.round(s.value * 0.6))
+  return {
+    'width': px(d),
+    'height': px(d),
+    'background-color': c.value,
+    'border-radius': px(Math.max(1.5, d * 0.18)),
+    'transform': 'rotate(45deg)'
+  }
+})
+</script>
+
+<style>
+.si {
+  flex-direction: row;
+}
+
+.si__abs {
+  left: 0;
+  top: 0;
+}
+</style>

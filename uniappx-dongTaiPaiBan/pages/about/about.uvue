@@ -36,7 +36,7 @@
             :font-size="heroSize * 0.28"
             :amplitude="heroSize * 0.05"
             :speed="0.9"
-            accent="#7C5CFF"
+            accent="#F5F3EF"
             color="rgba(245,243,239,0.55)"
             font-weight="400"
             :letter-spacing="6"
@@ -46,8 +46,8 @@
         <!-- ============ 简介 ============ -->
         <site-section
           index="01"
-          title="我是谁"
-          subtitle="一句话版本，和稍微长一点的版本。"
+          title="个人简介"
+          subtitle="一句话版本，与稍长一些的版本。"
           title-mode="breathe"
           :title-size="titleSize"
           :margin-top="heroGap"
@@ -70,9 +70,8 @@
         <site-section
           index="02"
           title="情绪排版"
-          subtitle="选一种情绪，看同一句话怎么变。"
+          subtitle="选择一种情绪，观察同一文本的形变差异。"
           title-mode="glitch"
-          accent="#00E5A0"
           :title-size="titleSize"
           :margin-top="sectionGap"
         >
@@ -138,8 +137,8 @@
         <!-- ============ 经历时间线 ============ -->
         <site-section
           index="03"
-          title="来路"
-          subtitle="按时间倒序。"
+          title="经历"
+          subtitle="按时间倒序排列。"
           title-mode="wave"
           :title-size="titleSize"
           :margin-top="sectionGap"
@@ -156,7 +155,7 @@
                   :text="t.title"
                   mode="distort"
                   :font-size="tlTitleSize"
-                  :amplitude="tlTitleSize * 0.14"
+                  :amplitude="tlTitleSize * 0.2"
                   :speed="0.7"
                   accent="#FF4D2E"
                   color="#F5F3EF"
@@ -172,8 +171,8 @@
         <!-- ============ 一点私人细节 ============ -->
         <site-section
           index="04"
-          title="琐事"
-          subtitle="不成体系的碎片。"
+          title="杂项"
+          subtitle="一些碎片化的补充说明。"
           title-mode="bounce"
           :title-size="titleSize"
           :margin-top="sectionGap"
@@ -189,12 +188,12 @@
         <!-- ============ 下一步 ============ -->
         <view class="next" :style="nextStyle">
           <kinetic-text
-            text="说点什么吧"
+            text="保持联系"
             mode="wave"
             :font-size="nextSize"
             :amplitude="nextSize * 0.14"
             :speed="0.8"
-            accent="#00E5A0"
+            accent="#FF4D2E"
             color="#F5F3EF"
             font-weight="800"
             :interactive="true"
@@ -202,10 +201,10 @@
           ></kinetic-text>
           <view class="next__row">
             <view class="btn btn--solid" hover-class="press" @click="go('/pages/contact/contact')">
-              <text class="btn__t btn__t--dark">去联系方式</text>
+              <text class="btn__t btn__t--dark">联系我</text>
             </view>
             <view class="btn btn--ghost" hover-class="press" @click="go('/pages/portfolio/portfolio')">
-              <text class="btn__t">看看作品集</text>
+              <text class="btn__t">浏览作品集</text>
             </view>
           </view>
         </view>
@@ -427,7 +426,7 @@ function go(path: string) {
 .glow {
   position: absolute;
   border-radius: 9999px;
-  opacity: 0.13;
+  opacity: 0.09;
   pointer-events: none;
 }
 
@@ -495,6 +494,7 @@ function go(path: string) {
   border-style: solid;
   margin-right: 8px;
   margin-bottom: 8px;
+  cursor: pointer;
 }
 
 .mood__t {
@@ -631,8 +631,8 @@ function go(path: string) {
   color: var(--c-secondary);
 }
 
-/* 评审 #9：hover-class="press" 按压反馈（情绪按钮等） */
-.press { opacity: 0.72; }
+/* 评审 #9：hover-class="press" 按压反馈（情绪按钮等），叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 
 /* ---------- 琐事 ---------- */
 .facts {
@@ -677,6 +677,7 @@ function go(path: string) {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
+  cursor: pointer;
 }
 
 .btn--solid {

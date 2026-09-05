@@ -23,7 +23,7 @@
             font-weight="800"
             :interactive="true"
           ></kinetic-text>
-          <text class="head__sub">正在一个一个搬过来，先留个位置。</text>
+          <text class="head__sub">作品整理与迁移中，即将完整呈现。</text>
         </view>
 
         <view class="grid" :style="gridStyle">
@@ -36,9 +36,9 @@
               :text="p.name"
               :mode="p.mode"
               :font-size="24"
-              :amplitude="3"
+              :amplitude="5"
               :speed="0.75"
-              accent="#00E5A0"
+              accent="#FF4D2E"
               color="#F5F3EF"
               font-weight="700"
             ></kinetic-text>
@@ -128,8 +128,23 @@ function go(path: string) {
 .item__top { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 16px; }
 .item__year { font-size: 11px; letter-spacing: 1px; color: var(--c-weak); } /* 评审 #6：弱文本 ≥ 0.5 */
 .item__desc { margin-top: 12px; font-size: 13px; line-height: 22px; color: var(--c-secondary); } /* 评审 #6：次要文本 ≥ 0.6 */
-.back { margin-top: 56px; }
-.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
-/* 评审 #9：hover-class="press" 按压反馈 */
-.press { opacity: 0.72; }
+.back {
+  margin-top: 56px;
+  align-self: flex-start;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--c-border);
+  background-color: var(--c-surface);
+  cursor: pointer;
+}
+.back__t { font-size: 13px; color: var(--c-secondary); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈，叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 </style>

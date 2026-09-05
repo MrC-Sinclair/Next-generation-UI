@@ -13,7 +13,7 @@
       <view class="wrap" :style="wrapStyle">
         <view class="head" :style="headStyle">
           <kinetic-text
-            text="聊两句"
+            text="与我联系"
             mode="bounce"
             :font-size="heroSize"
             :amplitude="heroSize * 0.13"
@@ -23,7 +23,7 @@
             font-weight="800"
             :interactive="true"
           ></kinetic-text>
-          <text class="head__sub">合作、吐槽、或者单纯想聊聊排版，都行。</text>
+          <text class="head__sub">合作洽谈、建议反馈或排版交流，都欢迎。</text>
         </view>
 
         <!-- 评审 #1：卡片外层用栅格槽（同 index），不再用 margin 撑布局 -->
@@ -35,9 +35,9 @@
                 :text="c.value"
                 :mode="c.mode"
                 :font-size="cardValueSize"
-                :amplitude="cardValueSize * 0.1"
+                :amplitude="cardValueSize * 0.16"
                 :speed="0.8"
-                accent="#00E5A0"
+                accent="#FF4D2E"
                 color="#F5F3EF"
                 font-weight="700"
               ></kinetic-text>
@@ -47,7 +47,7 @@
         </view>
 
         <view class="note">
-          <text class="note__t">一般一天内回。如果超过两天没动静，大概率是掉进邮件黑洞了，欢迎再戳一次。</text>
+          <text class="note__t">通常会在一个工作日内回复。若两日内未收到回信，请再次发送。</text>
         </view>
 
         <!-- 评审 #9：hover-class 提供按压反馈（uvue 无 :active/:hover 伪类，用官方 hover-class） -->
@@ -141,8 +141,9 @@ function go(path: string) {
   border-width: 1px; border-style: solid; border-color: var(--c-border);
   border-radius: 14px;
   flex-direction: column; align-items: flex-start;
+  cursor: pointer;
 }
-.card__k { font-size: 12px; letter-spacing: 1.5px; color: var(--c-green); margin-bottom: 12px; }
+.card__k { font-size: 12px; letter-spacing: 1.5px; color: var(--c-accent); margin-bottom: 12px; }
 .card__hint { margin-top: 14px; font-size: 11px; letter-spacing: 1px; color: var(--c-weak); } /* 评审 #6：弱提示 ≥ 0.5 */
 
 .note { margin-top: 32px; max-width: 560px; }
@@ -153,8 +154,23 @@ function go(path: string) {
   color: var(--c-secondary);
   letter-spacing: 0.5px;
 }
-.back { margin-top: 48px; }
-.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
-/* 评审 #9：hover-class="press" 按压反馈 */
-.press { opacity: 0.72; }
+.back {
+  margin-top: 48px;
+  align-self: flex-start;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--c-border);
+  background-color: var(--c-surface);
+  cursor: pointer;
+}
+.back__t { font-size: 13px; color: var(--c-secondary); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈，叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 </style>

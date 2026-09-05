@@ -48,8 +48,8 @@ const secStyle: ComputedRef<UTSJSONObject> = computed(() => {
 
 /** 幅度随字号缩放，小屏上不至于糊成一团 */
 const titleAmp: ComputedRef<number> = computed(() => {
-  const v = props.titleSize * 0.12
-  return v < 4 ? 4 : v
+  const v = props.titleSize * 0.16
+  return v < 5 ? 5 : v
 })
 </script>
 

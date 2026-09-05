@@ -150,42 +150,42 @@ export const NAV_ITEMS: NavItem[] = [
     label: '概览',
     icon: '◈',
     path: '/pages/index/index',
-    desc: '一眼看完这个人和他在做的事'
+    desc: '个人简介与核心数据'
   },
   {
     key: 'about',
     label: '关于',
     icon: '✦',
     path: '/pages/about/about',
-    desc: '来路、偏好与一点私人细节'
+    desc: '经历、方向与个人细节'
   },
   {
     key: 'portfolio',
     label: '作品',
     icon: '❖',
     path: '/pages/portfolio/portfolio',
-    desc: '做过的项目与其中的取舍'
+    desc: '代表项目与其中取舍'
   },
   {
     key: 'skills',
     label: '技能',
     icon: '⬢',
     path: '/pages/skills/skills',
-    desc: '工具箱与能力边界'
+    desc: '技术栈与能力边界'
   },
   {
     key: 'blog',
     label: '博客',
     icon: '✎',
     path: '/pages/blog/blog',
-    desc: '写下来的思考与踩坑记录'
+    desc: '技术思考与实践记录'
   },
   {
     key: 'contact',
     label: '联系',
     icon: '✉',
     path: '/pages/contact/contact',
-    desc: '聊聊合作或者随便扯点什么'
+    desc: '合作与交流方式'
   }
 ]
 
@@ -195,9 +195,9 @@ export const SITE = {
   role: '产品工程师 / 创意开发者',
   location: '中国 · 杭州',
   email: 'hello@linshen.dev',
-  slogan: '让文字动起来，让界面会呼吸',
+  slogan: '以排版传达情绪，以动效构建体验',
   intro:
-    '我做的事情横跨设计与工程的交界线：一边写能跑在六端的代码，一边纠结一个字该在什么时候弹起来。相信排版不是装饰，而是情绪本身。'
+    '我在设计与工程的交界处工作：用一套代码交付六端应用，同时研究排版与动效如何影响阅读与情绪。对我来说，排版不是装饰，而是信息表达本身。'
 }
 
 // 评审 #5：stats 数字统一改为极慢的 breathe，长时间停留可读；原先的高频形变影响读取
@@ -219,7 +219,7 @@ export const TIMELINE: TimelineItem[] = [
     year: '2022',
     title: '主导一款创作工具的重构',
     org: '某内容平台',
-    desc: '把首屏渲染从 2.4s 压到 0.8s，顺手把设计系统从 12 个色板砍到 5 个。'
+    desc: '把首屏渲染从 2.4s 压到 0.8s，同步将设计系统从 12 个色板收敛到 5 个。'
   },
   {
     year: '2020',
@@ -306,18 +306,18 @@ export const LIST: PortfolioItem[] = [
 
 export const POSTS: BlogPostItem[] = [
   { date: '2026.08.24', tag: '排版', title: '在 uvue 里让每一个字单独动起来', desc: '逐字 transform 的性能账，以及为什么我放弃了 CSS @keyframes。', mode: 'wave' },
-  { date: '2026.08.11', tag: '开源', title: 'kinetic-type v0.6：新增融化与故障', desc: '两种新情绪的实现思路，和踩到的三个端差异。', mode: 'melt' },
-  { date: '2026.07.29', tag: '项目', title: '给一家书店做会呼吸的导视', desc: '32 块墨水屏，怎么做到同步误差小于 200ms。', mode: 'breathe' },
-  { date: '2026.07.02', tag: '工程', title: '六端一套代码，我做了哪些妥协', desc: '小程序不支持的、鸿蒙多出来的、以及 PC 端必须单独处理的。', mode: 'distort' }
+  { date: '2026.08.11', tag: '开源', title: 'kinetic-type v0.6：新增融化与故障', desc: '两种新情绪的实现思路，以及三个端的兼容差异。', mode: 'melt' },
+  { date: '2026.07.29', tag: '项目', title: '给一家书店做会呼吸的导视', desc: '32 块墨水屏，同步误差控制在 200ms 以内。', mode: 'breathe' },
+  { date: '2026.07.02', tag: '工程', title: '六端一套代码，我做了哪些妥协', desc: '各端能力差异清单与对应的工程取舍。', mode: 'distort' }
 ]
 
 export const SKILLS: SkillItem[] = [
-  { name: 'uni-app x / UTS', level: 92, note: '六端一套代码，主要靠它吃饭。', mode: 'bounce' },
-  { name: '动效与排版', level: 88, note: '缓动曲线、形变、节奏感。', mode: 'wave' },
-  { name: '设计系统', level: 84, note: '色板、栅格、组件的收敛能力。', mode: 'breathe' },
-  { name: 'TypeScript', level: 80, note: '类型体操只会基础款。', mode: 'distort' },
-  { name: 'Canvas / 着色器', level: 62, note: '能写，但还写不出花。', mode: 'melt' },
-  { name: '后端与部署', level: 55, note: '够自己把站跑起来。', mode: 'glitch' }
+  { name: 'uni-app x / UTS', level: 92, note: '核心技术栈，支撑六端统一交付。', mode: 'bounce' },
+  { name: '动效与排版', level: 88, note: '缓动曲线、字形变体与节奏控制。', mode: 'wave' },
+  { name: '设计系统', level: 84, note: '色板、栅格与组件的体系化收敛。', mode: 'breathe' },
+  { name: 'TypeScript', level: 80, note: '掌握常用类型工具与工程配置。', mode: 'distort' },
+  { name: 'Canvas / 着色器', level: 62, note: '可实现常规效果，持续深入中。', mode: 'melt' },
+  { name: '后端与部署', level: 55, note: '覆盖站点部署与基础运维。', mode: 'glitch' }
 ]
 
 export const CHANNELS: ChannelItem[] = [
@@ -328,10 +328,10 @@ export const CHANNELS: ChannelItem[] = [
 ]
 
 export const FACTS: FactItem[] = [
-  { k: '常用工具', v: 'Figma · VS Code · HBuilderX · 一支 0.38 的笔' },
+  { k: '常用工具', v: 'Figma · VS Code · HBuilderX · 0.38 中性笔' },
   { k: '在听', v: '后摇、City Pop、雨声白噪音' },
-  { k: '在学', v: '字体设计 · 着色器 · 怎么把话说短' },
-  { k: '作息', v: '深夜型，但正在努力改' },
-  { k: '偏爱', v: '高对比度、大留白、有重量的字' },
-  { k: '雷区', v: '三秒以上的加载动画、假装在动的按钮' }
+  { k: '在学', v: '字体设计 · 着色器 · 写作' },
+  { k: '作息', v: '夜间型作息，调整中' },
+  { k: '偏爱', v: '高对比度、充分留白、有分量的字' },
+  { k: '雷区', v: '冗长的加载动画与装饰性动效' }
 ]

@@ -18,12 +18,12 @@
             :font-size="heroSize"
             :amplitude="heroSize * 0.11"
             :speed="0.75"
-            accent="#7C5CFF"
+            accent="#FF4D2E"
             color="#F5F3EF"
             font-weight="800"
             :interactive="true"
           ></kinetic-text>
-          <text class="head__sub">按熟练度排的，越靠前越拿手。</text>
+          <text class="head__sub">按熟练度降序排列。</text>
         </view>
 
         <view class="bars">
@@ -33,7 +33,7 @@
                 :text="s.name"
                 :mode="s.mode"
                 :font-size="20"
-                :amplitude="2.5"
+                :amplitude="4.5"
                 :speed="0.8"
                 accent="#FF4D2E"
                 color="#F5F3EF"
@@ -42,7 +42,7 @@
               <text class="bar__pct">{{ s.level }}%</text>
             </view>
             <view class="bar__track">
-              <view class="bar__fill" :style="{ width: s.level + '%' }"></view>
+              <view class="bar__fill" :style="barFillStyle(s.level)"></view>
             </view>
             <text class="bar__note">{{ s.note }}</text>
           </view>
@@ -58,12 +58,44 @@
 </template>
 
 <script setup lang="uts">
-import { computed, type ComputedRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, type ComputedRef, type Ref } from 'vue'
 import { useViewport } from '../../composables/use-viewport'
-import { SKILLS } from '../../common/site'
+import { ALLOW_MOTION, SKILLS } from '../../common/site'
 import { themeClass } from '../../common/theme'
 
 const { statusBarHeight, safeBottom, isWide, navMode, contentMax, gutter, heroSize } = useViewport()
+
+/* ---------------- 进度条入场（一次性生长，~0.8s ease-out，与 index 一致） ---------------- */
+/** 生长进度 0→1；ALLOW_MOTION=false 时直接满格静态渲染 */
+const reveal: Ref<number> = ref(ALLOW_MOTION ? 0 : 1)
+let revealTimer: number = 0
+
+onMounted(() => {
+  if (reveal.value >= 1) return
+  revealTimer = setInterval((): void => {
+    reveal.value = reveal.value + 0.04
+    if (reveal.value >= 1) {
+      reveal.value = 1
+      if (revealTimer != 0) {
+        clearInterval(revealTimer)
+        revealTimer = 0
+      }
+    }
+  }, 32)
+})
+
+onUnmounted(() => {
+  if (revealTimer != 0) {
+    clearInterval(revealTimer)
+    revealTimer = 0
+  }
+})
+
+/** easeOutCubic 后映射到宽度，进度条从 0 长到目标值 */
+const barFillStyle = (pct: number): UTSJSONObject => {
+  const p = reveal.value >= 1 ? 1 : 1 - Math.pow(1 - reveal.value, 3)
+  return { width: (pct * p).toFixed(1) + '%' }
+}
 
 /** 评审 #11：页头间距与 about/index 对齐（窄屏 28 / 宽屏 64） */
 const headStyle: ComputedRef<UTSJSONObject> = computed(() => {
@@ -113,8 +145,23 @@ function go(path: string) {
 .bar__track { width: 100%; height: 3px; background-color: var(--c-track); border-radius: 2px; } /* 评审 #8：进度条高度统一 3px / 圆角 2px */
 .bar__fill { height: 3px; background-color: var(--c-accent); border-radius: 2px; }
 .bar__note { margin-top: 10px; font-size: 12px; color: var(--c-weak); letter-spacing: 0.5px; } /* 评审 #6：次要文本 ≥ 0.5 */
-.back { margin-top: 48px; }
-.back__t { font-size: 14px; color: var(--c-weak); letter-spacing: 1px; }
-/* 评审 #9：hover-class="press" 按压反馈 */
-.press { opacity: 0.72; }
+.back {
+  margin-top: 48px;
+  align-self: flex-start;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--c-border);
+  background-color: var(--c-surface);
+  cursor: pointer;
+}
+.back__t { font-size: 13px; color: var(--c-secondary); letter-spacing: 1px; }
+/* 评审 #9：hover-class="press" 按压反馈，叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 </style>

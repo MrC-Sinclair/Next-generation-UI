@@ -22,6 +22,10 @@
  * 支持的情绪模式：
  *   breathe 呼吸   bounce 弹跳   wave 波浪
  *   distort 扭曲   melt 融化     glitch 故障
+ *
+ * 另有两项全局手感：
+ * - 挂载后一次性逐字入场（错峰升起），reduced / ALLOW_MOTION=false 时跳过；
+ * - 自适应帧率：按字数选帧间隔，tick 按真实时长归一化，帧率不影响动画速度。
  */
 
 import { ref, computed, onMounted, onUnmounted, type ComputedRef } from 'vue'
@@ -105,6 +109,18 @@ const wrapStyle: ComputedRef<UTSJSONObject> = computed(() => {
   }
 })
 
+/** 入场时长与逐字错峰（tick 单位，1 tick = 60ms 标称时间）：总时长 ≈ 0.42s + 字数 × 42ms */
+const ENT_DUR: number = 7
+const ENT_GAP: number = 0.7
+
+/** 单字入场进度 0→1，1 表示已完成 */
+const entranceAt = (idx: number): number => {
+  const p = (tick.value - idx * ENT_GAP) / ENT_DUR
+  if (p <= 0) return 0
+  if (p >= 1) return 1
+  return p
+}
+
 /**
  * 单字容器样式：承载 transform
  * 用 view 包一层而不是直接变换 text，是因为原生端 text 的变换支持有差异
@@ -120,8 +136,11 @@ const cellStyle = (idx: number): UTSJSONObject => {
     }
   }
 
-  const t = tick.value * 0.05 * props.speed
-  const p = idx * 0.38
+  // 时间基准 0.09：speed=0.8 时 wave 周期约 3.3s / bounce 约 1.2s，动效可感知；
+  // 旧值 0.05 慢到接近静止（wave 周期近 6s），是"感觉不到在动"的根因
+  const t = tick.value * 0.09 * props.speed
+  // 相位差 0.55：相邻字错位约 0.3s，波浪沿字推进肉眼可见
+  const p = idx * 0.55
   const amp = props.amplitude
 
   let x: number = 0
@@ -138,6 +157,14 @@ const cellStyle = (idx: number): UTSJSONObject => {
     const wave = Math.sin(impact.value * Math.PI) * Math.max(0, 1 - dist / 6)
     y -= wave * amp * 2.2
     sy += wave * 0.35
+  }
+
+  // 入场：挂载后一次性逐字升起（easeOutCubic），与情绪形变叠加，结束后零开销
+  const ent = entranceAt(idx)
+  if (ent < 1) {
+    const e = 1 - Math.pow(1 - ent, 3)
+    y += (1 - e) * props.fontSize * 0.35
+    op *= e
   }
 
   const m = props.mode
@@ -192,10 +219,10 @@ const cellStyle = (idx: number): UTSJSONObject => {
   }
 }
 
-/** 单字样式：颜色与阴影，负责波峰染色和故障色散 */
+/** 单字样式：颜色与阴影，负责波峰染色和故障色散（时间基准/相位差须与 cellStyle 保持一致） */
 const chStyle = (idx: number): UTSJSONObject => {
-  const t = tick.value * 0.05 * props.speed
-  const p = idx * 0.38
+  const t = tick.value * 0.09 * props.speed
+  const p = idx * 0.55
 
   let color = effColor.value
   let shadow = 'none'
@@ -242,16 +269,20 @@ function handleTap() {
 onMounted(() => {
   // 评审 #5：全局减弱动效（ALLOW_MOTION=false / reduced）时不启动定时器，直接静态渲染
   if (effReduced.value) return
-  // 60ms 一帧 ≈ 16fps，够顺滑又不至于把低端机烤热
+  // 自适应帧率：字少算得快，短标题提到 ~25fps；字多回落省电。
+  // tick 按 60ms 标称时间归一化推进（60ms = +1），改帧率不改动画速度与节奏
+  const n = props.text.length
+  const frameMs: number = n <= 8 ? 40 : (n <= 16 ? 50 : 60)
+  const step: number = frameMs / 60
   timer = setInterval((): void => {
     // 评审 #3：paused（页面滚动离屏时传 true）或全局退后台（appActive=false，见 common/app-state.uts）时停帧省电
     if (props.paused || !appActive.value) return
-    tick.value = tick.value + 1
+    tick.value = tick.value + step
     if (impact.value > 0) {
-      impact.value = impact.value - 0.08
+      impact.value = impact.value - 0.08 * step
       if (impact.value < 0) impact.value = 0
     }
-  }, 60)
+  }, frameMs)
 })
 
 onUnmounted(() => {

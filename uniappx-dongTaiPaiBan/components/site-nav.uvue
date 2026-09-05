@@ -4,7 +4,9 @@
     <view v-if="mode === 'top'" class="top" :style="topStyle">
       <view class="top__inner" :style="innerStyle">
         <view class="brand" @click="go('/pages/index/index')">
-          <text class="brand__mark">◐</text>
+          <view class="brand__mark">
+            <site-icon name="logo" :size="14" color="#FF4D2E"></site-icon>
+          </view>
           <text class="brand__name">{{ brand }}</text>
         </view>
         <view class="top__list">
@@ -37,7 +39,13 @@
         :class="item.key === current ? 'bottom__item--on' : ''"
         @click="go(item.path)"
       >
-        <text class="bottom__icon">{{ item.icon }}</text>
+        <view class="bottom__icon-wrap">
+          <site-icon
+            :name="item.key"
+            :size="16"
+            :color="item.key === current ? '#FF4D2E' : 'rgba(245,243,239,0.5)'"
+          ></site-icon>
+        </view>
         <text class="bottom__txt">{{ item.label }}</text>
       </view>
       <!-- #12：主题切换悬浮胶囊（右上角，避开 Tab 导航） -->
@@ -141,11 +149,14 @@ function go(path: string) {
 .brand {
   flex-direction: row;
   align-items: center;
+  cursor: pointer;
 }
 
 .brand__mark {
-  font-size: 20px;
-  color: var(--c-accent);
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
   margin-right: 10px;
 }
 
@@ -168,6 +179,7 @@ function go(path: string) {
   align-items: center;
   justify-content: center;
   position: relative;
+  cursor: pointer;
 }
 
 .top__txt {
@@ -218,13 +230,14 @@ function go(path: string) {
   height: 52px;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
-.bottom__icon {
-  font-size: 16px;
-  /* 评审 #6：弱提示 ≥ 0.5（对齐 T_WEAK） */
-  color: var(--c-weak);
-  margin-bottom: 3px;
+.bottom__icon-wrap {
+  height: 16px;
+  margin-bottom: 4px;
+  align-items: center;
+  justify-content: center;
 }
 
 .bottom__txt {
@@ -243,8 +256,8 @@ function go(path: string) {
   font-weight: 700;
 }
 
-/* 评审 #9：hover-class="press" 按压反馈（导航项/品牌区） */
-.press { opacity: 0.72; }
+/* 评审 #9：hover-class="press" 按压反馈（导航项/品牌区），叠加轻微缩放增强按压手感 */
+.press { opacity: 0.72; transform: scale(0.98); }
 
 /* ---------- 主题切换入口（#12） ---------- */
 .top__meta {
@@ -264,6 +277,7 @@ function go(path: string) {
   background-color: var(--c-surface);
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .theme-switch__t {
@@ -288,5 +302,6 @@ function go(path: string) {
   background-color: var(--c-tab-bg);
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 </style>

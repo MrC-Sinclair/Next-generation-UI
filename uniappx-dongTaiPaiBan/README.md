@@ -2,12 +2,14 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 40c8af801da8629c99b9e5611c578fea_989ed803a8cb11f188bd525400287e28
-    ReservedCode1: k+TT8ZjfV0oBJl2DSX6eLJPGxCEoZXEXGLzPDecBsQN4qa1hXEoShbr2xvVajdPLqOylnqVPWsbptL8hDejBp8ZWp8wwJRWN/pvv+fwPERInLwmL2rGwF4YUZGMtijVUiojWc/0N+kB/tJ/zgMtiT+GaInYr/Olw6b13jHC1GMEI3TZ1FTHF5Z3LBWI=
+    ProduceID: 40c8af801da8629c99b9e5611c578fea_d2d07629a8dc11f1a393525400f8a581
+    ReservedCode1: WUnk6dtOr6fx/eoCi7/HKbf98pfRmp7F3eYce1/m3l1Ah2ksMbseavr+3JGUC78e0cfJ2x5Qe+MkhW1puTiEveYUhKFHpWT0YG1aYaroKr1cXcyWqMolYITkib8A5JO8nwYlIAHhXYIcYHqch54n4WANVvnD+GNaQXLXweJMGtmuTyj5NLLir4viLd0=
     ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 40c8af801da8629c99b9e5611c578fea_989ed803a8cb11f188bd525400287e28
-    ReservedCode2: k+TT8ZjfV0oBJl2DSX6eLJPGxCEoZXEXGLzPDecBsQN4qa1hXEoShbr2xvVajdPLqOylnqVPWsbptL8hDejBp8ZWp8wwJRWN/pvv+fwPERInLwmL2rGwF4YUZGMtijVUiojWc/0N+kB/tJ/zgMtiT+GaInYr/Olw6b13jHC1GMEI3TZ1FTHF5Z3LBWI=
+    PropagateID: 40c8af801da8629c99b9e5611c578fea_d2d07629a8dc11f1a393525400f8a581
+    ReservedCode2: WUnk6dtOr6fx/eoCi7/HKbf98pfRmp7F3eYce1/m3l1Ah2ksMbseavr+3JGUC78e0cfJ2x5Qe+MkhW1puTiEveYUhKFHpWT0YG1aYaroKr1cXcyWqMolYITkib8A5JO8nwYlIAHhXYIcYHqch54n4WANVvnD+GNaQXLXweJMGtmuTyj5NLLir4viLd0=
 ---
+
+
 
 # 动态排版个人网站 · uni-app x
 
@@ -36,16 +38,19 @@ AIGC:
 ```
 uniappx-dongTaiPaiBan
 ├─ App.uvue                      应用入口，全局底色与字体栈（含前后台状态维护）
-├─ main.uts
+├─ main.uts                      UTS 入口（createSSRApp 装配 App.uvue）
 ├─ pages.json                    页面注册 + easycom 规则
 ├─ manifest.json                 六端配置（app / h5 / mp-weixin / mp-harmony）
+├─ index.html                    H5 入口模板（script 指向 /main.uts，HBuilderX 编译 H5 时自动使用）
 ├─ composables/
 │  └─ use-viewport.uts           响应式断点引擎（resize/旋转时重读安全区）
 ├─ common/
 │  ├─ site.uts                   站点内容 + UI 设计 Token + 动效开关 + 各页数据
+│  ├─ theme.uts                  深浅主题状态机（initTheme/toggleTheme/resetThemeMode/themeResolve，见下方「主题」）
 │  └─ app-state.uts              应用前后台激活状态（离屏停帧用）
 ├─ components/
 │  ├─ kinetic-text.uvue          ★ 动态排版核心组件（支持 paused / reduced 降级）
+│  ├─ site-icon.uvue             统一几何图标（纯 CSS view 绘制，替代 Unicode 字符）
 │  ├─ site-nav.uvue              响应式导航（宽屏顶部 / 窄屏底部 Tab）
 │  ├─ site-tag.uvue              统一标签组件
 │  └─ site-section.uvue          区块容器（序号 + 动态标题 + 描述）
@@ -94,6 +99,8 @@ uniappx-dongTaiPaiBan
 - `letterSpacing` 额外字距
 - `paused` 置 true 时停帧省电（适合滚动离屏/不可见场景；切后台会自动停，无需手动传）
 - `reduced` 置 true 时静态渲染（仅首帧淡入，glitch 停用）
+- `入场动画`：组件挂载后自动做一次逐字升起（≈0.42s + 每字 42ms 错峰，ease-out），无需配置；`reduced` / `ALLOW_MOTION=false` 时跳过
+- 自适应帧率：≤8 字按 40ms/帧（≈25fps）、≤16 字 50ms/帧、更多 60ms/帧；动画时间轴按真实时长归一化，帧率只影响平滑度、不影响速度
 
 ### 减弱动效（系统级开关）
 
@@ -155,9 +162,20 @@ uni-app x 的编译器内置在 **HBuilderX 4.x** 里（web 平台支持在持�
 3. 发行 Web：`发行 → 网站-PC Web 或手机 H5`
    （CLI 等价命令：`cli publish --platform web --project 项目名`）
 
-**这台机器上目前没装 HBuilderX**，所以在装好之前，本目录编译不出真正的 uni-app x 产物——这不是项目的问题，是工具链不在本地。
+产物输出到 **`unpackage/dist/build/web/`**（已验证：HBuilderX 5.24 编译成功，含 `index.html` 与各页 js/css）。该产物已配合 manifest 中 `h5.router.base: "./"` 做相对路径配置，可直接静态部署到任意 Web 服务器；本地快速预览可在产物目录执行 `python -m http.server`（默认 http://127.0.0.1:8000）后浏览器访问——不要用资源管理器直接双击 `index.html` 打开（非相对路径部署场景会因资源加载失败而白屏）。
 
-在那之前，可参考仓库结构直接阅读源码；浏览器预览暂不可用，详见下方说明。
+**本机已装 HBuilderX 5.24**（位于 `D:\workspace\HBuilderX`），满足上方 4.71+ 版本门槛；H5 发行链路已验证跑通——执行 `cli publish --platform web` 可正常编译并导出 Web 产物（产物路径与本地预览见下）。若换到其他机器，装好 HBuilderX 4.71+ 即可按本节复现。
+
+### 已知编译告警（H5，存量噪音）
+
+首次 `cli publish --platform web`（HBuilderX 5.24）会出现以下告警，均**不阻断编译、产物正常生成**，属历史存量噪音，接手后可暂不处理：
+
+| 位置 | 告警内容 | 说明 |
+| --- | --- | --- |
+| `pages/about/about.uvue:57` | `uni.vibrateShort` 缺必填 `type` | 换情绪时的震动反馈，移动端才生效；补 `type: 'light'` 可消除 |
+| `composables/use-viewport.uts:38` | `onWindowResize` 在 `Uni` 类型上不存在 | 类型定义滞后于运行时能力，编译层提示；运行时 resize 监听有效 |
+| `common/theme.uts:43/65/99/110` | `#ifdef APP` 报 "Cannot find name 'APP'" | 条件编译宏的静态解析提示，非真实错误，两端分支均正常生效 |
+| `common/site.uts:324/327` | `SITE.email` / `SITE.location` 的 `any \| null` 不可赋给 `string` | `CHANNELS` 数据声明偏宽；值为空时页面按条件渲染兜底，不影响运行 |
 
 ### preview/ 浏览器预览桩（规划中，仓库暂未包含）
 
@@ -184,6 +202,8 @@ preview/vendor/vue.global.prod.js   ← 本地 Vue 3，离线可用
 - `common/site.uts` —— 姓名、简介、数据、经历、文章、联系方式，全部集中在这
 - `pages.json` —— 页面路径与标题
 - `manifest.json` —— 各端 appid 与打包配置
+
+appid 现状：manifest 顶层 appid 已申请为 `__UNI__1760F14`（H5 / App 端可直接使用，勿改）；`mp-weixin.appid` 仍为空字符串，微信小程序端需自行填入自己的小程序 appid 后才能真机预览 / 发行。
 
 配色已全站主题化（#12），语义值收敛在 `common/site.uts` 的 `THEMES` / `MOODS` 与 `App.uvue` 的 `.theme--dark` / `.theme--light` CSS 变量中：深色为默认原版（底色 `#0B0B0F`，纸白 `#F5F3EF`，朱红 `#FF4D2E`，紫 `#7C5CFF`，绿 `#00E5A0`）；浅色为深墨/加深强调的对应集。改主题色时同步修改这两处与 `common/theme.uts` 的 `themeResolve` 映射表即可。
 
@@ -218,9 +238,12 @@ preview/vendor/vue.global.prod.js   ← 本地 Vue 3，离线可用
 - [x] UI/UX 评审优化 #1–#11、#13（contact 栅格溢出、安全区 resize、离屏停帧、行盒溢出、减弱动效、弱文本对比度、Token 登记、卡片/标签/进度条收敛、按压反馈、skills 居中、子页数据集中、滚动条策略）
 - [x] 深色 / 浅色主题切换（评审 #12：详见上方「主题」小节）
 - [x] 统一 site-tag 标签组件（easycom），三处标签共用一套视觉
+- [x] UI 手感优化：kinetic-text 自适应帧率 + 逐字入场、index/skills 进度条生长入场、子页返回链接胶囊化、按压缩放反馈（.press 加 scale）、Web 端可交互元素手型光标
+- [x] 视觉收敛（去 demo 感）：全站动态文字统一「纸白底 + 朱红点缀」色彩纪律（绿/紫仅保留于情绪实验室与元数据标签）、动效时间基准提速至可感知档（wave ≈3.3s / bounce ≈1.2s 周期）、背景光斑放大柔化只露弧段
 - [ ] 文章详情页
 - [ ] 作品详情页
 - [ ] Unicode 图标跨端一致性（评审 #14：导航/卡片图标在部分字体下渲染不一致，待替换为图标字体或矢量资源）
 - [ ] Web 端鼠标位置驱动的磁吸排版
 - [ ] preview/ 纯 Web 预览桩（规划中，仓库暂未包含该目录）
+*（内容由AI生成，仅供参考）*
 *（内容由AI生成，仅供参考）*
